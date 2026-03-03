@@ -3,30 +3,38 @@ import { InstalledCluster } from "./api";
 
 const PLUGIN_HOST = "http://localhost:8001";
 
+const PLUGIN_DEFS: { key: string; name: string }[] = [
+  { key: "core", name: "core-plugin" },
+  { key: "observability", name: "observability-plugin" },
+  { key: "nodes", name: "nodes-plugin" },
+  { key: "networking", name: "networking-plugin" },
+  { key: "storage", name: "storage-plugin" },
+  { key: "upgrades", name: "upgrades-plugin" },
+  { key: "alerts", name: "alerts-plugin" },
+  { key: "cost", name: "cost-plugin" },
+  { key: "deployments", name: "deployments-plugin" },
+  { key: "logs", name: "logs-plugin" },
+  { key: "pipelines", name: "pipelines-plugin" },
+  { key: "config", name: "config-plugin" },
+  { key: "gitops", name: "gitops-plugin" },
+  { key: "events", name: "events-plugin" },
+  { key: "routes", name: "routes-plugin" },
+];
+
 export function buildScalprumConfig(
   clusters: InstalledCluster[],
 ): AppsConfig<{ assetsHost: string }> {
   const config: AppsConfig<{ assetsHost: string }> = {};
 
-  const hasCore = clusters.some((c) => c.plugins.includes("core"));
-  const hasObservability = clusters.some((c) =>
-    c.plugins.includes("observability"),
-  );
-
-  if (hasCore) {
-    config["core-plugin"] = {
-      name: "core-plugin",
-      manifestLocation: `${PLUGIN_HOST}/core-plugin-manifest.json`,
-      assetsHost: PLUGIN_HOST,
-    };
-  }
-
-  if (hasObservability) {
-    config["observability-plugin"] = {
-      name: "observability-plugin",
-      manifestLocation: `${PLUGIN_HOST}/observability-plugin-manifest.json`,
-      assetsHost: PLUGIN_HOST,
-    };
+  for (const def of PLUGIN_DEFS) {
+    const hasPlugin = clusters.some((c) => c.plugins.includes(def.key));
+    if (hasPlugin) {
+      config[def.name] = {
+        name: def.name,
+        manifestLocation: `${PLUGIN_HOST}/${def.name}-manifest.json`,
+        assetsHost: PLUGIN_HOST,
+      };
+    }
   }
 
   return config;

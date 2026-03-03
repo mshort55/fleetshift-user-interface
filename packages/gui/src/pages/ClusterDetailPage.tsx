@@ -10,8 +10,31 @@ import {
   CardBody,
   Flex,
   FlexItem,
+  Grid,
+  GridItem,
 } from "@patternfly/react-core";
 import { useClusters } from "../contexts/ClusterContext";
+
+const OPS_PLUGINS = [
+  { key: "core", label: "Core" },
+  { key: "observability", label: "Observability" },
+  { key: "nodes", label: "Nodes" },
+  { key: "networking", label: "Networking" },
+  { key: "storage", label: "Storage" },
+  { key: "upgrades", label: "Upgrades" },
+  { key: "alerts", label: "Alerts" },
+  { key: "cost", label: "Cost" },
+];
+
+const DEV_PLUGINS = [
+  { key: "deployments", label: "Deployments" },
+  { key: "logs", label: "Logs" },
+  { key: "pipelines", label: "Pipelines" },
+  { key: "config", label: "Config" },
+  { key: "gitops", label: "GitOps" },
+  { key: "events", label: "Events" },
+  { key: "routes", label: "Routes" },
+];
 
 export const ClusterDetailPage = () => {
   const { clusterId } = useParams<{ clusterId: string }>();
@@ -20,9 +43,6 @@ export const ClusterDetailPage = () => {
 
   if (loading) return <Spinner size="xl" />;
   if (!cluster) return <div>Cluster not found or not installed.</div>;
-
-  const hasCore = cluster.plugins.includes("core");
-  const hasObservability = cluster.plugins.includes("observability");
 
   return (
     <>
@@ -43,23 +63,40 @@ export const ClusterDetailPage = () => {
         </FlexItem>
       </Flex>
 
-      <Card style={{ marginTop: 16 }}>
-        <CardTitle>Plugins</CardTitle>
-        <CardBody>
-          <Checkbox
-            id="plugin-core"
-            label="Core"
-            isChecked={hasCore}
-            onChange={() => togglePlugin(cluster.id, "core")}
-          />
-          <Checkbox
-            id="plugin-observability"
-            label="Observability"
-            isChecked={hasObservability}
-            onChange={() => togglePlugin(cluster.id, "observability")}
-          />
-        </CardBody>
-      </Card>
+      <Grid hasGutter style={{ marginTop: 16 }}>
+        <GridItem md={6}>
+          <Card>
+            <CardTitle>Ops Plugins</CardTitle>
+            <CardBody>
+              {OPS_PLUGINS.map((p) => (
+                <Checkbox
+                  key={p.key}
+                  id={`plugin-${p.key}`}
+                  label={p.label}
+                  isChecked={cluster.plugins.includes(p.key)}
+                  onChange={() => togglePlugin(cluster.id, p.key)}
+                />
+              ))}
+            </CardBody>
+          </Card>
+        </GridItem>
+        <GridItem md={6}>
+          <Card>
+            <CardTitle>Dev Plugins</CardTitle>
+            <CardBody>
+              {DEV_PLUGINS.map((p) => (
+                <Checkbox
+                  key={p.key}
+                  id={`plugin-${p.key}`}
+                  label={p.label}
+                  isChecked={cluster.plugins.includes(p.key)}
+                  onChange={() => togglePlugin(cluster.id, p.key)}
+                />
+              ))}
+            </CardBody>
+          </Card>
+        </GridItem>
+      </Grid>
 
       <Flex style={{ marginTop: 16 }} spaceItems={{ default: "spaceItemsMd" }}>
         <FlexItem>

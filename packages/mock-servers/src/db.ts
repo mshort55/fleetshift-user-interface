@@ -38,6 +38,157 @@ db.exec(`
     FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE,
     FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS nodes (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'Ready',
+    role TEXT NOT NULL DEFAULT 'worker',
+    cpu_capacity REAL NOT NULL DEFAULT 4,
+    memory_capacity REAL NOT NULL DEFAULT 16384,
+    cpu_used REAL NOT NULL DEFAULT 0,
+    memory_used REAL NOT NULL DEFAULT 0,
+    kubelet_version TEXT NOT NULL,
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS services (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    namespace_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'ClusterIP',
+    cluster_ip TEXT NOT NULL,
+    ports TEXT NOT NULL DEFAULT '[]',
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS ingresses (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    namespace_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    host TEXT NOT NULL,
+    path TEXT NOT NULL DEFAULT '/',
+    service_name TEXT NOT NULL,
+    tls INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS pvs (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    capacity TEXT NOT NULL DEFAULT '10Gi',
+    access_mode TEXT NOT NULL DEFAULT 'ReadWriteOnce',
+    status TEXT NOT NULL DEFAULT 'Bound',
+    storage_class TEXT NOT NULL DEFAULT 'gp3',
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS pvcs (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    namespace_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'Bound',
+    capacity TEXT NOT NULL DEFAULT '10Gi',
+    storage_class TEXT NOT NULL DEFAULT 'gp3',
+    pv_name TEXT,
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS alerts (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    severity TEXT NOT NULL DEFAULT 'warning',
+    state TEXT NOT NULL DEFAULT 'firing',
+    message TEXT NOT NULL,
+    fired_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS deployments (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    namespace_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    replicas INTEGER NOT NULL DEFAULT 1,
+    available INTEGER NOT NULL DEFAULT 1,
+    ready INTEGER NOT NULL DEFAULT 1,
+    strategy TEXT NOT NULL DEFAULT 'RollingUpdate',
+    image TEXT NOT NULL,
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS pipelines (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'Succeeded',
+    started_at TEXT NOT NULL DEFAULT (datetime('now')),
+    duration_seconds INTEGER NOT NULL DEFAULT 120,
+    stages TEXT NOT NULL DEFAULT '[]',
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS configmaps (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    namespace_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    data_keys TEXT NOT NULL DEFAULT '[]',
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS secrets (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    namespace_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'Opaque',
+    data_keys TEXT NOT NULL DEFAULT '[]',
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS gitops_apps (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    repo TEXT NOT NULL,
+    path TEXT NOT NULL DEFAULT '/',
+    sync_status TEXT NOT NULL DEFAULT 'Synced',
+    health_status TEXT NOT NULL DEFAULT 'Healthy',
+    last_synced TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS events (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    namespace_id TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'Normal',
+    reason TEXT NOT NULL,
+    message TEXT NOT NULL,
+    source TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS routes (
+    id TEXT PRIMARY KEY,
+    cluster_id TEXT NOT NULL,
+    namespace_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    host TEXT NOT NULL,
+    path TEXT NOT NULL DEFAULT '/',
+    service_name TEXT NOT NULL,
+    tls INTEGER NOT NULL DEFAULT 1,
+    status TEXT NOT NULL DEFAULT 'Admitted',
+    FOREIGN KEY (cluster_id) REFERENCES clusters(id) ON DELETE CASCADE
+  );
 `);
 
 export default db;

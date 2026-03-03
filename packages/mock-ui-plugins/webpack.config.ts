@@ -110,6 +110,361 @@ const ObservabilityPlugin = new DynamicRemotePlugin({
   },
 });
 
+const NodesPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Nodes",
+        path: "nodes",
+        component: { $codeRef: "NodeList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "nodes-plugin.[contenthash].js",
+  pluginManifestFilename: "nodes-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "nodes-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      NodeList: path.resolve(__dirname, "./src/plugins/nodes-plugin/NodeList.tsx"),
+    },
+  },
+});
+
+const NetworkingPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Networking",
+        path: "networking",
+        component: { $codeRef: "NetworkingPage.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "networking-plugin.[contenthash].js",
+  pluginManifestFilename: "networking-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "networking-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      NetworkingPage: path.resolve(
+        __dirname,
+        "./src/plugins/networking-plugin/NetworkingPage.tsx",
+      ),
+    },
+  },
+});
+
+const StoragePlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Storage",
+        path: "storage",
+        component: { $codeRef: "StoragePage.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "storage-plugin.[contenthash].js",
+  pluginManifestFilename: "storage-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "storage-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      StoragePage: path.resolve(
+        __dirname,
+        "./src/plugins/storage-plugin/StoragePage.tsx",
+      ),
+    },
+  },
+});
+
+const UpgradesPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Upgrades",
+        path: "upgrades",
+        component: { $codeRef: "UpgradePage.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "upgrades-plugin.[contenthash].js",
+  pluginManifestFilename: "upgrades-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "upgrades-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      UpgradePage: path.resolve(
+        __dirname,
+        "./src/plugins/upgrades-plugin/UpgradePage.tsx",
+      ),
+    },
+  },
+});
+
+const AlertsPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Alerts",
+        path: "alerts",
+        component: { $codeRef: "AlertList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "alerts-plugin.[contenthash].js",
+  pluginManifestFilename: "alerts-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "alerts-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      AlertList: path.resolve(
+        __dirname,
+        "./src/plugins/alerts-plugin/AlertList.tsx",
+      ),
+    },
+  },
+});
+
+const CostPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Cost",
+        path: "cost",
+        component: { $codeRef: "CostPage.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "cost-plugin.[contenthash].js",
+  pluginManifestFilename: "cost-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "cost-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      CostPage: path.resolve(__dirname, "./src/plugins/cost-plugin/CostPage.tsx"),
+    },
+  },
+});
+
+const DeploymentsPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Deployments",
+        path: "deployments",
+        component: { $codeRef: "DeploymentList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "deployments-plugin.[contenthash].js",
+  pluginManifestFilename: "deployments-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "deployments-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      DeploymentList: path.resolve(
+        __dirname,
+        "./src/plugins/deployments-plugin/DeploymentList.tsx",
+      ),
+    },
+  },
+});
+
+const LogsPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Logs",
+        path: "logs",
+        component: { $codeRef: "LogViewer.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "logs-plugin.[contenthash].js",
+  pluginManifestFilename: "logs-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "logs-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      LogViewer: path.resolve(__dirname, "./src/plugins/logs-plugin/LogViewer.tsx"),
+    },
+  },
+});
+
+const PipelinesPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Pipelines",
+        path: "pipelines",
+        component: { $codeRef: "PipelineList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "pipelines-plugin.[contenthash].js",
+  pluginManifestFilename: "pipelines-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "pipelines-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      PipelineList: path.resolve(
+        __dirname,
+        "./src/plugins/pipelines-plugin/PipelineList.tsx",
+      ),
+    },
+  },
+});
+
+const ConfigPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Config",
+        path: "config",
+        component: { $codeRef: "ConfigPage.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "config-plugin.[contenthash].js",
+  pluginManifestFilename: "config-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "config-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      ConfigPage: path.resolve(
+        __dirname,
+        "./src/plugins/config-plugin/ConfigPage.tsx",
+      ),
+    },
+  },
+});
+
+const GitOpsPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "GitOps",
+        path: "gitops",
+        component: { $codeRef: "GitOpsList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "gitops-plugin.[contenthash].js",
+  pluginManifestFilename: "gitops-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "gitops-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      GitOpsList: path.resolve(
+        __dirname,
+        "./src/plugins/gitops-plugin/GitOpsList.tsx",
+      ),
+    },
+  },
+});
+
+const EventsPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Events",
+        path: "events",
+        component: { $codeRef: "EventList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "events-plugin.[contenthash].js",
+  pluginManifestFilename: "events-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "events-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      EventList: path.resolve(
+        __dirname,
+        "./src/plugins/events-plugin/EventList.tsx",
+      ),
+    },
+  },
+});
+
+const RoutesPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.nav-item",
+      properties: {
+        label: "Routes",
+        path: "routes",
+        component: { $codeRef: "RouteList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "routes-plugin.[contenthash].js",
+  pluginManifestFilename: "routes-plugin-manifest.json",
+  // @ts-ignore — enhanced MF types differ from SDK expectations
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "routes-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      RouteList: path.resolve(
+        __dirname,
+        "./src/plugins/routes-plugin/RouteList.tsx",
+      ),
+    },
+  },
+});
+
 const config: Configuration = {
   entry: {
     mock: path.resolve(__dirname, "./src/index.ts"),
@@ -118,7 +473,23 @@ const config: Configuration = {
     publicPath: "auto",
   },
   mode: "development",
-  plugins: [CorePlugin, ObservabilityPlugin],
+  plugins: [
+    CorePlugin,
+    ObservabilityPlugin,
+    NodesPlugin,
+    NetworkingPlugin,
+    StoragePlugin,
+    UpgradesPlugin,
+    AlertsPlugin,
+    CostPlugin,
+    DeploymentsPlugin,
+    LogsPlugin,
+    PipelinesPlugin,
+    ConfigPlugin,
+    GitOpsPlugin,
+    EventsPlugin,
+    RoutesPlugin,
+  ],
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
   },

@@ -15,6 +15,7 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  Divider,
 } from "@patternfly/react-core";
 import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
 import { useScope } from "../contexts/ScopeContext";
@@ -47,15 +48,17 @@ const AppNav = () => {
   const { clusterIdsForPlugin } = useScope();
   const [navExtensions, navResolved] = useResolvedExtensions(isNavItem);
 
-  // Deduplicate by path and filter by scope
+  // Deduplicate by path, filter by scope, sort alphabetically
   const seen = new Set<string>();
   const visibleExtensions = navResolved
-    ? navExtensions.filter((ext) => {
-        if (seen.has(ext.properties.path)) return false;
-        seen.add(ext.properties.path);
-        const pluginKey = pluginKeyFromName(ext.pluginName);
-        return clusterIdsForPlugin(pluginKey).length > 0;
-      })
+    ? navExtensions
+        .filter((ext) => {
+          if (seen.has(ext.properties.path)) return false;
+          seen.add(ext.properties.path);
+          const pluginKey = pluginKeyFromName(ext.pluginName);
+          return clusterIdsForPlugin(pluginKey).length > 0;
+        })
+        .sort((a, b) => a.properties.label.localeCompare(b.properties.label))
     : [];
 
   return (
@@ -67,6 +70,7 @@ const AppNav = () => {
         <NavItem isActive={location.pathname === "/clusters"}>
           <Link to="/clusters">Clusters</Link>
         </NavItem>
+        {visibleExtensions.length > 0 && <Divider component="li" />}
         {visibleExtensions.map((ext) => {
           const path = `/${ext.properties.path}`;
           return (
