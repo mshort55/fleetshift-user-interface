@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
-import { Label, Spinner, Title } from "@patternfly/react-core";
+import {
+  Card,
+  CardBody,
+  CardTitle,
+  Flex,
+  FlexItem,
+  Label,
+  LabelGroup,
+  Spinner,
+  Stack,
+  StackItem,
+  Title,
+} from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useApiBase, fetchJson } from "./api";
 
@@ -40,6 +52,17 @@ const formatPorts = (ports: ServicePort[]): string =>
 const stripClusterPrefix = (namespaceId: string, clusterId: string): string =>
   namespaceId.replace(`${clusterId}-`, "");
 
+const typeColor = (type: string) => {
+  switch (type) {
+    case "LoadBalancer":
+      return "blue" as const;
+    case "NodePort":
+      return "orange" as const;
+    default:
+      return "grey" as const;
+  }
+};
+
 const NetworkingPage = ({ clusterIds }: NetworkingPageProps) => {
   const apiBase = useApiBase();
   const [services, setServices] = useState<Service[]>([]);
@@ -68,66 +91,121 @@ const NetworkingPage = ({ clusterIds }: NetworkingPageProps) => {
 
   if (loading) return <Spinner size="lg" />;
 
-  return (
-    <>
-      <Title headingLevel="h2">Services</Title>
-      <Table aria-label="Services" variant="compact">
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            {multiCluster && <Th>Cluster</Th>}
-            <Th>Namespace</Th>
-            <Th>Type</Th>
-            <Th>Cluster IP</Th>
-            <Th>Ports</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {services.map((svc) => (
-            <Tr key={svc.id}>
-              <Td>{svc.name}</Td>
-              {multiCluster && <Td>{svc.cluster_id}</Td>}
-              <Td>{stripClusterPrefix(svc.namespace_id, svc.cluster_id)}</Td>
-              <Td>
-                <Label>{svc.type}</Label>
-              </Td>
-              <Td>{svc.cluster_ip}</Td>
-              <Td>{formatPorts(svc.ports)}</Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
+  // Summary counts
+  const lbCount = services.filter((s) => s.type === "LoadBalancer").length;
+  const npCount = services.filter((s) => s.type === "NodePort").length;
+  const cipCount = services.filter((s) => s.type === "ClusterIP").length;
+  const tlsCount = ingresses.filter((i) => i.tls === 1).length;
 
-      <Title headingLevel="h2">Ingresses</Title>
-      <Table aria-label="Ingresses" variant="compact">
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            {multiCluster && <Th>Cluster</Th>}
-            <Th>Host</Th>
-            <Th>Path</Th>
-            <Th>Service</Th>
-            <Th>TLS</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {ingresses.map((ing) => (
-            <Tr key={ing.id}>
-              <Td>{ing.name}</Td>
-              {multiCluster && <Td>{ing.cluster_id}</Td>}
-              <Td>{ing.host}</Td>
-              <Td>{ing.path}</Td>
-              <Td>{ing.service_name}</Td>
-              <Td>
-                <Label color={ing.tls === 1 ? "green" : "grey"}>
-                  {ing.tls === 1 ? "Yes" : "No"}
-                </Label>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
-    </>
+  return (
+    <Stack hasGutter>
+      <StackItem>
+        <Flex gap={{ default: "gapSm" }}>
+          <FlexItem>
+            <LabelGroup categoryName="Summary">
+              <Label color="blue">{services.length} Services</Label>
+              <Label color="blue">{ingresses.length} Ingresses</Label>
+            </LabelGroup>
+          </FlexItem>
+          <FlexItem>
+            <LabelGroup categoryName="Types">
+              <Label color="purple">{cipCount} ClusterIP</Label>
+              <Label color="orange">{npCount} NodePort</Label>
+              <Label color="teal">{lbCount} LoadBalancer</Label>
+            </LabelGroup>
+          </FlexItem>
+          <FlexItem>
+            <LabelGroup categoryName="TLS">
+              <Label color="green">
+                {tlsCount}/{ingresses.length} Secured
+              </Label>
+            </LabelGroup>
+          </FlexItem>
+        </Flex>
+      </StackItem>
+
+      <StackItem>
+        <Card>
+          <CardTitle>
+            <Title headingLevel="h3">Services</Title>
+          </CardTitle>
+          <CardBody>
+            <Table aria-label="Services" variant="compact">
+              <Thead>
+                <Tr>
+                  <Th>Name</Th>
+                  {multiCluster && <Th>Cluster</Th>}
+                  <Th>Namespace</Th>
+                  <Th>Type</Th>
+                  <Th>Cluster IP</Th>
+                  <Th>Ports</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {services.map((svc) => (
+                  <Tr key={svc.id}>
+                    <Td>{svc.name}</Td>
+                    {multiCluster && <Td>{svc.cluster_id}</Td>}
+                    <Td>
+                      {stripClusterPrefix(svc.namespace_id, svc.cluster_id)}
+                    </Td>
+                    <Td>
+                      <Label color={typeColor(svc.type)}>{svc.type}</Label>
+                    </Td>
+                    <Td>
+                      <code>{svc.cluster_ip}</code>
+                    </Td>
+                    <Td>
+                      <code>{formatPorts(svc.ports)}</code>
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </CardBody>
+        </Card>
+      </StackItem>
+
+      <StackItem>
+        <Card>
+          <CardTitle>
+            <Title headingLevel="h3">Ingresses</Title>
+          </CardTitle>
+          <CardBody>
+            <Table aria-label="Ingresses" variant="compact">
+              <Thead>
+                <Tr>
+                  <Th>Name</Th>
+                  {multiCluster && <Th>Cluster</Th>}
+                  <Th>Host</Th>
+                  <Th>Path</Th>
+                  <Th>Service</Th>
+                  <Th>TLS</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {ingresses.map((ing) => (
+                  <Tr key={ing.id}>
+                    <Td>{ing.name}</Td>
+                    {multiCluster && <Td>{ing.cluster_id}</Td>}
+                    <Td>{ing.host}</Td>
+                    <Td>
+                      <code>{ing.path}</code>
+                    </Td>
+                    <Td>{ing.service_name}</Td>
+                    <Td>
+                      <Label color={ing.tls === 1 ? "green" : "red"}>
+                        {ing.tls === 1 ? "Secured" : "None"}
+                      </Label>
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </CardBody>
+        </Card>
+      </StackItem>
+    </Stack>
   );
 };
 

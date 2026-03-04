@@ -319,8 +319,8 @@ export function seedCluster(cluster: AvailableCluster): void {
         `${prefix}-${suffix}`,
         status,
         restarts,
-        randomFloat(0.01, 2.0),
-        randomFloat(32, 512),
+        randomFloat(0.01, 0.4),
+        randomFloat(16, 128),
       );
     }
   }

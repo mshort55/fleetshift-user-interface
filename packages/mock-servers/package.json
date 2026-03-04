@@ -1,5 +1,6 @@
 {
   "name": "@fleetshift/mock-servers",
+  "description": "Express + SQLite mock API server. Seeds clusters, pods, namespaces, metrics, and user data on startup.",
   "version": "0.0.0",
   "private": true,
   "scripts": {

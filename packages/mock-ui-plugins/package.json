@@ -1,5 +1,6 @@
 {
   "name": "@fleetshift/mock-ui-plugins",
+  "description": "Webpack Module Federation remote plugins (15 plugins). Built and served on port 8001.",
   "version": "0.0.0",
   "private": true,
   "scripts": {

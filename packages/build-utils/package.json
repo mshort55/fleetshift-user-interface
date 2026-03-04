@@ -1,5 +1,6 @@
 {
   "name": "@fleetshift/build-utils",
+  "description": "Shared webpack helpers — PatternFly dynamic module sharing and ts-loader import transforms.",
   "version": "0.0.0",
   "private": true,
   "main": "src/index.ts",

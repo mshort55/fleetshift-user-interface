@@ -229,21 +229,17 @@ const AppDrawer = () => {
   );
 
   return (
-    <Drawer isExpanded={isOpen} onExpand={() => {}} position="end" isInline>
-      <DrawerContent panelContent={panelContent}>
-        <DrawerContentBody>
-          <Page
-            masthead={<AppMasthead />}
-            sidebar={<Sidebar />}
-            isManagedSidebar
-          >
+    <Page masthead={<AppMasthead />} sidebar={<Sidebar />} isManagedSidebar>
+      <Drawer isExpanded={isOpen} onExpand={() => {}} position="end" isInline>
+        <DrawerContent panelContent={panelContent}>
+          <DrawerContentBody>
             <PageSection isFilled>
               <Outlet />
             </PageSection>
-          </Page>
-        </DrawerContentBody>
-      </DrawerContent>
-    </Drawer>
+          </DrawerContentBody>
+        </DrawerContent>
+      </Drawer>
+    </Page>
   );
 };
 

@@ -73,7 +73,10 @@ const SingleClusterChart = ({ trend }: { trend: ClusterTrend }) => (
   </Card>
 );
 
-const CpuTrendChart = ({ clusterIds }: CpuTrendChartProps) => {
+// clusterIds received from parent extension point but not used —
+// this component independently queries all operator-enabled clusters.
+const CpuTrendChart = (props: CpuTrendChartProps) => {
+  void props;
   const apiBase = useApiBase();
   const { api } = useScalprum<{
     api: {
@@ -83,13 +86,12 @@ const CpuTrendChart = ({ clusterIds }: CpuTrendChartProps) => {
   const [clusterTrends, setClusterTrends] = useState<ClusterTrend[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Only show charts for clusters that have the operator plugin enabled
-  const filteredIds = useMemo(() => {
-    const operatorIds = new Set(
-      api.fleetshift.getClusterIdsForPlugin("operator"),
-    );
-    return clusterIds.filter((id) => operatorIds.has(id));
-  }, [api, clusterIds]);
+  // Show charts for all clusters that have the operator plugin enabled,
+  // regardless of which plugin hosts this extension point
+  const filteredIds = useMemo(
+    () => api.fleetshift.getClusterIdsForPlugin("operator"),
+    [api],
+  );
 
   useEffect(() => {
     if (filteredIds.length === 0) {

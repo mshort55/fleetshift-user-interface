@@ -216,13 +216,214 @@ const userCount = (
 ).c;
 if (userCount === 0) {
   const insertUser = db.prepare(
-    "INSERT INTO users (id, username, display_name, role, nav_layout) VALUES (?, ?, ?, ?, ?)",
+    "INSERT INTO users (id, username, display_name, role, nav_layout, canvas_pages) VALUES (?, ?, ?, ?, ?, ?)",
   );
 
-  const emptyLayout = JSON.stringify([]);
+  // --- Default canvas pages ---
 
-  insertUser.run("ops-user", "ops", "Ops Admin", "ops", emptyLayout);
-  insertUser.run("dev-user", "dev", "Dev User", "dev", emptyLayout);
+  const opsPages = [
+    {
+      id: "seed-pods",
+      title: "Pods",
+      path: "pods",
+      modules: [
+        {
+          i: "seed-pods-1",
+          x: 0,
+          y: 0,
+          w: 12,
+          h: 14,
+          moduleRef: { scope: "core-plugin", module: "PodList", label: "Pods" },
+        },
+      ],
+    },
+    {
+      id: "seed-namespaces",
+      title: "Namespaces",
+      path: "namespaces",
+      modules: [
+        {
+          i: "seed-ns-1",
+          x: 0,
+          y: 0,
+          w: 12,
+          h: 14,
+          moduleRef: {
+            scope: "core-plugin",
+            module: "NamespaceList",
+            label: "Namespaces",
+          },
+        },
+      ],
+    },
+    {
+      id: "seed-overview",
+      title: "Overview",
+      path: "overview",
+      modules: [
+        {
+          i: "seed-ov-1",
+          x: 0,
+          y: 0,
+          w: 6,
+          h: 14,
+          moduleRef: {
+            scope: "observability-plugin",
+            module: "MetricsDashboard",
+            label: "Observability",
+          },
+        },
+        {
+          i: "seed-ov-2",
+          x: 6,
+          y: 0,
+          w: 6,
+          h: 14,
+          moduleRef: {
+            scope: "networking-plugin",
+            module: "NetworkingPage",
+            label: "Networking",
+          },
+        },
+      ],
+    },
+    {
+      id: "seed-nodes",
+      title: "Nodes",
+      path: "nodes",
+      modules: [
+        {
+          i: "seed-nodes-1",
+          x: 0,
+          y: 0,
+          w: 12,
+          h: 14,
+          moduleRef: {
+            scope: "nodes-plugin",
+            module: "NodeList",
+            label: "Nodes",
+          },
+        },
+      ],
+    },
+    {
+      id: "seed-alerts",
+      title: "Alerts",
+      path: "alerts",
+      modules: [
+        {
+          i: "seed-alerts-1",
+          x: 0,
+          y: 0,
+          w: 12,
+          h: 14,
+          moduleRef: {
+            scope: "alerts-plugin",
+            module: "AlertList",
+            label: "Alerts",
+          },
+        },
+      ],
+    },
+  ];
+
+  const devPages = [
+    {
+      id: "seed-deployments",
+      title: "Deployments",
+      path: "deployments",
+      modules: [
+        {
+          i: "seed-dep-1",
+          x: 0,
+          y: 0,
+          w: 12,
+          h: 14,
+          moduleRef: {
+            scope: "deployments-plugin",
+            module: "DeploymentList",
+            label: "Deployments",
+          },
+        },
+      ],
+    },
+    {
+      id: "seed-pipelines",
+      title: "Pipelines",
+      path: "pipelines",
+      modules: [
+        {
+          i: "seed-pip-1",
+          x: 0,
+          y: 0,
+          w: 12,
+          h: 14,
+          moduleRef: {
+            scope: "pipelines-plugin",
+            module: "PipelineList",
+            label: "Pipelines",
+          },
+        },
+      ],
+    },
+    {
+      id: "seed-gitops",
+      title: "GitOps",
+      path: "gitops",
+      modules: [
+        {
+          i: "seed-git-1",
+          x: 0,
+          y: 0,
+          w: 12,
+          h: 14,
+          moduleRef: {
+            scope: "gitops-plugin",
+            module: "GitOpsList",
+            label: "GitOps",
+          },
+        },
+      ],
+    },
+  ];
+
+  // --- Default nav layouts ---
+
+  const opsNavLayout = [
+    { type: "page", pageId: "seed-pods" },
+    { type: "page", pageId: "seed-namespaces" },
+    {
+      type: "section",
+      id: "seed-section-metrics",
+      label: "Metrics",
+      children: [{ pageId: "seed-overview" }],
+    },
+    { type: "page", pageId: "seed-nodes" },
+    { type: "page", pageId: "seed-alerts" },
+  ];
+
+  const devNavLayout = [
+    { type: "page", pageId: "seed-deployments" },
+    { type: "page", pageId: "seed-pipelines" },
+    { type: "page", pageId: "seed-gitops" },
+  ];
+
+  insertUser.run(
+    "ops-user",
+    "ops",
+    "Ops Admin",
+    "ops",
+    JSON.stringify(opsNavLayout),
+    JSON.stringify(opsPages),
+  );
+  insertUser.run(
+    "dev-user",
+    "dev",
+    "Dev User",
+    "dev",
+    JSON.stringify(devNavLayout),
+    JSON.stringify(devPages),
+  );
 }
 
 export default db;

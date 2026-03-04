@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import db from "./db";
+import { seedCluster, AVAILABLE_CLUSTERS } from "./seed";
 import clusterRoutes from "./routes/clusters";
 import namespaceRoutes from "./routes/namespaces";
 import podRoutes from "./routes/pods";
@@ -41,6 +43,42 @@ app.use("/api/v1", gitopsRoutes);
 app.use("/api/v1", eventRoutes);
 app.use("/api/v1", appRoutes);
 app.use("/api/v1", userRoutes);
+
+// Seed default clusters if none installed
+const clusterCount = (
+  db.prepare("SELECT COUNT(*) as c FROM clusters").get() as { c: number }
+).c;
+if (clusterCount === 0) {
+  seedCluster(AVAILABLE_CLUSTERS[0]); // US East Production
+  seedCluster(AVAILABLE_CLUSTERS[1]); // EU West Staging
+
+  // Assign plugins that match the seeded canvas pages
+  const opsPlugins = [
+    "core",
+    "observability",
+    "nodes",
+    "networking",
+    "alerts",
+    "operator",
+  ];
+  const devPlugins = [
+    "core",
+    "deployments",
+    "pipelines",
+    "gitops",
+    "alerts",
+    "operator",
+  ];
+  db.prepare("UPDATE clusters SET plugins = ? WHERE id = ?").run(
+    JSON.stringify(opsPlugins),
+    AVAILABLE_CLUSTERS[0].id,
+  );
+  db.prepare("UPDATE clusters SET plugins = ? WHERE id = ?").run(
+    JSON.stringify(devPlugins),
+    AVAILABLE_CLUSTERS[1].id,
+  );
+  console.log("Seeded 2 default clusters with plugins");
+}
 
 const PORT = 4000;
 app.listen(PORT, () => {

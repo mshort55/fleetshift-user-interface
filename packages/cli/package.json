@@ -1,5 +1,6 @@
 {
   "name": "@fleetshift/cli",
+  "description": "CLI tool for FleetShift (scaffolding only, no source yet).",
   "version": "0.0.0",
   "private": true
 }

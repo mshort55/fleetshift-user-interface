@@ -46,6 +46,15 @@ router.get("/clusters/:id/metrics", (req, res) => {
       memory: p.memory_usage,
     }));
 
+  // Compute capacity from actual node data
+  const nodes = db
+    .prepare(
+      "SELECT cpu_capacity, memory_capacity FROM nodes WHERE cluster_id = ?",
+    )
+    .all(req.params.id) as { cpu_capacity: number; memory_capacity: number }[];
+  const maxCpu = nodes.reduce((sum, n) => sum + n.cpu_capacity, 0) || 8;
+  const maxMemory = nodes.reduce((sum, n) => sum + n.memory_capacity, 0) || 2048;
+
   res.json({
     clusterId: req.params.id,
     podCount: pods.length,
@@ -53,8 +62,8 @@ router.get("/clusters/:id/metrics", (req, res) => {
     totalMemory: Math.round(totalMemory * 100) / 100,
     avgCpu,
     avgMemory,
-    maxCpu: 8.0,
-    maxMemory: 2048,
+    maxCpu,
+    maxMemory,
     topCpuConsumers,
     topMemoryConsumers,
     pods: pods.map((p) => ({

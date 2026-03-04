@@ -1,5 +1,6 @@
 {
   "name": "@fleetshift/gui",
+  "description": "React SPA shell — composable dashboard with Module Federation and Scalprum plugin loading.",
   "version": "0.0.0",
   "private": true,
   "scripts": {
