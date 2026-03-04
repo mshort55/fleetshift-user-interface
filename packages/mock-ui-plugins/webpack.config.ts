@@ -7,6 +7,7 @@ import {
 import { DynamicRemotePlugin } from "@openshift/dynamic-plugin-sdk-webpack";
 import { getDynamicModules, createTsLoaderRule } from "@fleetshift/build-utils";
 import type { Configuration } from "webpack";
+import { PluginRegistryPlugin } from "./src/PluginRegistryPlugin";
 
 const monorepoRoot = path.resolve(__dirname, "../..");
 const nodeModulesRoot = path.resolve(monorepoRoot, "node_modules");
@@ -497,6 +498,9 @@ const config: Configuration = {
     publicPath: "auto",
   },
   mode: "development",
+  cache: {
+    type: "filesystem",
+  },
   plugins: [
     CorePlugin,
     ObservabilityPlugin,
@@ -514,6 +518,87 @@ const config: Configuration = {
     EventsPlugin,
     RoutesPlugin,
     OperatorPlugin,
+    new PluginRegistryPlugin({
+      assetsHost: "http://localhost:8001",
+      plugins: [
+        { name: "core-plugin", key: "core", label: "Core", persona: "ops" },
+        {
+          name: "observability-plugin",
+          key: "observability",
+          label: "Observability",
+          persona: "ops",
+        },
+        { name: "nodes-plugin", key: "nodes", label: "Nodes", persona: "ops" },
+        {
+          name: "networking-plugin",
+          key: "networking",
+          label: "Networking",
+          persona: "ops",
+        },
+        {
+          name: "storage-plugin",
+          key: "storage",
+          label: "Storage",
+          persona: "ops",
+        },
+        {
+          name: "upgrades-plugin",
+          key: "upgrades",
+          label: "Upgrades",
+          persona: "ops",
+        },
+        {
+          name: "alerts-plugin",
+          key: "alerts",
+          label: "Alerts",
+          persona: "ops",
+        },
+        { name: "cost-plugin", key: "cost", label: "Cost", persona: "ops" },
+        {
+          name: "operator-plugin",
+          key: "operator",
+          label: "Operator",
+          persona: "ops",
+        },
+        {
+          name: "deployments-plugin",
+          key: "deployments",
+          label: "Deployments",
+          persona: "dev",
+        },
+        { name: "logs-plugin", key: "logs", label: "Logs", persona: "dev" },
+        {
+          name: "pipelines-plugin",
+          key: "pipelines",
+          label: "Pipelines",
+          persona: "dev",
+        },
+        {
+          name: "config-plugin",
+          key: "config",
+          label: "Config",
+          persona: "dev",
+        },
+        {
+          name: "gitops-plugin",
+          key: "gitops",
+          label: "GitOps",
+          persona: "dev",
+        },
+        {
+          name: "events-plugin",
+          key: "events",
+          label: "Events",
+          persona: "dev",
+        },
+        {
+          name: "routes-plugin",
+          key: "routes",
+          label: "Routes",
+          persona: "dev",
+        },
+      ],
+    }),
   ],
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],

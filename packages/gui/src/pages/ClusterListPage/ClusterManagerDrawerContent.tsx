@@ -14,33 +14,15 @@ import {
 } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons";
 import { useClusters } from "../../contexts/ClusterContext";
+import { usePluginRegistry } from "../../contexts/PluginRegistryContext";
 import "./ClusterDrawerContent.scss";
-
-const OPS_PLUGINS = [
-  { key: "core", label: "Core" },
-  { key: "observability", label: "Observability" },
-  { key: "nodes", label: "Nodes" },
-  { key: "networking", label: "Networking" },
-  { key: "storage", label: "Storage" },
-  { key: "upgrades", label: "Upgrades" },
-  { key: "alerts", label: "Alerts" },
-  { key: "cost", label: "Cost" },
-  { key: "operator", label: "Operator" },
-];
-
-const DEV_PLUGINS = [
-  { key: "deployments", label: "Deployments" },
-  { key: "logs", label: "Logs" },
-  { key: "pipelines", label: "Pipelines" },
-  { key: "config", label: "Config" },
-  { key: "gitops", label: "GitOps" },
-  { key: "events", label: "Events" },
-  { key: "routes", label: "Routes" },
-];
 
 export const ClusterManagerDrawerContent = () => {
   const { available, installed, install, togglePlugin, uninstall } =
     useClusters();
+  const { pluginEntries } = usePluginRegistry();
+  const opsPlugins = pluginEntries.filter((p) => p.persona === "ops");
+  const devPlugins = pluginEntries.filter((p) => p.persona === "dev");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const installedIds = new Set(installed.map((c) => c.id));
 
@@ -96,7 +78,7 @@ export const ClusterManagerDrawerContent = () => {
                       Ops Plugins
                     </div>
                     <div className="cluster-drawer__plugins">
-                      {OPS_PLUGINS.map((p) => (
+                      {opsPlugins.map((p) => (
                         <Switch
                           key={p.key}
                           id={`${cluster.id}-plugin-${p.key}`}
@@ -111,7 +93,7 @@ export const ClusterManagerDrawerContent = () => {
                       Dev Plugins
                     </div>
                     <div className="cluster-drawer__plugins">
-                      {DEV_PLUGINS.map((p) => (
+                      {devPlugins.map((p) => (
                         <Switch
                           key={p.key}
                           id={`${cluster.id}-plugin-${p.key}`}

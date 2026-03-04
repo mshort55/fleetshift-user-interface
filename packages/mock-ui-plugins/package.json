@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
-    "serve": "concurrently \"webpack --watch\" \"wait-on dist && http-server dist -p 8001 -c-1 --cors=*\""
+    "serve": "webpack && concurrently \"webpack --watch\" \"http-server dist -p 8001 -c-1 --cors=*\""
   },
   "dependencies": {
     "@patternfly/react-charts": "^8.4.1",

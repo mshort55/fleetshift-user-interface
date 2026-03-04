@@ -20,6 +20,8 @@ import gitopsRoutes from "./routes/gitops";
 import eventRoutes from "./routes/events";
 import appRoutes from "./routes/appRoutes";
 import userRoutes from "./routes/users";
+import pluginRegistryRoutes from "./routes/pluginRegistry";
+import { initPluginRegistryWatcher } from "./pluginRegistry";
 
 const app = express();
 app.use(cors());
@@ -43,6 +45,7 @@ app.use("/api/v1", gitopsRoutes);
 app.use("/api/v1", eventRoutes);
 app.use("/api/v1", appRoutes);
 app.use("/api/v1", userRoutes);
+app.use("/api/v1", pluginRegistryRoutes);
 
 // Seed default clusters if none installed
 const clusterCount = (
@@ -79,6 +82,8 @@ if (clusterCount === 0) {
   );
   console.log("Seeded 2 default clusters with plugins");
 }
+
+initPluginRegistryWatcher();
 
 const PORT = 4000;
 app.listen(PORT, () => {

@@ -53,7 +53,8 @@ router.get("/clusters/:id/metrics", (req, res) => {
     )
     .all(req.params.id) as { cpu_capacity: number; memory_capacity: number }[];
   const maxCpu = nodes.reduce((sum, n) => sum + n.cpu_capacity, 0) || 8;
-  const maxMemory = nodes.reduce((sum, n) => sum + n.memory_capacity, 0) || 2048;
+  const maxMemory =
+    nodes.reduce((sum, n) => sum + n.memory_capacity, 0) || 2048;
 
   res.json({
     clusterId: req.params.id,

@@ -8,6 +8,10 @@ import { ClusterProvider, useClusters } from "./contexts/ClusterContext";
 import { ScopeProvider } from "./contexts/ScopeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserPreferencesProvider } from "./contexts/UserPreferencesContext";
+import {
+  PluginRegistryProvider,
+  usePluginRegistry,
+} from "./contexts/PluginRegistryContext";
 import { buildScalprumConfig } from "./utils/buildScalprumConfig";
 import { Dashboard } from "./pages/Dashboard";
 import { ClusterListPage } from "./pages/ClusterListPage";
@@ -33,18 +37,24 @@ const PluginLoader = ({ children }: PropsWithChildren) => {
   const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
-    const manifests = Object.values(config)
-      .map((entry) => entry.manifestLocation)
-      .filter(Boolean) as string[];
+    const loads: Promise<void>[] = [];
 
-    if (manifests.length === 0) {
+    for (const entry of Object.values(config)) {
+      if (entry.pluginManifest) {
+        // Inline manifest — load directly into the plugin store
+        loads.push(pluginStore.loadPlugin(entry.pluginManifest));
+      } else if (entry.manifestLocation) {
+        // URL manifest — fetch and load
+        loads.push(pluginStore.loadPlugin(entry.manifestLocation));
+      }
+    }
+
+    if (loads.length === 0) {
       setInitialLoad(false);
       return;
     }
 
-    Promise.all(manifests.map((m) => pluginStore.loadPlugin(m))).then(() =>
-      setInitialLoad(false),
-    );
+    Promise.all(loads).then(() => setInitialLoad(false));
   }, [config, pluginStore]);
 
   if (initialLoad) return null;
@@ -53,7 +63,11 @@ const PluginLoader = ({ children }: PropsWithChildren) => {
 
 const ScalprumShell = ({ children }: PropsWithChildren) => {
   const { installed } = useClusters();
-  const config = useMemo(() => buildScalprumConfig(installed), [installed]);
+  const { registry } = usePluginRegistry();
+  const config = useMemo(
+    () => buildScalprumConfig(registry, installed),
+    [registry, installed],
+  );
 
   const installedRef = useRef(installed);
   installedRef.current = installed;
@@ -89,18 +103,10 @@ const ScalprumShell = ({ children }: PropsWithChildren) => {
       api={api}
       pluginSDKOptions={{
         pluginLoaderOptions: {
-          transformPluginManifest(manifest) {
-            const entry = config[manifest.name];
-            const host =
-              entry && "assetsHost" in entry
-                ? (entry as { assetsHost: string }).assetsHost
-                : "http://localhost:8001";
-            return {
-              ...manifest,
-              loadScripts: manifest.loadScripts.map(
-                (script) => `${host}/${script}`,
-              ),
-            };
+          transformPluginManifest: (manifest) => {
+            // noo-op transfor to not use the default transform. That would append the `auto` prefix (our public path) to the loadScripts URLs
+            const newManifest = { ...manifest };
+            return newManifest;
           },
         },
       }}
@@ -121,24 +127,29 @@ export const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <AuthGate>
-          <ClusterProvider>
-            <ScalprumShell>
-              <ScopeProvider>
-                <UserPreferencesProvider>
-                  <Routes>
-                    <Route element={<AppLayout />}>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/clusters" element={<ClusterListPage />} />
-                      <Route path="/navigation" element={<MarketplacePage />} />
-                      <Route path="/pages" element={<CanvasPageListPage />} />
-                      <Route path="/pages/:pageId" element={<CanvasPage />} />
-                      <Route path="*" element={<CanvasPage />} />
-                    </Route>
-                  </Routes>
-                </UserPreferencesProvider>
-              </ScopeProvider>
-            </ScalprumShell>
-          </ClusterProvider>
+          <PluginRegistryProvider>
+            <ClusterProvider>
+              <ScalprumShell>
+                <ScopeProvider>
+                  <UserPreferencesProvider>
+                    <Routes>
+                      <Route element={<AppLayout />}>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/clusters" element={<ClusterListPage />} />
+                        <Route
+                          path="/navigation"
+                          element={<MarketplacePage />}
+                        />
+                        <Route path="/pages" element={<CanvasPageListPage />} />
+                        <Route path="/pages/:pageId" element={<CanvasPage />} />
+                        <Route path="*" element={<CanvasPage />} />
+                      </Route>
+                    </Routes>
+                  </UserPreferencesProvider>
+                </ScopeProvider>
+              </ScalprumShell>
+            </ClusterProvider>
+          </PluginRegistryProvider>
         </AuthGate>
       </AuthProvider>
     </BrowserRouter>

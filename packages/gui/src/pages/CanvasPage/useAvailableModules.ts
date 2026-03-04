@@ -19,29 +19,39 @@ export function useAvailableModules(): ModuleRef[] {
     Promise.all(
       pluginNames.map(async (pluginName) => {
         const entry = config[pluginName];
-        if (!entry?.manifestLocation) return [];
-        try {
-          const res = await fetch(entry.manifestLocation);
-          const manifest = await res.json();
-          const refs: ModuleRef[] = [];
-          for (const ext of manifest.extensions as ManifestExtension[]) {
-            const codeRef = (
-              ext.properties?.component as Record<string, unknown>
-            )?.$codeRef as string | undefined;
-            if (codeRef) {
-              const moduleName = codeRef.split(".")[0];
-              const label = (ext.properties?.label as string) || moduleName;
-              refs.push({
-                scope: pluginName,
-                module: moduleName,
-                label,
-              });
-            }
+
+        let extensions: ManifestExtension[];
+        if (entry?.pluginManifest) {
+          extensions = entry.pluginManifest
+            .extensions as ManifestExtension[];
+        } else if (entry?.manifestLocation) {
+          try {
+            const res = await fetch(entry.manifestLocation);
+            const manifest = await res.json();
+            extensions = manifest.extensions as ManifestExtension[];
+          } catch {
+            return [];
           }
-          return refs;
-        } catch {
+        } else {
           return [];
         }
+
+        const refs: ModuleRef[] = [];
+        for (const ext of extensions) {
+          const codeRef = (
+            ext.properties?.component as Record<string, unknown>
+          )?.$codeRef as string | undefined;
+          if (codeRef) {
+            const moduleName = codeRef.split(".")[0];
+            const label = (ext.properties?.label as string) || moduleName;
+            refs.push({
+              scope: pluginName,
+              module: moduleName,
+              label,
+            });
+          }
+        }
+        return refs;
       }),
     ).then((results) => setModules(results.flat()));
   }, [config]);
