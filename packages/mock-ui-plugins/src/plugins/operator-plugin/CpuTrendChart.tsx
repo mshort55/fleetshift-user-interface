@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Card,
   CardTitle,
@@ -73,35 +73,32 @@ const SingleClusterChart = ({ trend }: { trend: ClusterTrend }) => (
   </Card>
 );
 
-// clusterIds received from parent extension point but not used —
-// this component independently queries all operator-enabled clusters.
-const CpuTrendChart = (props: CpuTrendChartProps) => {
-  void props;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const CpuTrendChart = (_props: CpuTrendChartProps) => {
   const apiBase = useApiBase();
   const { api } = useScalprum<{
     api: {
-      fleetshift: { getClusterIdsForPlugin: (key: string) => string[] };
+      fleetshift: {
+        getClusterIdsForPlugin: (key: string) => string[];
+        onClustersChange: (fn: () => void) => () => void;
+      };
     };
   }>();
   const [clusterTrends, setClusterTrends] = useState<ClusterTrend[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Show charts for all clusters that have the operator plugin enabled,
-  // regardless of which plugin hosts this extension point
-  const filteredIds = useMemo(
-    () => api.fleetshift.getClusterIdsForPlugin("operator"),
-    [api],
-  );
-
-  useEffect(() => {
-    if (filteredIds.length === 0) {
+  // Fetch charts for all clusters that have the operator plugin enabled.
+  // Re-runs when clusters change via the onClustersChange subscription.
+  const fetchTrends = useCallback(() => {
+    const ids = api.fleetshift.getClusterIdsForPlugin("operator");
+    if (ids.length === 0) {
       setClusterTrends([]);
       setLoading(false);
       return;
     }
-
+    setLoading(true);
     Promise.all(
-      filteredIds.map((id) =>
+      ids.map((id) =>
         fetchJson<MetricsData>(`${apiBase}/clusters/${id}/metrics`),
       ),
     ).then((results) => {
@@ -113,7 +110,17 @@ const CpuTrendChart = (props: CpuTrendChartProps) => {
       );
       setLoading(false);
     });
-  }, [apiBase, filteredIds]);
+  }, [api, apiBase]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchTrends();
+  }, [fetchTrends]);
+
+  // Re-fetch when cluster plugins change
+  useEffect(() => {
+    return api.fleetshift.onClustersChange(fetchTrends);
+  }, [api, fetchTrends]);
 
   if (loading) return <Spinner size="lg" />;
   if (clusterTrends.length === 0) return null;

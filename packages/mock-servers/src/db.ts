@@ -265,7 +265,7 @@ if (userCount === 0) {
           i: "seed-ov-1",
           x: 0,
           y: 0,
-          w: 6,
+          w: 12,
           h: 14,
           moduleRef: {
             scope: "observability-plugin",
@@ -275,8 +275,8 @@ if (userCount === 0) {
         },
         {
           i: "seed-ov-2",
-          x: 6,
-          y: 0,
+          x: 0,
+          y: 14,
           w: 6,
           h: 14,
           moduleRef: {

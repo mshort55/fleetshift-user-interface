@@ -55,6 +55,32 @@ const ModuleUnavailable = ({
 
 let instanceCounter = 0;
 
+const useLayoutWidth = (
+  containerRef: React.RefObject<HTMLDivElement | null>,
+) => {
+  const [width, setWidth] = useState(1200);
+  useEffect(() => {
+    if (containerRef.current) {
+      const resize = () => {
+        setWidth(
+          containerRef.current
+            ? containerRef.current.getBoundingClientRect().width
+            : 1200,
+        );
+      };
+      const resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(containerRef.current);
+      window.addEventListener("resize", resize);
+      return () => {
+        window.removeEventListener("resize", resize);
+        resizeObserver.disconnect();
+      };
+    }
+  }, [containerRef.current]);
+
+  return width;
+};
+
 export const CanvasPage = () => {
   const params = useParams();
   const paramPageId = params.pageId;
@@ -99,6 +125,7 @@ export const CanvasPage = () => {
   }, [closeDrawer]);
 
   const { containerRef, mounted } = useContainerWidth();
+  const width = useLayoutWidth(containerRef);
 
   const handleLayoutChange = useCallback(
     (newLayout: Layout) => {
@@ -297,11 +324,7 @@ export const CanvasPage = () => {
       >
         {mounted && page.modules.length > 0 && (
           <GridLayout
-            width={
-              containerRef.current
-                ? containerRef.current.getBoundingClientRect().width
-                : 1200
-            }
+            width={width}
             layout={layout}
             gridConfig={{ cols: 12, rowHeight: 80 }}
             dragConfig={{ enabled: editing }}

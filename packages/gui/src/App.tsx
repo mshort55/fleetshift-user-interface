@@ -58,6 +58,12 @@ const ScalprumShell = ({ children }: PropsWithChildren) => {
   const installedRef = useRef(installed);
   installedRef.current = installed;
 
+  // Notify plugins when cluster data changes
+  const clusterListenersRef = useRef<Set<() => void>>(new Set());
+  useEffect(() => {
+    clusterListenersRef.current.forEach((fn) => fn());
+  }, [installed]);
+
   const api = useMemo(
     () => ({
       fleetshift: {
@@ -66,6 +72,12 @@ const ScalprumShell = ({ children }: PropsWithChildren) => {
           installedRef.current
             .filter((c) => c.plugins.includes(pluginKey))
             .map((c) => c.id),
+        onClustersChange: (fn: () => void) => {
+          clusterListenersRef.current.add(fn);
+          return () => {
+            clusterListenersRef.current.delete(fn);
+          };
+        },
       },
     }),
     [],
