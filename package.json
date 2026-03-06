@@ -10,7 +10,8 @@
     "dev:plugins": "npm run serve -w packages/mock-ui-plugins",
     "dev:gui": "npm run dev -w packages/gui",
     "lint": "eslint packages/",
-    "lint:fix": "eslint packages/ --fix"
+    "lint:fix": "eslint packages/ --fix",
+    "test:e2e": "npm test --workspace=packages/e2e"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.56.1",
