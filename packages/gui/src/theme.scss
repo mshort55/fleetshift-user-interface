@@ -13,6 +13,15 @@
     var(--pf-t--global--border--color--default);
 }
 
+// Masthead logo — invert for dark mode visibility
+.fs-masthead-logo {
+  transition: filter 0.3s ease;
+}
+
+.pf-v6-theme-dark .fs-masthead-logo {
+  filter: brightness(0) invert(1);
+}
+
 // Page titles — consistent spacing
 .fs-page-header {
   margin-bottom: var(--pf-t--global--spacer--lg);

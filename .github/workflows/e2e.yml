@@ -23,6 +23,16 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
 
+      - name: Build mock plugins
+        run: npm run build --workspace=packages/mock-ui-plugins
+
+      - name: Start servers
+        run: |
+          npm run dev &
+
+      - name: Wait for servers
+        run: npx wait-on http://localhost:4000/api/v1/clusters http://localhost:8001 http://localhost:3000 --timeout 120000
+
       - name: Run E2E tests
         run: npm run test:e2e
 
