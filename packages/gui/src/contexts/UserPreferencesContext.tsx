@@ -15,6 +15,7 @@ import {
   updateCanvasPage as apiUpdatePage,
   deleteCanvasPage as apiDeletePage,
 } from "../utils/api";
+import { useInvalidationSocket } from "../hooks/useInvalidationSocket";
 import type {
   NavLayoutEntry,
   CanvasPage,
@@ -51,6 +52,16 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     fetchUserPreferences(user.id).then(setNavLayout);
     fetchCanvasPages(user.id).then(setCanvasPages);
   }, [user]);
+
+  useInvalidationSocket(user?.id, (resource) => {
+    if (!user) return;
+    if (resource === "canvas_pages") {
+      fetchCanvasPages(user.id).then(setCanvasPages);
+    }
+    if (resource === "nav_layout") {
+      fetchUserPreferences(user.id).then(setNavLayout);
+    }
+  });
 
   const updateNavLayout = useCallback(
     (layout: NavLayoutEntry[]) => {

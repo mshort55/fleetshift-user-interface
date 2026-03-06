@@ -13,7 +13,7 @@ export const useK8sModel: UseK8sModel = (k8sGroupVersionKind) => {
   const ref =
     typeof k8sGroupVersionKind === "string"
       ? k8sGroupVersionKind
-      : k8sGroupVersionKind?.kind ?? "";
+      : (k8sGroupVersionKind?.kind ?? "");
 
   const model = ref ? modelFor(ref) : undefined;
   return [model as K8sModel, !!model];

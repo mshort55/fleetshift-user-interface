@@ -12,7 +12,7 @@ export function buildScalprumConfig(
     if (clusters.some((c) => c.plugins.includes(entry.key))) {
       config[name] = {
         name: entry.name,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         pluginManifest: entry.pluginManifest as any,
         assetsHost: registry.assetsHost,
       };

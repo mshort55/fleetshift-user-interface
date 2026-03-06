@@ -1,6 +1,7 @@
 import { Router } from "express";
 import db from "../db";
 import { AVAILABLE_CLUSTERS, seedCluster } from "../seed";
+import { broadcast } from "../ws";
 
 const router = Router();
 
@@ -59,6 +60,8 @@ router.post("/clusters/:id/install", (req, res) => {
   const cluster = db
     .prepare("SELECT * FROM clusters WHERE id = ?")
     .get(req.params.id) as Record<string, unknown>;
+  const originSessionId = req.headers["x-session-id"] as string | undefined;
+  broadcast("clusters", { originSessionId });
   res
     .status(201)
     .json({ ...cluster, plugins: JSON.parse(cluster.plugins as string) });
@@ -73,6 +76,8 @@ router.delete("/clusters/:id", (req, res) => {
     res.status(404).json({ error: "Cluster not found" });
     return;
   }
+  const originSessionId = req.headers["x-session-id"] as string | undefined;
+  broadcast("clusters", { originSessionId });
   res.status(204).send();
 });
 
@@ -93,6 +98,8 @@ router.patch("/clusters/:id/plugins", (req, res) => {
   const cluster = db
     .prepare("SELECT * FROM clusters WHERE id = ?")
     .get(req.params.id) as Record<string, unknown>;
+  const originSessionId = req.headers["x-session-id"] as string | undefined;
+  broadcast("clusters", { originSessionId });
   res.json({ ...cluster, plugins: JSON.parse(cluster.plugins as string) });
 });
 

@@ -93,7 +93,8 @@ export function transformDeployment(row: DeploymentRow): DeploymentKind {
           status: row.available > 0 ? "True" : "False",
           lastUpdateTime: new Date().toISOString(),
           lastTransitionTime: new Date().toISOString(),
-          reason: row.available > 0 ? "MinimumReplicasAvailable" : "Unavailable",
+          reason:
+            row.available > 0 ? "MinimumReplicasAvailable" : "Unavailable",
           message:
             row.available > 0
               ? `Deployment has minimum availability. ${row.available} of ${row.replicas} replicas available.`

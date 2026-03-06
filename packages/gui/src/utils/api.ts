@@ -1,4 +1,18 @@
+import { getSessionId } from "../hooks/useInvalidationSocket";
+
 const API_BASE = "http://localhost:4000/api/v1";
+
+function mutationHeaders(
+  extra?: Record<string, string>,
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...extra,
+  };
+  const sid = getSessionId();
+  if (sid) headers["X-Session-Id"] = sid;
+  return headers;
+}
 
 export interface AvailableCluster {
   id: string;
@@ -34,12 +48,16 @@ export async function fetchCluster(id: string): Promise<InstalledCluster> {
 export async function installCluster(id: string): Promise<InstalledCluster> {
   const res = await fetch(`${API_BASE}/clusters/${id}/install`, {
     method: "POST",
+    headers: mutationHeaders(),
   });
   return res.json();
 }
 
 export async function uninstallCluster(id: string): Promise<void> {
-  await fetch(`${API_BASE}/clusters/${id}`, { method: "DELETE" });
+  await fetch(`${API_BASE}/clusters/${id}`, {
+    method: "DELETE",
+    headers: mutationHeaders(),
+  });
 }
 
 export async function updateClusterPlugins(
@@ -48,7 +66,7 @@ export async function updateClusterPlugins(
 ): Promise<InstalledCluster> {
   const res = await fetch(`${API_BASE}/clusters/${id}/plugins`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: mutationHeaders(),
     body: JSON.stringify({ plugins }),
   });
   return res.json();
@@ -88,7 +106,7 @@ export async function updateUserPreferences(
 ): Promise<NavLayoutEntry[]> {
   const res = await fetch(`${API_BASE}/users/${userId}/preferences`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: mutationHeaders(),
     body: JSON.stringify({ navLayout }),
   });
   const data = await res.json();
@@ -110,7 +128,7 @@ export async function createCanvasPage(
 ): Promise<CanvasPage> {
   const res = await fetch(`${API_BASE}/users/${userId}/canvas-pages`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: mutationHeaders(),
     body: JSON.stringify({ title, path }),
   });
   return res.json();
@@ -125,7 +143,7 @@ export async function updateCanvasPage(
     `${API_BASE}/users/${userId}/canvas-pages/${pageId}`,
     {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: mutationHeaders(),
       body: JSON.stringify(updates),
     },
   );
@@ -138,5 +156,6 @@ export async function deleteCanvasPage(
 ): Promise<void> {
   await fetch(`${API_BASE}/users/${userId}/canvas-pages/${pageId}`, {
     method: "DELETE",
+    headers: mutationHeaders(),
   });
 }

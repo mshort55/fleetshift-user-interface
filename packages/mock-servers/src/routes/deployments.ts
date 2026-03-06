@@ -93,7 +93,9 @@ router.patch("/clusters/:id/deployments/:deployId", (req, res) => {
   if (replicas > newAvailable) {
     const timer = setInterval(() => {
       const current = db
-        .prepare("SELECT available, ready, replicas FROM deployments WHERE id = ?")
+        .prepare(
+          "SELECT available, ready, replicas FROM deployments WHERE id = ?",
+        )
         .get(deployId) as
         | { available: number; ready: number; replicas: number }
         | undefined;

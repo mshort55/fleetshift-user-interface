@@ -14,7 +14,10 @@ import {
 } from "./contexts/PluginRegistryContext";
 import { buildScalprumConfig } from "./utils/buildScalprumConfig";
 import { useUserPreferences } from "./contexts/UserPreferencesContext";
-import type { CanvasPage as CanvasPageDef, NavLayoutEntry } from "./utils/extensions";
+import type {
+  CanvasPage as CanvasPageDef,
+  NavLayoutEntry,
+} from "./utils/extensions";
 import { isPageInLayout } from "./utils/extensions";
 import { Dashboard } from "./pages/Dashboard";
 import { ClusterListPage } from "./pages/ClusterListPage";

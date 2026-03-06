@@ -50,7 +50,6 @@ const usePluginLinks = (
         });
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [api, navigate],
   );
 
@@ -65,7 +64,6 @@ const usePluginLinks = (
       };
     }
     return result;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, makeNavigate, targetsKey]);
 };
 

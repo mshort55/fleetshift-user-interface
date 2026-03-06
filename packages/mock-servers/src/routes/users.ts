@@ -1,5 +1,6 @@
 import { Router } from "express";
 import db from "../db";
+import { broadcast } from "../ws";
 
 const router = Router();
 
@@ -59,6 +60,8 @@ router.put("/users/:id/preferences", (req, res) => {
     req.params.id,
   );
 
+  const originSessionId = req.headers["x-session-id"] as string | undefined;
+  broadcast("nav_layout", { userId: req.params.id, originSessionId });
   res.json({ navLayout });
 });
 
@@ -135,6 +138,8 @@ router.post("/users/:id/canvas-pages", (req, res) => {
   };
   pages.push(page);
   setCanvasPages(req.params.id, pages);
+  const originSessionId = req.headers["x-session-id"] as string | undefined;
+  broadcast("canvas_pages", { userId: req.params.id, originSessionId });
   res.json(page);
 });
 
@@ -171,6 +176,8 @@ router.put("/users/:id/canvas-pages/:pageId", (req, res) => {
   if (title !== undefined) pages[idx].title = title;
   if (modules !== undefined) pages[idx].modules = modules;
   setCanvasPages(req.params.id, pages);
+  const originSessionId = req.headers["x-session-id"] as string | undefined;
+  broadcast("canvas_pages", { userId: req.params.id, originSessionId });
   res.json(pages[idx]);
 });
 
@@ -179,6 +186,8 @@ router.delete("/users/:id/canvas-pages/:pageId", (req, res) => {
   const pages = getCanvasPages(req.params.id);
   const filtered = pages.filter((p) => p.id !== req.params.pageId);
   setCanvasPages(req.params.id, filtered);
+  const originSessionId = req.headers["x-session-id"] as string | undefined;
+  broadcast("canvas_pages", { userId: req.params.id, originSessionId });
   res.json({ ok: true });
 });
 

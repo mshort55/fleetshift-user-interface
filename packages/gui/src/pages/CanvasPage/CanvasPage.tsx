@@ -320,7 +320,6 @@ export const CanvasPage = ({
         </FlexItem>
       </Flex>
       <div
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ref={containerRef as any}
         className={editing ? "fs-canvas-grid--editing" : "fs-canvas-grid--view"}
       >

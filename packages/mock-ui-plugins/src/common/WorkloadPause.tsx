@@ -1,5 +1,6 @@
 import { Alert, AlertActionLink } from "@patternfly/react-core";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const WorkloadPausedAlert = ({ model, obj }: any) => {
   return (
     <Alert

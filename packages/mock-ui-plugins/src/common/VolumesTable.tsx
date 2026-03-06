@@ -89,7 +89,11 @@ const volumeRowColumnClasses = [
   KEBAB_COLUMN_CLASS,
 ];
 
-const VolumesTableRows = ({ componentProps: { data } }: { componentProps: { data: RowVolumeData[] } }) => {
+const VolumesTableRows = ({
+  componentProps: { data },
+}: {
+  componentProps: { data: RowVolumeData[] };
+}) => {
   return _.map(data, (volume: RowVolumeData) => {
     const {
       container,

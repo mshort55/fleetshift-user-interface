@@ -73,7 +73,6 @@ const SingleClusterChart = ({ trend }: { trend: ClusterTrend }) => (
   </Card>
 );
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CpuTrendChart = (_props: CpuTrendChartProps) => {
   const apiBase = useApiBase();
   const { api } = useScalprum<{

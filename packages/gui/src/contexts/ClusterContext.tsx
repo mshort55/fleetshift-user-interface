@@ -15,6 +15,8 @@ import {
   uninstallCluster as apiUninstall,
   updateClusterPlugins as apiUpdatePlugins,
 } from "../utils/api";
+import { useInvalidationSocket } from "../hooks/useInvalidationSocket";
+import { useAuth } from "./AuthContext";
 
 interface ClusterState {
   available: AvailableCluster[];
@@ -79,6 +81,7 @@ interface ClusterContextValue extends ClusterState {
 const ClusterContext = createContext<ClusterContextValue | null>(null);
 
 export function ClusterProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [state, dispatch] = useReducer(reducer, {
     available: [],
     installed: [],
@@ -97,6 +100,12 @@ export function ClusterProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  useInvalidationSocket(user?.id, (resource) => {
+    if (resource === "clusters") {
+      refresh();
+    }
+  });
 
   const install = useCallback(async (id: string) => {
     const cluster = await apiInstall(id);

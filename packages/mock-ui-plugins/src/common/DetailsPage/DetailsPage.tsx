@@ -16,7 +16,7 @@ import {
 } from "../utils";
 import * as _ from "lodash";
 import { useK8sModel } from "../../hooks/useK8sModel";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
 import { isResourceTabPage, ResourceTabPage } from "./types";
 import { useBreadCrumbsForDetailPage } from "./useBreadCrumbsForDetailPage";
@@ -61,8 +61,6 @@ export const DetailsPage = ({ pages = [], ...props }: DetailsPageProps) => {
   const [pluginBreadcrumbs, setPluginBreadcrumbs] = useState(undefined);
   const [model] = useK8sModel(props.kind);
   const kindObj: K8sModel = props.kindObj ?? model;
-
-  const params = useParams();
   const location = useLocation();
 
   const [resourcePageExtensions] =
@@ -143,7 +141,10 @@ export const DetailsPage = ({ pages = [], ...props }: DetailsPageProps) => {
           resourceKeys={resourceKeys}
           getResourceStatus={props.getResourceStatus}
           customData={props.customData}
-          badge={props.badge || (kindObj?.badge ? getBadgeFromType(kindObj?.badge) : undefined)}
+          badge={
+            props.badge ||
+            (kindObj?.badge ? getBadgeFromType(kindObj?.badge) : undefined)
+          }
           OverrideTitle={props.OverrideTitle}
           helpText={props.helpText}
           helpAlert={props.helpAlert}

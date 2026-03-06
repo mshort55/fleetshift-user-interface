@@ -1,3 +1,4 @@
+import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import db from "./db";
@@ -22,6 +23,7 @@ import appRoutes from "./routes/appRoutes";
 import userRoutes from "./routes/users";
 import pluginRegistryRoutes from "./routes/pluginRegistry";
 import { initPluginRegistryWatcher } from "./pluginRegistry";
+import { attachWebSocket } from "./ws";
 
 const app = express();
 app.use(cors());
@@ -86,6 +88,8 @@ if (clusterCount === 0) {
 initPluginRegistryWatcher();
 
 const PORT = 4000;
-app.listen(PORT, () => {
+const server = createServer(app);
+attachWebSocket(server);
+server.listen(PORT, () => {
   console.log(`FleetShift mock server running on http://localhost:${PORT}`);
 });

@@ -1,9 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-import {
-  resetOpsUser,
-  updateNavLayout,
-  getNavLayout,
-} from "../helpers/api";
+import { resetOpsUser, updateNavLayout, getNavLayout } from "../helpers/api";
 
 const OPS_USER_ID = "ops-user";
 

@@ -191,11 +191,7 @@ export const HorizontalNav = memo<HorizontalNavProps>((props) => {
   const content = props.noStatusBox ? (
     activeContent
   ) : (
-    <StatusBox
-      {...props.obj}
-      EmptyMsg={props.EmptyMsg}
-      label={props.label}
-    >
+    <StatusBox {...props.obj} EmptyMsg={props.EmptyMsg} label={props.label}>
       {activeContent}
     </StatusBox>
   );
