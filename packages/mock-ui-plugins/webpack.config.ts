@@ -24,6 +24,7 @@ const sharedModules = {
     requiredVersion: "*",
     version: "*",
   },
+  "react-router-dom": { singleton: true, requiredVersion: "*" },
   ...pfSharedModules,
 };
 
@@ -58,6 +59,13 @@ const CorePlugin = new DynamicRemotePlugin({
         component: { $codeRef: "NamespaceList.default" },
       },
     },
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "Deployment Details",
+        component: { $codeRef: "DeploymentDetailsPage.default" },
+      },
+    },
   ],
   sharedModules,
   entryScriptFilename: "core-plugin.[contenthash].js",
@@ -76,6 +84,10 @@ const CorePlugin = new DynamicRemotePlugin({
       NamespaceList: path.resolve(
         __dirname,
         "./src/plugins/core-plugin/NamespaceList.tsx",
+      ),
+      DeploymentDetailsPage: path.resolve(
+        __dirname,
+        "./src/plugins/core-plugin/Deployment/DeploymentDetailsPage.tsx",
       ),
     },
   },
@@ -609,6 +621,10 @@ const config: Configuration = {
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.scss$/,
+        use: ["style-loader", "css-loader", "sass-loader"],
       },
     ],
   },

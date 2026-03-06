@@ -22,8 +22,7 @@ export function useAvailableModules(): ModuleRef[] {
 
         let extensions: ManifestExtension[];
         if (entry?.pluginManifest) {
-          extensions = entry.pluginManifest
-            .extensions as ManifestExtension[];
+          extensions = entry.pluginManifest.extensions as ManifestExtension[];
         } else if (entry?.manifestLocation) {
           try {
             const res = await fetch(entry.manifestLocation);
@@ -38,9 +37,8 @@ export function useAvailableModules(): ModuleRef[] {
 
         const refs: ModuleRef[] = [];
         for (const ext of extensions) {
-          const codeRef = (
-            ext.properties?.component as Record<string, unknown>
-          )?.$codeRef as string | undefined;
+          const codeRef = (ext.properties?.component as Record<string, unknown>)
+            ?.$codeRef as string | undefined;
           if (codeRef) {
             const moduleName = codeRef.split(".")[0];
             const label = (ext.properties?.label as string) || moduleName;

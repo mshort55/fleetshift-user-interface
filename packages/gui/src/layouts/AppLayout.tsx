@@ -230,10 +230,16 @@ const AppDrawer = () => {
 
   return (
     <Page masthead={<AppMasthead />} sidebar={<Sidebar />} isManagedSidebar>
-      <Drawer isExpanded={isOpen} onExpand={() => {}} position="end" isInline>
+      <Drawer
+        isExpanded={isOpen}
+        onExpand={() => {}}
+        position="end"
+        isInline
+        style={{ flex: 1 }}
+      >
         <DrawerContent panelContent={panelContent}>
-          <DrawerContentBody>
-            <PageSection isFilled>
+          <DrawerContentBody hasPadding={false}>
+            <PageSection isFilled hasOverflowScroll>
               <Outlet />
             </PageSection>
           </DrawerContentBody>

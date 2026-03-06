@@ -16,6 +16,7 @@ interface Pod {
 
 interface PodListProps {
   clusterIds: string[];
+  namespace?: string;
 }
 
 const statusColor = (status: string) => {
@@ -25,24 +26,33 @@ const statusColor = (status: string) => {
   return "grey";
 };
 
-const PodList = ({ clusterIds }: PodListProps) => {
+const PodList = ({ clusterIds, namespace }: PodListProps) => {
   const apiBase = useApiBase();
   const [pods, setPods] = useState<Pod[]>([]);
   const [loading, setLoading] = useState(true);
   const multiCluster = clusterIds.length > 1;
 
   useEffect(() => {
-    Promise.all(
-      clusterIds.map((id) =>
-        fetchJson<Pod[]>(`${apiBase}/clusters/${id}/pods`).then((data) =>
-          data.map((pod) => ({ ...pod, cluster_id: id })),
-        ),
-      ),
-    ).then((results) => {
-      setPods(results.flat());
-      setLoading(false);
-    });
-  }, [apiBase, clusterIds]);
+    const doFetch = () => {
+      Promise.all(
+        clusterIds.map((id) => {
+          const url = namespace
+            ? `${apiBase}/clusters/${id}/pods?namespace=${namespace}`
+            : `${apiBase}/clusters/${id}/pods`;
+          return fetchJson<Pod[]>(url).then((data) =>
+            data.map((pod) => ({ ...pod, cluster_id: id })),
+          );
+        }),
+      ).then((results) => {
+        setPods(results.flat());
+        setLoading(false);
+      });
+    };
+
+    doFetch();
+    const interval = setInterval(doFetch, 10_000);
+    return () => clearInterval(interval);
+  }, [apiBase, clusterIds, namespace]);
 
   if (loading) return <Spinner size="lg" />;
 

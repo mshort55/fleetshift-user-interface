@@ -24,6 +24,8 @@ export default [
       ...tsPlugin.configs.recommended.rules,
       ...prettierConfig.rules,
       "prettier/prettier": "error",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-function-type": "off",
     },
   },
 ];

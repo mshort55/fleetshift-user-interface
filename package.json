@@ -22,5 +22,8 @@
     "json-parse-even-better-errors": "^5.0.0",
     "prettier": "^3.8.1",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "immutable": "^5.1.5"
   }
 }

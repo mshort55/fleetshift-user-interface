@@ -5,7 +5,7 @@ import { initSharedScope } from "@scalprum/core";
 import { PropsWithChildren, useEffect, useMemo, useRef, useState } from "react";
 import { AppLayout } from "./layouts/AppLayout";
 import { ClusterProvider, useClusters } from "./contexts/ClusterContext";
-import { ScopeProvider } from "./contexts/ScopeContext";
+import { ScopeProvider, useScope } from "./contexts/ScopeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserPreferencesProvider } from "./contexts/UserPreferencesContext";
 import {
@@ -20,6 +20,11 @@ import { CanvasPageListPage } from "./pages/CanvasPageListPage";
 import { CanvasPage } from "./pages/CanvasPage";
 
 const API_BASE = "http://localhost:4000/api/v1";
+
+// Module-level refs for scope — ScopeProvider is nested inside ScalprumShell,
+// so we use refs + listeners to bridge scope into the Scalprum API object.
+const scopeRef = { current: "all" as string };
+const scopeListenersRef = { current: new Set<() => void>() };
 
 const ScopeInitializer = ({ children }: PropsWithChildren) => {
   const [loading, setLoading] = useState(true);
@@ -92,6 +97,13 @@ const ScalprumShell = ({ children }: PropsWithChildren) => {
             clusterListenersRef.current.delete(fn);
           };
         },
+        getScope: () => scopeRef.current,
+        onScopeChange: (fn: () => void) => {
+          scopeListenersRef.current.add(fn);
+          return () => {
+            scopeListenersRef.current.delete(fn);
+          };
+        },
       },
     }),
     [],
@@ -116,6 +128,17 @@ const ScalprumShell = ({ children }: PropsWithChildren) => {
   );
 };
 
+/** Syncs the ScopeProvider's scope value to the module-level ref so the
+ *  Scalprum API (created outside ScopeProvider) can expose it to plugins. */
+const ScopeBridge = () => {
+  const { scope } = useScope();
+  useEffect(() => {
+    scopeRef.current = scope;
+    scopeListenersRef.current.forEach((fn) => fn());
+  }, [scope]);
+  return null;
+};
+
 const AuthGate = ({ children }: PropsWithChildren) => {
   const { loading } = useAuth();
   if (loading) return null;
@@ -131,6 +154,7 @@ export const App = () => (
             <ClusterProvider>
               <ScalprumShell>
                 <ScopeProvider>
+                  <ScopeBridge />
                   <UserPreferencesProvider>
                     <Routes>
                       <Route element={<AppLayout />}>
