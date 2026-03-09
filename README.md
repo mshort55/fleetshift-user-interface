@@ -85,4 +85,11 @@ npm run lint:fix      # auto-fix
 
 ## Documentation
 
-- [Routing Plugin — Cross-Plugin Linking](docs/routing-plugin.md)
+- [Shell Architecture](docs/shell-architecture.md) — bootstrap chain, provider tree, ScalprumProvider, bridge pattern
+- [Plugin System](docs/plugin-system.md) — how plugins are built, registered, discovered, and loaded
+- [Build System](docs/build-system.md) — PatternFly import transforms, Module Federation sharing, monorepo setup
+- [Scope Model](docs/scope-model.md) — "All Clusters" vs single-cluster scoping, `clusterIds` prop
+- [Navigation System](docs/navigation-system.md) — drag-drop nav editor, layout model, @dnd-kit
+- [Mock Server](docs/mock-server.md) — Express + SQLite API, DB schema, seed data, WebSocket events
+- [Cross-Plugin Routing](docs/routing-plugin.md) — runtime path resolution between plugins
+- [Canvas Pages](docs/canvas-pages.md) — composable grid pages (experimental)
