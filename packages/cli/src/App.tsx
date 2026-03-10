@@ -6,8 +6,9 @@ import {
   runCommand,
   getCommandNames,
   needsClusterArg,
+  getPluginKeyForCommand,
 } from "./commands/index.js";
-import { fetchClusters } from "@fleetshift/common";
+import { type Cluster, fetchClusters } from "@fleetshift/common";
 import { FullScreenFrame } from "./components/FullScreenFrame.js";
 import { ScrollingFrame } from "./components/ScrollingFrame.js";
 import { OutputBlock } from "./types.js";
@@ -26,13 +27,13 @@ export const App = ({ apiBase, mode }: AppProps) => {
   const [blocks, setBlocks] = useState<OutputBlock[]>([]);
   const [running, setRunning] = useState(false);
   const [input, setInput] = useState("");
-  const clusterNamesRef = useRef<string[]>([]);
+  const clustersRef = useRef<Cluster[]>([]);
 
-  // Pre-fetch cluster names for tab completion
+  // Pre-fetch clusters for tab completion
   useEffect(() => {
     fetchClusters(apiBase)
       .then((data) => {
-        clusterNamesRef.current = data.map((c) => c.name);
+        clustersRef.current = data;
       })
       .catch(() => {});
   }, [apiBase]);
@@ -50,7 +51,13 @@ export const App = ({ apiBase, mode }: AppProps) => {
     const cmd = parts[0]!.toLowerCase();
     if (!needsClusterArg(cmd)) return [];
 
-    return clusterNamesRef.current.map((name) => `${cmd} ${name}`);
+    // Plugin commands only suggest clusters that have the plugin enabled
+    const pluginKey = getPluginKeyForCommand(cmd);
+    const eligible = pluginKey
+      ? clustersRef.current.filter((c) => c.plugins?.includes(pluginKey))
+      : clustersRef.current;
+
+    return eligible.map((c) => `${cmd} ${c.id}`);
   }, [input]);
 
   const handleSubmit = useCallback(
@@ -89,10 +96,10 @@ export const App = ({ apiBase, mode }: AppProps) => {
           },
         ]);
       }
-      // Refresh cluster names cache after each command
+      // Refresh cluster cache after each command
       fetchClusters(apiBase)
         .then((data) => {
-          clusterNamesRef.current = data.map((c) => c.name);
+          clustersRef.current = data;
         })
         .catch(() => {});
       setRunning(false);

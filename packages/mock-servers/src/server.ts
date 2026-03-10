@@ -22,7 +22,9 @@ import eventRoutes from "./routes/events";
 import appRoutes from "./routes/appRoutes";
 import userRoutes from "./routes/users";
 import pluginRegistryRoutes from "./routes/pluginRegistry";
+import cliPluginRegistryRoutes from "./routes/cliPluginRegistry";
 import { initPluginRegistryWatcher } from "./pluginRegistry";
+import { initCliPluginRegistryWatcher } from "./cliPluginRegistry";
 import { attachWebSocket } from "./ws";
 
 const app = express();
@@ -48,6 +50,7 @@ app.use("/api/v1", eventRoutes);
 app.use("/api/v1", appRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", pluginRegistryRoutes);
+app.use("/api/v1", cliPluginRegistryRoutes);
 
 // Seed default clusters if none installed
 const clusterCount = (
@@ -86,6 +89,7 @@ if (clusterCount === 0) {
 }
 
 initPluginRegistryWatcher();
+initCliPluginRegistryWatcher();
 
 const PORT = 4000;
 const server = createServer(app);

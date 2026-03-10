@@ -9,10 +9,11 @@ import { install } from "./install.js";
 import { uninstall } from "./uninstall.js";
 import { enable } from "./enable.js";
 import { disable } from "./disable.js";
+import { getPluginCommands } from "../plugins.js";
 
 export type { CommandResult } from "./types.js";
 
-const commands: Command[] = [
+const builtinCommands: Command[] = [
   clusters,
   install,
   uninstall,
@@ -24,12 +25,19 @@ const commands: Command[] = [
   deployments,
 ];
 
-const commandMap = new Map<string, Command>();
-for (const cmd of commands) {
-  commandMap.set(cmd.name, cmd);
-  for (const alias of cmd.aliases ?? []) {
-    commandMap.set(alias, cmd);
+function getAllCommands(): Command[] {
+  return [...builtinCommands, ...getPluginCommands().map((pc) => pc.command)];
+}
+
+function getCommandMap(): Map<string, Command> {
+  const map = new Map<string, Command>();
+  for (const cmd of getAllCommands()) {
+    map.set(cmd.name, cmd);
+    for (const alias of cmd.aliases ?? []) {
+      map.set(alias, cmd);
+    }
   }
+  return map;
 }
 
 function buildHelp(): CommandResult {
@@ -37,7 +45,7 @@ function buildHelp(): CommandResult {
     <Box flexDirection="column">
       <Text bold>Available commands:</Text>
       <Text> </Text>
-      {commands.map((cmd) => (
+      {getAllCommands().map((cmd) => (
         <Box key={cmd.name}>
           <Box width={24}>
             <Text color="white">{cmd.usage ?? cmd.name}</Text>
@@ -74,15 +82,23 @@ function buildHelp(): CommandResult {
 
 /** All top-level command names + aliases + builtins for tab completion. */
 export function getCommandNames(): string[] {
-  const names = commands.flatMap((c) => [c.name, ...(c.aliases ?? [])]);
+  const names = getAllCommands().flatMap((c) => [c.name, ...(c.aliases ?? [])]);
   names.push("help", "clear", "quit", "exit");
   return names;
 }
 
 /** Commands that accept a cluster argument (for second-word completion). */
 export function needsClusterArg(cmd: string): boolean {
-  const c = commandMap.get(cmd);
+  const c = getCommandMap().get(cmd);
   return !!c?.usage?.includes("<cluster>");
+}
+
+/** If cmd is a plugin command, return its required plugin key; otherwise undefined. */
+export function getPluginKeyForCommand(cmd: string): string | undefined {
+  const pc = getPluginCommands().find(
+    (p) => p.command.name === cmd || p.command.aliases?.includes(cmd),
+  );
+  return pc?.pluginKey;
 }
 
 export async function runCommand(
@@ -97,7 +113,7 @@ export async function runCommand(
   if (name === "clear") return "clear";
   if (name === "quit" || name === "exit") return "exit";
 
-  const cmd = commandMap.get(name);
+  const cmd = getCommandMap().get(name);
   if (!cmd) {
     return (
       <Text color="yellow">

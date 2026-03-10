@@ -17,7 +17,6 @@ export const ScrollingFrame = ({
     onSubmit: handleSubmit,
   });
 
-  console.log(input.defaultValue);
   return (
     <Box flexDirection="column">
       {/* Past output — rendered once, scrolls naturally */}

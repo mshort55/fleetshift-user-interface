@@ -16,6 +16,8 @@
   "dependencies": {
     "@fleetshift/common": "*",
     "@inkjs/ui": "^2.0.0",
+    "@module-federation/enhanced": "^2.1.0",
+    "cli-spinners": "^3.4.0",
     "ink": "^5.2.0",
     "ink-scroll-view": "^0.3.6",
     "meow": "^13.2.0",

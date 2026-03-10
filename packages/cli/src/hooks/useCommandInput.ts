@@ -1,11 +1,5 @@
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useInput, useApp } from "ink";
-
-interface DebugEntry {
-  ts: number;
-  event: string;
-  data: Record<string, unknown>;
-}
 
 interface UseCommandInputOptions {
   suggestions: string[];
@@ -35,18 +29,6 @@ export function useCommandInput({
   // TextInput's redundant call when we already submitted from useInput.
   const skipNextSubmitRef = useRef(false);
 
-  // --- Debug log ---
-  const debugLogRef = useRef<DebugEntry[]>([]);
-  const [debugTick, setDebugTick] = useState(0);
-  const debugLog = useCallback(
-    (event: string, data: Record<string, unknown>) => {
-      const entry: DebugEntry = { ts: Date.now(), event, data };
-      debugLogRef.current = [...debugLogRef.current.slice(-19), entry];
-      setDebugTick((t) => t + 1);
-    },
-    [],
-  );
-
   // Matching suggestions for the current input
   const matches = useMemo(() => {
     if (currentValue.length === 0) return [];
@@ -55,11 +37,6 @@ export function useCommandInput({
 
   /** Remount TextInput with a new value */
   const remountInput = (value: string) => {
-    debugLog("remountInput", {
-      value,
-      prevDefault: defaultValueRef.current,
-      prevKey: inputKey,
-    });
     defaultValueRef.current = value;
     setCurrentValue(value);
     onInputChange(value);
@@ -125,13 +102,11 @@ export function useCommandInput({
         // will also fire for this Enter keystroke, so set a flag to skip it.
         const selected = matches[menuIndex];
         if (selected) {
-          debugLog("menuEnter:submit", { selected });
           skipNextSubmitRef.current = true;
           remountInput("");
           setMenuOpen(false);
           setMenuIndex(0);
           setTimeout(() => {
-            debugLog("menuEnter:deferred", { selected });
             onSubmit(selected.trim());
           }, 0);
         }
@@ -159,31 +134,17 @@ export function useCommandInput({
   });
 
   const onChange = (value: string) => {
-    debugLog("onChange", {
-      value,
-      prevValue: currentValue,
-      defaultRef: defaultValueRef.current,
-      inputKey,
-    });
     setCurrentValue(value);
     onInputChange(value);
   };
 
   const handleSubmit = (value: string) => {
     if (skipNextSubmitRef.current) {
-      debugLog("handleSubmit:skipped", { value });
       skipNextSubmitRef.current = false;
       remountInput("");
       return;
     }
     const trimmed = value.trim();
-    debugLog("handleSubmit", {
-      value,
-      trimmed,
-      currentValue,
-      defaultRef: defaultValueRef.current,
-      inputKey,
-    });
     // Clear input and remount immediately, then defer the actual command
     // to the next tick so App's state updates don't get batched with the
     // input-clearing updates (which can cause a flash of the old value).
@@ -192,7 +153,6 @@ export function useCommandInput({
     setMenuIndex(0);
     if (trimmed) {
       setTimeout(() => {
-        debugLog("onSubmit:deferred", { trimmed });
         onSubmit(trimmed);
       }, 0);
     }
@@ -209,9 +169,6 @@ export function useCommandInput({
     exitPending,
     onChange,
     handleSubmit,
-    // Debug
-    debugEntries: debugLogRef.current,
-    debugTick,
   };
 }
 

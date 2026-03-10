@@ -1,11 +1,23 @@
 import path from "path";
+import { createRequire } from "module";
 import webpack from "webpack";
 import type { Configuration } from "webpack";
+import mf from "@module-federation/enhanced";
+const { ModuleFederationPlugin } = mf;
 
+const require = createRequire(import.meta.url);
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
+const ShellPlugin = new ModuleFederationPlugin({
+  name: "shell-plugin",
+  runtimePlugins: [require.resolve("@module-federation/node/runtimePlugin")],
+  remoteType: "script",
+  filename: "shell-plugin.[contenthash].js",
+  library: { type: "commonjs-module", name: "shell-plugin" },
+});
+
 const config: Configuration = {
-  entry: "./src/cli.tsx",
+  entry: "./src/index.ts",
   target: "node",
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -51,6 +63,7 @@ const config: Configuration = {
       banner: "#!/usr/bin/env node",
       raw: true,
     }),
+    ShellPlugin,
   ],
   // Don't bundle Node built-ins
   externalsPresets: { node: true },

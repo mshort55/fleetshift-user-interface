@@ -19,6 +19,9 @@ export const clusters: Command = {
           <Box width={24}>
             <Text bold>Name</Text>
           </Box>
+          <Box width={16}>
+            <Text bold>ID</Text>
+          </Box>
           <Box width={12}>
             <Text bold>Status</Text>
           </Box>
@@ -31,6 +34,9 @@ export const clusters: Command = {
           <Box key={c.id}>
             <Box width={24}>
               <Text>{c.name}</Text>
+            </Box>
+            <Box width={16}>
+              <Text dimColor>{c.id}</Text>
             </Box>
             <Box width={12}>
               <Badge

@@ -11,8 +11,6 @@ import { useCommandInput } from "../hooks/useCommandInput";
 const BASE_CHROME_ROWS = 6;
 // Completion menu when open: items row (1) + hint row (1) = 2
 const MENU_ROWS = 2;
-// Debug pane: state line (1) + log lines (up to 8) + border (2) = 11
-const DEBUG_ROWS = 11;
 
 export interface FrameProps {
   blocks: OutputBlock[];
@@ -67,8 +65,7 @@ export const FullScreenFrame = ({
   }, [blocks.length, running]);
 
   const menuVisible = input.menuOpen && input.matches.length > 0;
-  const chromeRows =
-    BASE_CHROME_ROWS + (menuVisible ? MENU_ROWS : 0) + DEBUG_ROWS;
+  const chromeRows = BASE_CHROME_ROWS + (menuVisible ? MENU_ROWS : 0);
   const maxContentRows = Math.max(1, size.rows - chromeRows);
 
   // Remeasure when menu opens/closes since content area height changes
@@ -92,32 +89,6 @@ export const FullScreenFrame = ({
           {" "}
           — type &apos;help&apos; for commands, &apos;quit&apos; to exit
         </Text>
-      </Box>
-
-      {/* Debug pane */}
-      <Box
-        borderStyle="single"
-        borderColor="yellow"
-        flexDirection="column"
-        paddingX={1}
-        height={DEBUG_ROWS}
-        overflow="hidden"
-      >
-        <Text bold color="yellow">
-          DEBUG inputKey={input.inputKey} defaultValue=
-          {JSON.stringify(input.defaultValue)} currentValue=
-          {JSON.stringify(input.currentValue)}
-        </Text>
-        {input.debugEntries.slice(-8).map((e, i) => {
-          const age = Date.now() - e.ts;
-          const ageStr =
-            age < 1000 ? `${age}ms` : `${(age / 1000).toFixed(1)}s`;
-          return (
-            <Text key={i} dimColor wrap="truncate">
-              {`${ageStr} ${e.event} ${JSON.stringify(e.data)}`}
-            </Text>
-          );
-        })}
       </Box>
 
       {/* Main Content Area — ScrollView handles overflow */}
