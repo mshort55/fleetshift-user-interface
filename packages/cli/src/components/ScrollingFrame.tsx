@@ -1,8 +1,8 @@
 import { Box, Text, Static } from "ink";
 import { TextInput, Spinner } from "@inkjs/ui";
 import { CompletionMenu } from "./CompletionMenu.js";
-import { useCommandInput } from "../hooks/useCommandInput.js";
-import type { FrameProps } from "./FullScreenFrame.js";
+import { useCommandInput } from "../hooks/useCommandInput";
+import type { FrameProps } from "./FullScreenFrame";
 
 export const ScrollingFrame = ({
   blocks,

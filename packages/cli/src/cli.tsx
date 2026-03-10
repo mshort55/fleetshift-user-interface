@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 import meow from "meow";
 import { render } from "ink";
-import { App } from "./App.js";
+import { App } from "./App";
 import { SingleCommand } from "./components/SingleCommand.js";
 import { ThemeProvider } from "@inkjs/ui";
 import { fleetshiftTheme } from "./theme.js";
-import { ENTER_ALT_SCREEN, LEAVE_ALT_SCREEN } from "./utils/fullscreen.js";
+import { ENTER_ALT_SCREEN, LEAVE_ALT_SCREEN } from "./utils/fullscreen";
+import path from "path";
+
+console.log("import.meta", { ...import.meta }, import.meta.url);
 
 const cli = meow(
   `
@@ -26,7 +29,13 @@ const cli = meow(
     --api-base          Mock server URL (default: http://localhost:4000/api/v1)
 `,
   {
-    importMeta: import.meta,
+    importMeta: {
+      url: import.meta.url,
+      resolve: (p) => new URL(p, import.meta.url).pathname,
+      dirname: path.dirname(new URL(import.meta.url).pathname),
+      filename: path.basename(new URL(import.meta.url).pathname),
+      main: import.meta.url === process.argv[1] || !import.meta.url, // Rough heuristic for "is this the main module?"
+    },
     flags: {
       fullscreen: {
         type: "boolean",

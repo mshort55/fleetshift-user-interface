@@ -8,8 +8,8 @@
     "fleetshift": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
+    "build": "webpack --mode production",
+    "watch": "webpack --mode development --watch",
     "dev": "node dist/cli.js",
     "start": "node dist/cli.js"
   },
@@ -22,6 +22,9 @@
     "react": "^18.3.1"
   },
   "devDependencies": {
-    "@types/react": "^18.3.18"
+    "@types/react": "^18.3.18",
+    "ts-loader": "^9.5.4",
+    "webpack": "^5.105.3",
+    "webpack-cli": "^6.0.1"
   }
 }

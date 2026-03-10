@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { Box, Text, useStdout, useInput } from "ink";
 import { TextInput, Spinner } from "@inkjs/ui";
 import { ScrollView, type ScrollViewRef } from "ink-scroll-view";
-import { OutputBlock } from "../types.js";
-import { CompletionMenu } from "./CompletionMenu.js";
-import { useCommandInput } from "../hooks/useCommandInput.js";
+import { OutputBlock } from "../types";
+import { CompletionMenu } from "./CompletionMenu";
+import { useCommandInput } from "../hooks/useCommandInput";
 
 // Header: border top (1) + content (1) + border bottom (1) = 3
 // Footer: border top (1) + input (1) + border bottom (1) = 3

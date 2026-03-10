@@ -1,7 +1,7 @@
 import { type ReactNode, useState, useEffect } from "react";
 import { useApp } from "ink";
 import { Spinner, StatusMessage } from "@inkjs/ui";
-import { runCommand } from "../commands/index.js";
+import { runCommand } from "../commands";
 
 interface SingleCommandProps {
   input: string;

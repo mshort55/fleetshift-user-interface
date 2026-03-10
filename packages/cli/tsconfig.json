@@ -8,5 +8,12 @@
     "moduleResolution": "bundler",
     "noEmit": false
   },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS",
+      "moduleResolution": "node",
+      "plugins": []
+    }
+  },
   "include": ["src"]
 }
