@@ -33,12 +33,12 @@ const PodMetrics = ({ clusterId }: PodMetricsProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    makeRequest<MetricsResponse>(`${apiBase}/clusters/${clusterId}/metrics`).then(
-      (data) => {
-        setPods(data.pods);
-        setLoading(false);
-      },
-    );
+    makeRequest<MetricsResponse>(
+      `${apiBase}/clusters/${clusterId}/metrics`,
+    ).then((data) => {
+      setPods(data.pods);
+      setLoading(false);
+    });
   }, [apiBase, clusterId]);
 
   if (loading) return <Spinner size="lg" />;

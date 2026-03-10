@@ -9,29 +9,52 @@ export const clusters: Command = {
   async run({ apiBase }) {
     const data = await fetchClusters(apiBase);
     if (data.length === 0)
-      return <StatusMessage variant="info">No clusters installed.</StatusMessage>;
+      return (
+        <StatusMessage variant="info">No clusters installed.</StatusMessage>
+      );
 
     return (
       <Box flexDirection="column">
         <Box>
-          <Box width={24}><Text bold>Name</Text></Box>
-          <Box width={12}><Text bold>Status</Text></Box>
-          <Box width={12}><Text bold>Version</Text></Box>
+          <Box width={24}>
+            <Text bold>Name</Text>
+          </Box>
+          <Box width={12}>
+            <Text bold>Status</Text>
+          </Box>
+          <Box width={12}>
+            <Text bold>Version</Text>
+          </Box>
           <Text bold>Plugins</Text>
         </Box>
         {data.map((c) => (
           <Box key={c.id}>
-            <Box width={24}><Text>{c.name}</Text></Box>
+            <Box width={24}>
+              <Text>{c.name}</Text>
+            </Box>
             <Box width={12}>
-              <Badge color={c.status === "ready" ? "green" : c.status === "error" ? "red" : "yellow"}>
+              <Badge
+                color={
+                  c.status === "ready"
+                    ? "green"
+                    : c.status === "error"
+                      ? "red"
+                      : "yellow"
+                }
+              >
                 {c.status}
               </Badge>
             </Box>
-            <Box width={12}><Text>{c.version}</Text></Box>
+            <Box width={12}>
+              <Text>{c.version}</Text>
+            </Box>
             <Text>{(c.plugins ?? []).join(", ")}</Text>
           </Box>
         ))}
-        <Text dimColor>{"\n"}{data.length} cluster(s) installed</Text>
+        <Text dimColor>
+          {"\n"}
+          {data.length} cluster(s) installed
+        </Text>
       </Box>
     );
   },

@@ -11,32 +11,64 @@ export const deployments: Command = {
   usage: "deployments <cluster>",
   async run({ apiBase, arg }) {
     if (!arg)
-      return <StatusMessage variant="warning">Usage: deployments &lt;cluster&gt;</StatusMessage>;
+      return (
+        <StatusMessage variant="warning">
+          Usage: deployments &lt;cluster&gt;
+        </StatusMessage>
+      );
 
     const cluster = await resolveCluster(apiBase, arg);
     const data = await fetchDeployments(apiBase, cluster.id);
     if (data.length === 0)
-      return <StatusMessage variant="info">No deployments in {cluster.name}.</StatusMessage>;
+      return (
+        <StatusMessage variant="info">
+          No deployments in {cluster.name}.
+        </StatusMessage>
+      );
 
     return (
       <Box flexDirection="column">
         <Text bold>Deployments in {cluster.name}:</Text>
         <Box>
-          <Box width={24}><Text bold>Name</Text></Box>
-          <Box width={12}><Text bold>Ready</Text></Box>
-          <Box width={12}><Text bold>Available</Text></Box>
+          <Box width={24}>
+            <Text bold>Name</Text>
+          </Box>
+          <Box width={12}>
+            <Text bold>Ready</Text>
+          </Box>
+          <Box width={12}>
+            <Text bold>Available</Text>
+          </Box>
           <Text bold>Image</Text>
         </Box>
         {data.map((d) => (
           <Box key={d.id}>
-            <Box width={24}><Text>{d.name}</Text></Box>
+            <Box width={24}>
+              <Text>{d.name}</Text>
+            </Box>
             <Box width={12}>
-              <Badge color={d.ready === d.replicas ? "green" : d.ready === 0 ? "red" : "yellow"}>
+              <Badge
+                color={
+                  d.ready === d.replicas
+                    ? "green"
+                    : d.ready === 0
+                      ? "red"
+                      : "yellow"
+                }
+              >
                 {d.ready}/{d.replicas}
               </Badge>
             </Box>
             <Box width={12}>
-              <Badge color={d.available === d.replicas ? "green" : d.available === 0 ? "red" : "yellow"}>
+              <Badge
+                color={
+                  d.available === d.replicas
+                    ? "green"
+                    : d.available === 0
+                      ? "red"
+                      : "yellow"
+                }
+              >
                 {d.available}/{d.replicas}
               </Badge>
             </Box>

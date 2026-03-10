@@ -10,31 +10,57 @@ export const alerts: Command = {
   usage: "alerts <cluster>",
   async run({ apiBase, arg }) {
     if (!arg)
-      return <StatusMessage variant="warning">Usage: alerts &lt;cluster&gt;</StatusMessage>;
+      return (
+        <StatusMessage variant="warning">
+          Usage: alerts &lt;cluster&gt;
+        </StatusMessage>
+      );
 
     const cluster = await resolveCluster(apiBase, arg);
     const data = await fetchAlerts(apiBase, cluster.id);
     if (data.length === 0)
-      return <StatusMessage variant="success">No alerts in {cluster.name}.</StatusMessage>;
+      return (
+        <StatusMessage variant="success">
+          No alerts in {cluster.name}.
+        </StatusMessage>
+      );
 
     return (
       <Box flexDirection="column">
         <Text bold>Alerts in {cluster.name}:</Text>
         <Box>
-          <Box width={28}><Text bold>Name</Text></Box>
-          <Box width={12}><Text bold>Severity</Text></Box>
-          <Box width={12}><Text bold>State</Text></Box>
+          <Box width={28}>
+            <Text bold>Name</Text>
+          </Box>
+          <Box width={12}>
+            <Text bold>Severity</Text>
+          </Box>
+          <Box width={12}>
+            <Text bold>State</Text>
+          </Box>
           <Text bold>Message</Text>
         </Box>
         {data.map((a) => (
           <Box key={a.id}>
-            <Box width={28}><Text>{a.name}</Text></Box>
+            <Box width={28}>
+              <Text>{a.name}</Text>
+            </Box>
             <Box width={12}>
-              <Badge color={a.severity === "critical" ? "red" : a.severity === "warning" ? "yellow" : "white"}>
+              <Badge
+                color={
+                  a.severity === "critical"
+                    ? "red"
+                    : a.severity === "warning"
+                      ? "yellow"
+                      : "white"
+                }
+              >
                 {a.severity}
               </Badge>
             </Box>
-            <Box width={12}><Text>{a.state}</Text></Box>
+            <Box width={12}>
+              <Text>{a.state}</Text>
+            </Box>
             <Text>{a.message}</Text>
           </Box>
         ))}

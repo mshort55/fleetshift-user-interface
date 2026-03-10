@@ -5,10 +5,24 @@ import { pods } from "./pods.js";
 import { nodes } from "./nodes.js";
 import { alerts } from "./alerts.js";
 import { deployments } from "./deployments.js";
+import { install } from "./install.js";
+import { uninstall } from "./uninstall.js";
+import { enable } from "./enable.js";
+import { disable } from "./disable.js";
 
 export type { CommandResult } from "./types.js";
 
-const commands: Command[] = [clusters, pods, nodes, alerts, deployments];
+const commands: Command[] = [
+  clusters,
+  install,
+  uninstall,
+  enable,
+  disable,
+  pods,
+  nodes,
+  alerts,
+  deployments,
+];
 
 const commandMap = new Map<string, Command>();
 for (const cmd of commands) {
