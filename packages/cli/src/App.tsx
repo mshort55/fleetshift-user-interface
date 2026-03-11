@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import { useApp } from "ink";
+import { Box, Text, useApp } from "ink";
 import { StatusMessage, ThemeProvider } from "@inkjs/ui";
 import { fleetshiftTheme } from "./theme.js";
 import {
@@ -9,6 +9,7 @@ import {
   getPluginKeyForCommand,
 } from "./commands/index.js";
 import { type Cluster, fetchClusters } from "@fleetshift/common";
+import { getLoadedPlugins } from "./plugins.js";
 import { FullScreenFrame } from "./components/FullScreenFrame.js";
 import { ScrollingFrame } from "./components/ScrollingFrame.js";
 import { OutputBlock } from "./types.js";
@@ -22,9 +23,30 @@ interface AppProps {
 
 let blockId = 0;
 
+function buildPluginBlocks(): OutputBlock[] {
+  const loaded = getLoadedPlugins();
+  if (loaded.length === 0) return [];
+  return [
+    {
+      id: blockId++,
+      command: "plugins",
+      content: (
+        <Box flexDirection="column">
+          {loaded.map((p) => (
+            <StatusMessage key={p.name} variant="success">
+              {p.label} ({p.name}) — {p.exposes.join(", ")}
+            </StatusMessage>
+          ))}
+          <Text color="gray">{loaded.length} remote plugin(s) loaded</Text>
+        </Box>
+      ),
+    },
+  ];
+}
+
 export const App = ({ apiBase, mode }: AppProps) => {
   const { exit } = useApp();
-  const [blocks, setBlocks] = useState<OutputBlock[]>([]);
+  const [blocks, setBlocks] = useState<OutputBlock[]>(buildPluginBlocks);
   const [running, setRunning] = useState(false);
   const [input, setInput] = useState("");
   const clustersRef = useRef<Cluster[]>([]);

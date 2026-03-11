@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "webpack serve",
-    "build": "webpack build"
+    "build": "webpack build",
+    "serve": "webpack serve --host 0.0.0.0 --port 3000"
   },
   "dependencies": {
     "@dnd-kit/react": "^0.3.2",

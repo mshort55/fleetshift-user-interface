@@ -1,21 +1,25 @@
 import path from "path";
-import { ModuleFederationPlugin } from "@module-federation/enhanced";
+import * as mf from "@module-federation/enhanced";
+const { ModuleFederationPlugin } = mf;
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import { getDynamicModules, createTsLoaderRule } from "@fleetshift/build-utils";
+import * as buildUtils from "@fleetshift/build-utils";
+const { getDynamicModules, createTsLoaderRule } = buildUtils;
 import type { Configuration } from "webpack";
 import type { Configuration as DevServerConfiguration } from "webpack-dev-server";
 
-const monorepoRoot = path.resolve(__dirname, "../..");
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+const configDir = typeof __dirname === "string" ? __dirname : process.cwd();
+const monorepoRoot = path.resolve(configDir, "../..");
 const nodeModulesRoot = path.resolve(monorepoRoot, "node_modules");
-const pfSharedModules = getDynamicModules(__dirname, monorepoRoot);
+const pfSharedModules = getDynamicModules(configDir, monorepoRoot);
 const tsLoaderRule = createTsLoaderRule({ nodeModulesRoot });
 
 const config: Configuration & { devServer?: DevServerConfiguration } = {
   entry: "./src/index.ts",
   output: {
     publicPath: "/",
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(configDir, "dist"),
     clean: true,
   },
   mode: "development",
@@ -66,7 +70,7 @@ const config: Configuration & { devServer?: DevServerConfiguration } = {
     proxy: [
       {
         context: ["/api"],
-        target: "http://localhost:4000",
+        target: process.env.API_PROXY_TARGET ?? "http://localhost:4000",
       },
     ],
   },

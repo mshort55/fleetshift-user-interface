@@ -9,6 +9,8 @@
     "dev:server": "npm run dev -w packages/mock-servers",
     "dev:plugins": "npm run serve -w packages/mock-ui-plugins",
     "dev:gui": "npm run dev -w packages/gui",
+    "docker:infra": "docker compose up --build",
+    "docker:gui": "docker compose -f docker-compose.yml -f docker-compose.gui.yml up --build",
     "lint": "eslint packages/",
     "lint:fix": "eslint packages/ --fix",
     "test:e2e": "npm test --workspace=packages/e2e"
