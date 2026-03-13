@@ -50,7 +50,7 @@ const config: Configuration = {
     rules: [
       {
         test: /\.(js|ts)x?$/,
-        exclude: /node_modules/,
+        exclude: [/node_modules/, /__tests__/],
         use: {
           loader: "ts-loader",
         },

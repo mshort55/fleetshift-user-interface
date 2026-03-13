@@ -10,6 +10,7 @@ export const ScrollingFrame = ({
   handleSubmit,
   suggestions,
   onInputChange,
+  prompt,
 }: FrameProps) => {
   const input = useCommandInput({
     suggestions,
@@ -36,11 +37,11 @@ export const ScrollingFrame = ({
 
       <Box flexDirection="column">
         <Box>
-          <Text color="cyan">{"> "}</Text>
+          <Text color="cyan">{prompt}</Text>
           <TextInput
             key={input.inputKey}
             defaultValue={input.defaultValue}
-            suggestions={suggestions}
+            suggestions={input.menuOpen ? [] : suggestions}
             onChange={input.onChange}
             onSubmit={input.handleSubmit}
           />

@@ -7,6 +7,9 @@ import { ThemeProvider } from "@inkjs/ui";
 import { fleetshiftTheme } from "./theme.js";
 import { ENTER_ALT_SCREEN, LEAVE_ALT_SCREEN } from "./utils/fullscreen";
 import { initPlugins } from "./plugins";
+import { installFetchInterceptor } from "./auth/fetchInterceptor.js";
+import { getValidToken } from "./auth/tokenStore.js";
+import { performLogin } from "./auth/login.js";
 import path from "path";
 
 const cli = meow(
@@ -16,8 +19,11 @@ const cli = meow(
     $ fleetshift --fullscreen           Interactive mode (fullscreen TUI)
     $ fleetshift <command> [args]       Run a single command and exit
 
-  Commands
-    clusters                            List installed clusters
+  Menus
+    user <command>                      login, logout, whoami
+    config <command>                    clusters, install, uninstall, enable, disable
+
+  Data Commands
     pods <cluster>                      List pods for a cluster
     nodes <cluster>                     List nodes for a cluster
     alerts <cluster>                    List alerts for a cluster
@@ -51,8 +57,50 @@ const cli = meow(
 
 const { apiBase, fullscreen } = cli.flags;
 
+// Inject Authorization header on API requests (token from OS keyring)
+installFetchInterceptor(apiBase);
+
+// "user" group commands work without authentication
+const AUTH_EXEMPT_COMMANDS = ["user"];
+
+const requestedCommand = cli.input[0]?.toLowerCase();
+const isAuthExempt =
+  requestedCommand !== undefined &&
+  AUTH_EXEMPT_COMMANDS.includes(requestedCommand);
+
+// Gate: require login before anything (except auth-exempt commands).
+const isInteractive = cli.input.length === 0;
+
+if (!isAuthExempt) {
+  const token = await getValidToken();
+  if (!token) {
+    if (isInteractive) {
+      // Interactive mode — auto-trigger login flow
+      console.log("Not logged in. Opening browser to authenticate...");
+      try {
+        await performLogin();
+      } catch (err) {
+        console.error(
+          "Login failed:",
+          err instanceof Error ? err.message : String(err),
+        );
+        process.exit(1);
+      }
+    } else {
+      // Non-interactive single command — hard fail
+      console.error(
+        "Not logged in. Run 'fleetshift user login' to authenticate.",
+      );
+      process.exit(1);
+    }
+  }
+}
+
 // Discover and initialize CLI plugins from the server registry
-await initPlugins(apiBase);
+// Skip for auth-exempt commands — they don't need plugins and the fetch would 401
+if (!isAuthExempt) {
+  await initPlugins(apiBase);
+}
 
 if (cli.input.length > 0) {
   // Non-interactive: run single command, print result, exit

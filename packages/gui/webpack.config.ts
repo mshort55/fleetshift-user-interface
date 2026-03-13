@@ -5,6 +5,7 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import * as buildUtils from "@fleetshift/build-utils";
 const { getDynamicModules, createTsLoaderRule } = buildUtils;
+import webpack from "webpack";
 import type { Configuration } from "webpack";
 import type { Configuration as DevServerConfiguration } from "webpack-dev-server";
 
@@ -30,7 +31,7 @@ const config: Configuration & { devServer?: DevServerConfiguration } = {
   },
   module: {
     rules: [
-      tsLoaderRule,
+      { ...tsLoaderRule, exclude: [/node_modules/, /__tests__/] },
       {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, "css-loader"],
@@ -60,6 +61,11 @@ const config: Configuration & { devServer?: DevServerConfiguration } = {
       },
     }),
     new MiniCssExtractPlugin(),
+    new webpack.DefinePlugin({
+      "process.env.KEYCLOAK_URL": JSON.stringify(
+        process.env.KEYCLOAK_URL ?? "http://localhost:8080",
+      ),
+    }),
     new HtmlWebpackPlugin({
       template: "./src/index.html",
     }),

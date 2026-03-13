@@ -29,8 +29,6 @@ import {
   ToolbarItem,
   Button,
   Divider,
-  ToggleGroup,
-  ToggleGroupItem,
 } from "@patternfly/react-core";
 import { BarsIcon, CogIcon, MoonIcon, SunIcon } from "@patternfly/react-icons";
 import { useAuth } from "../contexts/AuthContext";
@@ -41,21 +39,17 @@ import { ClusterManagerDrawerContent } from "../pages/ClusterListPage/ClusterMan
 import logo from "../assets/masthead.png";
 
 const UserSwitcher = () => {
-  const { user, switchUser } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
-    <ToggleGroup>
-      <ToggleGroupItem
-        text="Ops"
-        isSelected={user?.role === "ops"}
-        onChange={() => switchUser("ops")}
-      />
-      <ToggleGroupItem
-        text="Dev"
-        isSelected={user?.role === "dev"}
-        onChange={() => switchUser("dev")}
-      />
-    </ToggleGroup>
+    <ToolbarGroup>
+      <ToolbarItem>{user?.display_name ?? user?.username}</ToolbarItem>
+      <ToolbarItem>
+        <Button variant="link" onClick={logout}>
+          Log out
+        </Button>
+      </ToolbarItem>
+    </ToolbarGroup>
   );
 };
 

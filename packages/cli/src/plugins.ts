@@ -50,9 +50,16 @@ export async function initPlugins(apiBase: string): Promise<void> {
     registry = await makeRequest<CliPluginRegistry>(
       `${apiBase}/cli-plugin-registry`,
     );
-  } catch {
-    // Registry not available — CLI works fine without plugins
+  } catch (err) {
     registry = null;
+    if (
+      err instanceof Error &&
+      (err.message.includes("401") || err.message.includes("Unauthorized"))
+    ) {
+      console.error(
+        "\u26A0 Not logged in \u2014 plugins unavailable. Run 'login' to authenticate.",
+      );
+    }
     return;
   }
 

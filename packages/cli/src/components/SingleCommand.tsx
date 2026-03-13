@@ -15,7 +15,13 @@ export const SingleCommand = ({ input, apiBase }: SingleCommandProps) => {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    fetchClusters(apiBase)
+    const cmdName = input.split(/\s+/)[0]?.toLowerCase();
+    const noClusterNeeded = cmdName === "user";
+
+    (noClusterNeeded
+      ? Promise.resolve([])
+      : fetchClusters(apiBase)
+    )
       .then((clusters) => runCommand(input, apiBase, clusters))
       .then((r) => {
         if (r === "exit" || r === "clear") {

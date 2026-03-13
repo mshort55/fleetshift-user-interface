@@ -1,4 +1,22 @@
+import { getTestToken } from "./auth";
+
 const API_BASE = "http://localhost:4000/api/v1";
+
+let authToken: string | null = null;
+
+async function ensureAuth(): Promise<string> {
+  if (!authToken) {
+    authToken = await getTestToken("ops", "test");
+  }
+  return authToken;
+}
+
+function authHeaders(
+  extra?: Record<string, string>,
+): Record<string, string> {
+  if (!authToken) return extra ?? {};
+  return { Authorization: `Bearer ${authToken}`, ...extra };
+}
 
 interface LoginResponse {
   id: string;
@@ -34,9 +52,10 @@ type NavLayoutEntry =
     };
 
 export async function login(username: string): Promise<LoginResponse> {
+  await ensureAuth();
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ username }),
   });
   if (!res.ok) throw new Error(`Login failed: ${res.status}`);
@@ -46,7 +65,10 @@ export async function login(username: string): Promise<LoginResponse> {
 export async function getCanvasPages(
   userId: string,
 ): Promise<{ pages: CanvasPage[] }> {
-  const res = await fetch(`${API_BASE}/users/${userId}/canvas-pages`);
+  await ensureAuth();
+  const res = await fetch(`${API_BASE}/users/${userId}/canvas-pages`, {
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(`getCanvasPages failed: ${res.status}`);
   return res.json();
 }
@@ -57,9 +79,10 @@ export async function createCanvasPage(
   path: string,
   modules: CanvasModule[],
 ): Promise<CanvasPage> {
+  await ensureAuth();
   const createRes = await fetch(`${API_BASE}/users/${userId}/canvas-pages`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ title, path }),
   });
   if (!createRes.ok)
@@ -71,7 +94,7 @@ export async function createCanvasPage(
       `${API_BASE}/users/${userId}/canvas-pages/${page.id}`,
       {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ modules }),
       },
     );
@@ -87,9 +110,10 @@ export async function deleteCanvasPage(
   userId: string,
   pageId: string,
 ): Promise<void> {
+  await ensureAuth();
   const res = await fetch(
     `${API_BASE}/users/${userId}/canvas-pages/${pageId}`,
-    { method: "DELETE" },
+    { method: "DELETE", headers: authHeaders() },
   );
   if (!res.ok) throw new Error(`deleteCanvasPage failed: ${res.status}`);
 }
@@ -98,9 +122,10 @@ export async function updateNavLayout(
   userId: string,
   navLayout: NavLayoutEntry[],
 ): Promise<void> {
+  await ensureAuth();
   const res = await fetch(`${API_BASE}/users/${userId}/preferences`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ navLayout }),
   });
   if (!res.ok) throw new Error(`updateNavLayout failed: ${res.status}`);
@@ -109,7 +134,10 @@ export async function updateNavLayout(
 export async function getNavLayout(
   userId: string,
 ): Promise<{ navLayout: NavLayoutEntry[] }> {
-  const res = await fetch(`${API_BASE}/users/${userId}/preferences`);
+  await ensureAuth();
+  const res = await fetch(`${API_BASE}/users/${userId}/preferences`, {
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(`getNavLayout failed: ${res.status}`);
   return res.json();
 }

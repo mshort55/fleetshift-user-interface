@@ -26,10 +26,16 @@ import cliPluginRegistryRoutes from "./routes/cliPluginRegistry";
 import { initPluginRegistryWatcher } from "./pluginRegistry";
 import { initCliPluginRegistryWatcher } from "./cliPluginRegistry";
 import { attachWebSocket } from "./ws";
+import { jwtAuthMiddleware, keycloakLoginHandler } from "./middleware/auth";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// JWT validation — all API routes require a valid Keycloak token
+app.use("/api/v1", jwtAuthMiddleware);
+// /auth/login returns user info derived from the JWT
+app.post("/api/v1/auth/login", keycloakLoginHandler);
 
 app.use("/api/v1", clusterRoutes);
 app.use("/api/v1", namespaceRoutes);

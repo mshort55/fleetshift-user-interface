@@ -36,11 +36,17 @@ export function PluginRegistryProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetch(`${API_BASE}/plugin-registry`)
-      .then((res) => res.json())
-      .then((data: PluginRegistry) => setRegistry(data));
+      .then((res) => {
+        if (!res.ok) throw new Error(`${res.status}`);
+        return res.json();
+      })
+      .then((data: PluginRegistry) => setRegistry(data))
+      .catch(() => {
+        // Will retry on next mount (e.g. after auth redirect)
+      });
   }, []);
 
-  if (!registry) return null;
+  if (!registry?.plugins) return null;
 
   const pluginEntries = Object.values(registry.plugins);
 

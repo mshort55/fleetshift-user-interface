@@ -189,8 +189,18 @@ const CanvasPagesBridge = () => {
 };
 
 const AuthGate = ({ children }: PropsWithChildren) => {
-  const { loading } = useAuth();
-  if (loading) return null;
+  const { loading, user, login } = useAuth();
+  const loginTriggered = useRef(false);
+
+  useEffect(() => {
+    if (!loading && !user && !loginTriggered.current) {
+      loginTriggered.current = true;
+      login();
+    }
+  }, [loading, user, login]);
+
+  if (loading || !user) return null;
+
   return <>{children}</>;
 };
 

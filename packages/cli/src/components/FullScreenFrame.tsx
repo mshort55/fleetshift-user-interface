@@ -18,6 +18,7 @@ export interface FrameProps {
   handleSubmit: (input: string) => void;
   suggestions: string[];
   onInputChange: (value: string) => void;
+  prompt: string;
 }
 
 export const FullScreenFrame = ({
@@ -26,6 +27,7 @@ export const FullScreenFrame = ({
   handleSubmit,
   suggestions,
   onInputChange,
+  prompt,
 }: FrameProps) => {
   const { stdout } = useStdout();
   const scrollRef = useRef<ScrollViewRef>(null);
@@ -122,11 +124,11 @@ export const FullScreenFrame = ({
 
       {/* Footer / Input Bar */}
       <Box borderStyle="single" borderColor="gray" paddingX={1}>
-        <Text color="cyan">{"> "}</Text>
+        <Text color="cyan">{prompt}</Text>
         <TextInput
           key={input.inputKey}
           defaultValue={input.defaultValue}
-          suggestions={suggestions}
+          suggestions={input.menuOpen ? [] : suggestions}
           onChange={input.onChange}
           onSubmit={input.handleSubmit}
         />

@@ -12,6 +12,7 @@ services:
       - "3000:3000"
     environment:
       - API_PROXY_TARGET=http://mock-servers:4000
+      - KEYCLOAK_URL=http://localhost:8080
     depends_on:
       - mock-servers
       - mock-ui-plugins

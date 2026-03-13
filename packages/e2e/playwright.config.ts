@@ -15,8 +15,17 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "setup",
+      testDir: ".",
+      testMatch: "auth.setup.ts",
+    },
+    {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "playwright/.auth/user.json",
+      },
+      dependencies: ["setup"],
     },
   ],
   // In CI, servers are started by the workflow. Locally, start them automatically.

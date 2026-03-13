@@ -13,6 +13,7 @@
     "docker:gui": "docker compose -f docker-compose.yml -f docker-compose.gui.yml up --build",
     "lint": "eslint packages/",
     "lint:fix": "eslint packages/ --fix",
+    "test": "vitest run",
     "test:e2e": "npm test --workspace=packages/e2e"
   },
   "devDependencies": {
@@ -26,6 +27,7 @@
     "json-parse-even-better-errors": "^5.0.0",
     "prettier": "^3.8.1",
     "typescript": "^5.9.3",
+    "vitest": "^4.0.18",
     "wait-on": "^9.0.4"
   },
   "dependencies": {

@@ -39,6 +39,8 @@ services:
       target: mock-servers
     ports:
       - "4000:4000"
+    environment:
+      KEYCLOAK_URL: http://keycloak:8080
     depends_on:
       keycloak:
         condition: service_healthy
