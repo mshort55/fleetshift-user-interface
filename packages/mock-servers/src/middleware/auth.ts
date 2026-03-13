@@ -2,8 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { createRemoteJWKSet, jwtVerify, JWTPayload } from "jose";
 import db from "../db";
 
-const KEYCLOAK_URL =
-  process.env.KEYCLOAK_URL ?? "http://localhost:8080";
+const KEYCLOAK_URL = process.env.KEYCLOAK_URL ?? "http://localhost:8080";
 const JWKS_URL = `${KEYCLOAK_URL}/realms/fleetshift/protocol/openid-connect/certs`;
 
 interface TokenUser {
@@ -68,14 +67,7 @@ export async function jwtAuthMiddleware(
       const displayName = username.charAt(0).toUpperCase() + username.slice(1);
       db.prepare(
         "INSERT INTO users (id, username, display_name, role, nav_layout, canvas_pages) VALUES (?, ?, ?, ?, ?, ?)",
-      ).run(
-        `user-${username}`,
-        username,
-        displayName,
-        role,
-        "[]",
-        "[]",
-      );
+      ).run(`user-${username}`, username, displayName, role, "[]", "[]");
     }
 
     next();
@@ -87,10 +79,7 @@ export async function jwtAuthMiddleware(
 /**
  * /auth/login handler: returns the user info derived from the JWT.
  */
-export function keycloakLoginHandler(
-  req: Request,
-  res: Response,
-): void {
+export function keycloakLoginHandler(req: Request, res: Response): void {
   if (!req.user) {
     res.status(401).json({ error: "Not authenticated" });
     return;

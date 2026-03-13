@@ -74,9 +74,7 @@ export const enable: Command = {
         );
       }
 
-      const disabled = plugins.filter(
-        (p) => !cluster.plugins.includes(p.key),
-      );
+      const disabled = plugins.filter((p) => !cluster.plugins.includes(p.key));
       return (
         <Box flexDirection="column">
           <Text bold>{cluster.name} — enabled plugins:</Text>

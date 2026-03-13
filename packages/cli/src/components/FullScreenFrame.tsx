@@ -133,7 +133,9 @@ export const FullScreenFrame = ({
           onSubmit={input.handleSubmit}
         />
       </Box>
-      {input.exitPending && <Text color="gray"> press Ctrl+C again to exit</Text>}
+      {input.exitPending && (
+        <Text color="gray"> press Ctrl+C again to exit</Text>
+      )}
     </Box>
   );
 };

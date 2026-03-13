@@ -1,147 +1,268 @@
-import { useEffect, useMemo, useState } from "react";
-import { Label, Spinner } from "@patternfly/react-core";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
-  ActionsColumn,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
-import { useRemoteHook } from "@scalprum/react-core";
-import { makeRequest } from "@fleetshift/common";
-import { useApiBase } from "./api";
+  Bullseye,
+  EmptyState,
+  EmptyStateBody,
+  Label,
+  MenuToggle,
+  SearchInput,
+  Select,
+  SelectList,
+  SelectOption,
+  Spinner,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
+} from "@patternfly/react-core";
+import { Table, Thead, Tbody, Tr, Th, Td } from "@patternfly/react-table";
+import { useApiBase, useClusterIds } from "./api";
 
 interface Pod {
   id: string;
-  name: string;
   namespace_id: string;
+  cluster_id: string;
+  name: string;
   status: string;
   restarts: number;
   cpu_usage: number;
   memory_usage: number;
-  cluster_id?: string;
+  created_at: string;
 }
 
-interface PodListProps {
-  clusterIds: string[];
-  namespace?: string;
+function extractNamespace(namespaceId: string, clusterId: string): string {
+  return namespaceId.startsWith(clusterId + "-")
+    ? namespaceId.slice(clusterId.length + 1)
+    : namespaceId;
 }
 
-const statusColor = (status: string) => {
-  if (status === "Running") return "green";
-  if (status === "Pending") return "blue";
-  if (status === "CrashLoopBackOff") return "red";
-  return "grey";
-};
+function formatAge(createdAt: string): string {
+  const created = new Date(createdAt.replace(" ", "T") + "Z");
+  const now = Date.now();
+  const diffMs = now - created.getTime();
+  if (diffMs < 0) return "just now";
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
+}
 
-const PodList = ({ clusterIds, namespace }: PodListProps) => {
+function statusColor(
+  status: string,
+): "green" | "blue" | "orange" | "red" | "grey" {
+  switch (status) {
+    case "Running":
+      return "green";
+    case "Completed":
+    case "Succeeded":
+      return "blue";
+    case "Pending":
+    case "ContainerCreating":
+      return "orange";
+    case "CrashLoopBackOff":
+    case "ImagePullBackOff":
+    case "ErrImagePull":
+    case "Error":
+    case "Failed":
+      return "red";
+    default:
+      return "grey";
+  }
+}
+
+function usePods() {
   const apiBase = useApiBase();
-  const [pods, setPods] = useState<Pod[]>([]);
+  const clusterIds = useClusterIds();
+  const [pods, setPods] = useState<(Pod & { namespace: string })[]>([]);
   const [loading, setLoading] = useState(true);
-  const multiCluster = clusterIds.length > 1;
+  const [error, setError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController>();
 
-  const navigateArgs = useMemo(
-    () => ["core-plugin", "DeploymentDetailsPage"],
-    [],
-  );
-  const {
-    hookResult,
-    loading: hookLoading,
-    error: hookError,
-  } = useRemoteHook<{
-    navigate: (to?: string | { pathname?: string; search?: string }) => void;
-    available: boolean;
-  }>({
-    scope: "routing-plugin",
-    module: "usePluginNavigate",
-    args: navigateArgs,
-  });
+  const fetchAll = useCallback(() => {
+    if (clusterIds.length === 0) {
+      setPods([]);
+      setLoading(false);
+      return;
+    }
 
-  const navigateToPlugin = hookResult?.navigate;
-  const actionsDisabled =
-    hookLoading || !!hookError || !(hookResult?.available ?? false);
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setLoading(true);
+    setError(null);
+
+    Promise.all(
+      clusterIds.map((id) =>
+        fetch(`${apiBase}/clusters/${id}/pods`, {
+          signal: controller.signal,
+        }).then((res) => {
+          if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+          return res.json() as Promise<Pod[]>;
+        }),
+      ),
+    )
+      .then((results) => {
+        const all = results.flat().map((pod) => ({
+          ...pod,
+          namespace: extractNamespace(pod.namespace_id, pod.cluster_id),
+        }));
+        setPods(all);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          setError(err.message);
+          setLoading(false);
+        }
+      });
+  }, [apiBase, clusterIds]);
 
   useEffect(() => {
-    const doFetch = () => {
-      Promise.all(
-        clusterIds.map((id) => {
-          const url = namespace
-            ? `${apiBase}/clusters/${id}/pods?namespace=${namespace}`
-            : `${apiBase}/clusters/${id}/pods`;
-          return makeRequest<Pod[]>(url).then((data) =>
-            data.map((pod) => ({ ...pod, cluster_id: id })),
-          );
-        }),
-      ).then((results) => {
-        setPods(results.flat());
-        setLoading(false);
-      });
-    };
+    fetchAll();
+    return () => abortRef.current?.abort();
+  }, [fetchAll]);
 
-    doFetch();
-    const interval = setInterval(doFetch, 10_000);
-    return () => clearInterval(interval);
-  }, [apiBase, clusterIds, namespace]);
+  return { pods, loading, error };
+}
 
-  if (loading) return <Spinner size="lg" />;
+const PodList: React.FC = () => {
+  const { pods, loading, error } = usePods();
+  const [nameFilter, setNameFilter] = useState("");
+  const [nsFilter, setNsFilter] = useState<string | null>(null);
+  const [nsSelectOpen, setNsSelectOpen] = useState(false);
+
+  const namespaces = useMemo(
+    () => [...new Set(pods.map((p) => p.namespace))].sort(),
+    [pods],
+  );
+
+  const filtered = useMemo(
+    () =>
+      pods.filter((pod) => {
+        if (
+          nameFilter &&
+          !pod.name.toLowerCase().includes(nameFilter.toLowerCase())
+        )
+          return false;
+        if (nsFilter && pod.namespace !== nsFilter) return false;
+        return true;
+      }),
+    [pods, nameFilter, nsFilter],
+  );
+
+  if (loading) {
+    return (
+      <Bullseye>
+        <Spinner />
+      </Bullseye>
+    );
+  }
+
+  if (error) {
+    return (
+      <EmptyState titleText="Error loading pods" headingLevel="h2">
+        <EmptyStateBody>{error}</EmptyStateBody>
+      </EmptyState>
+    );
+  }
 
   return (
-    <Table aria-label="Pod list" variant="compact">
-      <Thead>
-        <Tr>
-          <Th>Name</Th>
-          {multiCluster && <Th>Cluster</Th>}
-          <Th>Namespace</Th>
-          <Th>Status</Th>
-          <Th>Restarts</Th>
-          <Th>CPU</Th>
-          <Th>Memory (MB)</Th>
-          <Th />
-        </Tr>
-      </Thead>
-      <Tbody>
-        {pods.map((pod) => (
-          <Tr key={pod.id}>
-            <Td>{pod.name}</Td>
-            {multiCluster && <Td>{pod.cluster_id}</Td>}
-            <Td>{pod.namespace_id.replace(`${pod.cluster_id}-`, "")}</Td>
-            <Td>
-              <Label color={statusColor(pod.status)}>{pod.status}</Label>
-            </Td>
-            <Td>{pod.restarts}</Td>
-            <Td>{pod.cpu_usage} cores</Td>
-            <Td>{pod.memory_usage}</Td>
-            <Td isActionCell>
-              <ActionsColumn
-                isDisabled={actionsDisabled}
-                items={(() => {
-                  const ns = pod.namespace_id.replace(`${pod.cluster_id}-`, "");
-                  const search = `?namespace=${ns}`;
-                  return [
-                    {
-                      title: "View Deployment",
-                      onClick: () => navigateToPlugin?.({ search }),
-                    },
-                    {
-                      title: "Deployment Metrics",
-                      onClick: () =>
-                        navigateToPlugin?.({ pathname: "metrics", search }),
-                    },
-                    {
-                      title: "Deployment Pods",
-                      onClick: () =>
-                        navigateToPlugin?.({ pathname: "pods", search }),
-                    },
-                  ];
-                })()}
-              />
-            </Td>
-          </Tr>
-        ))}
-      </Tbody>
-    </Table>
+    <>
+      <Toolbar
+        clearAllFilters={() => {
+          setNameFilter("");
+          setNsFilter(null);
+        }}
+      >
+        <ToolbarContent>
+          <ToolbarItem>
+            <SearchInput
+              placeholder="Filter by name"
+              value={nameFilter}
+              onChange={(_event, value) => setNameFilter(value)}
+              onClear={() => setNameFilter("")}
+            />
+          </ToolbarItem>
+          <ToolbarItem>
+            <Select
+              isOpen={nsSelectOpen}
+              onOpenChange={setNsSelectOpen}
+              onSelect={(_event, value) => {
+                setNsFilter(value as string);
+                setNsSelectOpen(false);
+              }}
+              selected={nsFilter}
+              toggle={(toggleRef) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  onClick={() => setNsSelectOpen((prev) => !prev)}
+                  isExpanded={nsSelectOpen}
+                  style={{ minWidth: "180px" }}
+                >
+                  {nsFilter ?? "All namespaces"}
+                </MenuToggle>
+              )}
+            >
+              <SelectList>
+                {namespaces.map((ns) => (
+                  <SelectOption key={ns} value={ns}>
+                    {ns}
+                  </SelectOption>
+                ))}
+              </SelectList>
+            </Select>
+          </ToolbarItem>
+        </ToolbarContent>
+      </Toolbar>
+
+      {filtered.length === 0 ? (
+        <EmptyState titleText="No pods found" headingLevel="h2">
+          <EmptyStateBody>
+            {pods.length > 0
+              ? "No pods match the current filters."
+              : "There are no pods available."}
+          </EmptyStateBody>
+        </EmptyState>
+      ) : (
+        <Table aria-label="Pods" variant="compact">
+          <Thead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Namespace</Th>
+              <Th>Status</Th>
+              <Th>Restarts</Th>
+              <Th>CPU</Th>
+              <Th>Memory</Th>
+              <Th>Age</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {filtered.map((pod) => (
+              <Tr key={pod.id}>
+                <Td dataLabel="Name">{pod.name}</Td>
+                <Td dataLabel="Namespace">{pod.namespace}</Td>
+                <Td dataLabel="Status">
+                  <Label color={statusColor(pod.status)}>{pod.status}</Label>
+                </Td>
+                <Td dataLabel="Restarts">{pod.restarts}</Td>
+                <Td dataLabel="CPU">
+                  {pod.cpu_usage > 0
+                    ? `${Math.round(pod.cpu_usage * 1000)}m`
+                    : "—"}
+                </Td>
+                <Td dataLabel="Memory">
+                  {pod.memory_usage > 0
+                    ? `${Math.round(pod.memory_usage)}Mi`
+                    : "—"}
+                </Td>
+                <Td dataLabel="Age">{formatAge(pod.created_at)}</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      )}
+    </>
   );
 };
 

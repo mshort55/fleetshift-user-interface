@@ -1,18 +1,21 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import {
   Card,
-  CardTitle,
   CardBody,
-  Label,
-  Flex,
-  FlexItem,
-  Spinner,
+  CardTitle,
   Grid,
   GridItem,
+  Spinner,
+  Title,
+  Content,
+  Icon,
 } from "@patternfly/react-core";
-import { CheckCircleIcon } from "@patternfly/react-icons";
-import { makeRequest } from "@fleetshift/common";
-import { useApiBase } from "./api";
+import {
+  CubesIcon,
+  ProjectDiagramIcon,
+  ServerIcon,
+} from "@patternfly/react-icons";
+import { useApiBase, useClusterIds, useFetch } from "./api";
 
 interface PodAggregate {
   cluster_id: string;
@@ -24,163 +27,175 @@ interface PodAggregate {
   avg_memory: number;
 }
 
-interface ClusterMeta {
+interface NodeItem {
   id: string;
   name: string;
   status: string;
-  version: string;
-  plugins: string[];
-  created_at: string;
+  role: string;
+  cpu_capacity: number;
+  memory_capacity: number;
+  cpu_used: number;
+  memory_used: number;
 }
 
-interface ClusterOverviewProps {
-  clusterIds: string[];
+interface NamespaceItem {
+  id: string;
+  [key: string]: unknown;
 }
 
-const statusColor = (status: string) => {
-  if (status === "ready") return "green";
-  if (status === "error") return "red";
-  return "blue";
-};
+interface StatCardProps {
+  title: string;
+  icon: React.ComponentType;
+  loading: boolean;
+  children: React.ReactNode;
+}
 
-const StatBox = ({
-  value,
-  label,
-  color,
-}: {
-  value: number;
-  label: string;
-  color?: "green" | "blue" | "red";
+const StatCard: React.FC<StatCardProps> = ({
+  title,
+  icon: IconComponent,
+  loading,
+  children,
 }) => (
-  <div style={{ textAlign: "center" }}>
-    <div
-      style={{
-        fontSize: "var(--pf-t--global--font--size--2xl)",
-        fontWeight: "var(--pf-t--global--font--weight--heading--default)",
-        color: color
-          ? `var(--pf-t--global--color--status--${color}--default)`
-          : undefined,
-      }}
-    >
-      {value}
-    </div>
-    <div
-      style={{
-        fontSize: "var(--pf-t--global--font--size--xs)",
-        color: "var(--pf-t--global--text--color--subtle)",
-      }}
-    >
-      {label}
-    </div>
-  </div>
+  <Card isFullHeight>
+    <CardTitle>
+      <Title headingLevel="h3" size="md">
+        <Icon isInline style={{ marginRight: "0.5rem" }}>
+          <IconComponent />
+        </Icon>
+        {title}
+      </Title>
+    </CardTitle>
+    <CardBody>
+      {loading ? (
+        <div
+          style={{ display: "flex", justifyContent: "center", padding: "1rem" }}
+        >
+          <Spinner size="lg" />
+        </div>
+      ) : (
+        children
+      )}
+    </CardBody>
+  </Card>
 );
 
-const ClusterOverview = ({ clusterIds }: ClusterOverviewProps) => {
+const ClusterOverview: React.FC = () => {
   const apiBase = useApiBase();
-  const [clusters, setClusters] = useState<ClusterMeta[]>([]);
-  const [podStats, setPodStats] = useState<PodAggregate[]>([]);
-  const [loading, setLoading] = useState(true);
+  const clusterIds = useClusterIds();
+  const clusterId = clusterIds[0] ?? null;
 
-  useEffect(() => {
-    Promise.all([
-      Promise.all(
-        clusterIds.map((id) =>
-          makeRequest<ClusterMeta>(`${apiBase}/clusters/${id}`),
-        ),
-      ),
-      makeRequest<PodAggregate[]>(`${apiBase}/pods/aggregate`),
-    ]).then(([clusterData, aggregateData]) => {
-      setClusters(clusterData);
-      setPodStats(
-        aggregateData.filter((d) => clusterIds.includes(d.cluster_id)),
-      );
-      setLoading(false);
-    });
-  }, [apiBase, clusterIds]);
+  const podsUrl = clusterId ? `${apiBase}/pods/aggregate` : null;
+  const namespacesUrl = clusterId
+    ? `${apiBase}/clusters/${clusterId}/namespaces`
+    : null;
+  const nodesUrl = clusterId ? `${apiBase}/clusters/${clusterId}/nodes` : null;
 
-  if (loading) return <Spinner size="md" />;
+  const { data: podAggregates, loading: podsLoading } =
+    useFetch<PodAggregate[]>(podsUrl);
+  const { data: namespaces, loading: nsLoading } =
+    useFetch<NamespaceItem[]>(namespacesUrl);
+  const { data: nodes, loading: nodesLoading } = useFetch<NodeItem[]>(nodesUrl);
+
+  const podData = useMemo(() => {
+    if (!podAggregates || !clusterId) return null;
+    return podAggregates.find((a) => a.cluster_id === clusterId) ?? null;
+  }, [podAggregates, clusterId]);
+
+  const nodeStats = useMemo(() => {
+    if (!nodes) return null;
+    const ready = nodes.filter((n) => n.status === "Ready").length;
+    return { total: nodes.length, ready, notReady: nodes.length - ready };
+  }, [nodes]);
+
+  if (!clusterId) {
+    return <Content component="p">No clusters available.</Content>;
+  }
+
+  const countStyle: React.CSSProperties = {
+    fontSize: "2.5rem",
+    fontWeight: 700,
+    lineHeight: 1.2,
+  };
+
+  const breakdownStyle: React.CSSProperties = {
+    fontSize: "0.85rem",
+    marginTop: "0.25rem",
+  };
 
   return (
     <Grid hasGutter>
-      {clusters.map((cluster) => {
-        const stats = podStats.find((d) => d.cluster_id === cluster.id);
-        return (
-          <GridItem key={cluster.id} md={6}>
-            <Card>
-              <CardTitle>
-                <Flex
-                  justifyContent={{ default: "justifyContentSpaceBetween" }}
-                  alignItems={{ default: "alignItemsCenter" }}
-                >
-                  <FlexItem>
-                    <span
-                      style={{
-                        fontWeight:
-                          "var(--pf-t--global--font--weight--heading--default)",
-                      }}
-                    >
-                      {cluster.name}
-                    </span>
-                    <div
-                      style={{
-                        fontSize: "var(--pf-t--global--font--size--sm)",
-                        color: "var(--pf-t--global--text--color--subtle)",
-                        fontWeight: "normal",
-                      }}
-                    >
-                      {cluster.version}
-                    </div>
-                  </FlexItem>
-                  <FlexItem>
-                    <Label
-                      color={statusColor(cluster.status)}
-                      icon={
-                        cluster.status === "ready" ? (
-                          <CheckCircleIcon />
-                        ) : undefined
-                      }
-                      isCompact
-                    >
-                      {cluster.status}
-                    </Label>
-                  </FlexItem>
-                </Flex>
-              </CardTitle>
-              <CardBody>
-                <Flex
-                  justifyContent={{ default: "justifyContentSpaceAround" }}
-                  alignItems={{ default: "alignItemsCenter" }}
-                >
-                  <FlexItem>
-                    <StatBox value={stats?.total ?? 0} label="Total Pods" />
-                  </FlexItem>
-                  <FlexItem>
-                    <StatBox
-                      value={stats?.running ?? 0}
-                      label="Running"
-                      color="green"
-                    />
-                  </FlexItem>
-                  <FlexItem>
-                    <StatBox
-                      value={stats?.pending ?? 0}
-                      label="Pending"
-                      color="blue"
-                    />
-                  </FlexItem>
-                  <FlexItem>
-                    <StatBox
-                      value={stats?.failing ?? 0}
-                      label="Failing"
-                      color="red"
-                    />
-                  </FlexItem>
-                </Flex>
-              </CardBody>
-            </Card>
-          </GridItem>
-        );
-      })}
+      <GridItem md={4} sm={12}>
+        <StatCard title="Pods" icon={CubesIcon} loading={podsLoading}>
+          <div style={countStyle}>{podData?.total ?? 0}</div>
+          <div style={breakdownStyle}>
+            <span
+              style={{
+                color: "var(--pf-t--global--color--status--success--default)",
+              }}
+            >
+              {podData?.running ?? 0} running
+            </span>
+            {" / "}
+            <span
+              style={{
+                color: "var(--pf-t--global--color--status--warning--default)",
+              }}
+            >
+              {podData?.pending ?? 0} pending
+            </span>
+            {" / "}
+            <span
+              style={{
+                color: "var(--pf-t--global--color--status--danger--default)",
+              }}
+            >
+              {podData?.failing ?? 0} failing
+            </span>
+          </div>
+        </StatCard>
+      </GridItem>
+
+      <GridItem md={4} sm={12}>
+        <StatCard
+          title="Namespaces"
+          icon={ProjectDiagramIcon}
+          loading={nsLoading}
+        >
+          <div style={countStyle}>{namespaces?.length ?? 0}</div>
+          <div style={breakdownStyle}>
+            <span
+              style={{
+                color: "var(--pf-t--global--color--nonstatus--gray--default)",
+              }}
+            >
+              across cluster
+            </span>
+          </div>
+        </StatCard>
+      </GridItem>
+
+      <GridItem md={4} sm={12}>
+        <StatCard title="Nodes" icon={ServerIcon} loading={nodesLoading}>
+          <div style={countStyle}>{nodeStats?.total ?? 0}</div>
+          <div style={breakdownStyle}>
+            <span
+              style={{
+                color: "var(--pf-t--global--color--status--success--default)",
+              }}
+            >
+              {nodeStats?.ready ?? 0} ready
+            </span>
+            {" / "}
+            <span
+              style={{
+                color: "var(--pf-t--global--color--status--danger--default)",
+              }}
+            >
+              {nodeStats?.notReady ?? 0} not ready
+            </span>
+          </div>
+        </StatCard>
+      </GridItem>
     </Grid>
   );
 };

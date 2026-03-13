@@ -42,7 +42,10 @@ export async function performLogin(
 
     const server = createServer(
       async (req: IncomingMessage, res: ServerResponse) => {
-        const url = new URL(req.url ?? "/", `http://localhost:${REDIRECT_PORT}`);
+        const url = new URL(
+          req.url ?? "/",
+          `http://localhost:${REDIRECT_PORT}`,
+        );
 
         if (url.pathname !== "/callback") {
           res.writeHead(404);
@@ -120,7 +123,9 @@ export async function performLogin(
       server.close();
       if (!settled) {
         settled = true;
-        reject(new Error("Login timed out — no callback received within 2 minutes"));
+        reject(
+          new Error("Login timed out — no callback received within 2 minutes"),
+        );
       }
     }, 120_000);
   });

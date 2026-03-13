@@ -17,9 +17,8 @@ vi.mock("@napi-rs/keyring", () => {
 });
 
 // Import after mock is set up
-const { saveTokens, loadTokens, clearTokens, getValidToken } = await import(
-  "../tokenStore"
-);
+const { saveTokens, loadTokens, clearTokens, getValidToken } =
+  await import("../tokenStore");
 
 const sampleTokens = {
   access_token: "access-123",

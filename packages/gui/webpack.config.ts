@@ -9,7 +9,6 @@ import webpack from "webpack";
 import type { Configuration } from "webpack";
 import type { Configuration as DevServerConfiguration } from "webpack-dev-server";
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 const configDir = typeof __dirname === "string" ? __dirname : process.cwd();
 const monorepoRoot = path.resolve(configDir, "../..");
 const nodeModulesRoot = path.resolve(monorepoRoot, "node_modules");

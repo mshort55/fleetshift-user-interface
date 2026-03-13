@@ -11,9 +11,7 @@ async function ensureAuth(): Promise<string> {
   return authToken;
 }
 
-function authHeaders(
-  extra?: Record<string, string>,
-): Record<string, string> {
+function authHeaders(extra?: Record<string, string>): Record<string, string> {
   if (!authToken) return extra ?? {};
   return { Authorization: `Bearer ${authToken}`, ...extra };
 }

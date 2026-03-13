@@ -1,9 +1,7 @@
 import type { AuthProviderProps } from "react-oidc-context";
 
 const KEYCLOAK_URL =
-  (typeof process !== "undefined" &&
-    process.env &&
-    process.env.KEYCLOAK_URL) ||
+  (typeof process !== "undefined" && process.env && process.env.KEYCLOAK_URL) ||
   "http://localhost:8080";
 
 export const oidcConfig: AuthProviderProps = {

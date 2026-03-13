@@ -7,9 +7,6 @@ import {
   fetchAvailableClusters as commonFetchAvailable,
   fetchClusters as commonFetchInstalled,
   fetchCluster as commonFetchCluster,
-  installCluster as commonInstall,
-  uninstallCluster as commonUninstall,
-  updateClusterPlugins as commonUpdatePlugins,
 } from "@fleetshift/common";
 import { getSessionId } from "../hooks/useInvalidationSocket";
 import type { NavLayoutEntry, CanvasPage, CanvasModule } from "./extensions";
@@ -42,21 +39,6 @@ export function fetchInstalledClusters(): Promise<InstalledCluster[]> {
 
 export function fetchCluster(id: string): Promise<InstalledCluster> {
   return commonFetchCluster(API_BASE, id);
-}
-
-export function installCluster(id: string): Promise<InstalledCluster> {
-  return commonInstall(API_BASE, id, mutationHeaders());
-}
-
-export function uninstallCluster(id: string): Promise<void> {
-  return commonUninstall(API_BASE, id, mutationHeaders());
-}
-
-export function updateClusterPlugins(
-  id: string,
-  plugins: string[],
-): Promise<InstalledCluster> {
-  return commonUpdatePlugins(API_BASE, id, plugins, mutationHeaders());
 }
 
 export async function login(username: string): Promise<User> {

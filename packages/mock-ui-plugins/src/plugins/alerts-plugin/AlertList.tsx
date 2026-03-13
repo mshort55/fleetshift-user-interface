@@ -1,76 +1,196 @@
-import { useEffect, useState } from "react";
-import { Label, Spinner } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import type { Alert } from "@fleetshift/common";
-import { fetchAlerts } from "@fleetshift/common";
-import { useApiBase } from "./api";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import {
+  Bullseye,
+  EmptyState,
+  EmptyStateBody,
+  Label,
+  SearchInput,
+  Spinner,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
+} from "@patternfly/react-core";
+import { CheckCircleIcon } from "@patternfly/react-icons";
+import { Table, Thead, Tbody, Tr, Th, Td } from "@patternfly/react-table";
+import { useApiBase, useClusterIds } from "./api";
 
-interface AlertListProps {
-  clusterIds: string[];
+interface Alert {
+  id: string;
+  cluster_id: string;
+  name: string;
+  severity: string;
+  state: string;
+  message: string;
+  fired_at: string;
 }
 
-const severityColor = (severity: string) => {
-  if (severity === "critical") return "red";
-  if (severity === "warning") return "orange";
-  if (severity === "info") return "blue";
-  return "grey";
-};
+function formatRelativeTime(firedAt: string): string {
+  const fired = new Date(firedAt.replace(" ", "T") + "Z");
+  const now = Date.now();
+  const diffMs = now - fired.getTime();
+  if (diffMs < 0) return "just now";
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
 
-const stateColor = (state: string) => {
-  if (state === "firing") return "red";
-  if (state === "pending") return "orange";
-  if (state === "resolved") return "green";
-  return "grey";
-};
+function severityColor(severity: string): "red" | "orange" {
+  return severity === "critical" ? "red" : "orange";
+}
 
-const AlertList = ({ clusterIds }: AlertListProps) => {
+function useAlerts() {
   const apiBase = useApiBase();
+  const clusterIds = useClusterIds();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
-  const multiCluster = clusterIds.length > 1;
+  const [error, setError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController>();
 
-  useEffect(() => {
-    Promise.all(clusterIds.map((id) => fetchAlerts(apiBase, id))).then(
-      (results) => {
+  const fetchAll = useCallback(() => {
+    if (clusterIds.length === 0) {
+      setAlerts([]);
+      setLoading(false);
+      return;
+    }
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setLoading(true);
+    setError(null);
+
+    Promise.all(
+      clusterIds.map((id) =>
+        fetch(`${apiBase}/clusters/${id}/alerts`, {
+          signal: controller.signal,
+        }).then((res) => {
+          if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+          return res.json() as Promise<Alert[]>;
+        }),
+      ),
+    )
+      .then((results) => {
         setAlerts(results.flat());
         setLoading(false);
-      },
-    );
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          setError(err.message);
+          setLoading(false);
+        }
+      });
   }, [apiBase, clusterIds]);
 
-  if (loading) return <Spinner size="lg" />;
+  useEffect(() => {
+    fetchAll();
+    return () => abortRef.current?.abort();
+  }, [fetchAll]);
+
+  return { alerts, loading, error };
+}
+
+const AlertList: React.FC = () => {
+  const { alerts, loading, error } = useAlerts();
+  const [filter, setFilter] = useState("");
+
+  const filtered = useMemo(
+    () =>
+      alerts.filter((alert) => {
+        if (!filter) return true;
+        const lc = filter.toLowerCase();
+        return (
+          alert.name.toLowerCase().includes(lc) ||
+          alert.message.toLowerCase().includes(lc)
+        );
+      }),
+    [alerts, filter],
+  );
+
+  if (loading) {
+    return (
+      <Bullseye>
+        <Spinner />
+      </Bullseye>
+    );
+  }
+
+  if (error) {
+    return (
+      <EmptyState titleText="Error loading alerts" headingLevel="h2">
+        <EmptyStateBody>{error}</EmptyStateBody>
+      </EmptyState>
+    );
+  }
+
+  if (alerts.length === 0) {
+    return (
+      <EmptyState
+        titleText="No alerts firing"
+        headingLevel="h2"
+        icon={CheckCircleIcon}
+      >
+        <EmptyStateBody>
+          All systems are healthy. There are no active alerts at this time.
+        </EmptyStateBody>
+      </EmptyState>
+    );
+  }
 
   return (
-    <Table aria-label="Alert list" variant="compact">
-      <Thead>
-        <Tr>
-          <Th>Name</Th>
-          {multiCluster && <Th>Cluster</Th>}
-          <Th>Severity</Th>
-          <Th>State</Th>
-          <Th>Message</Th>
-          <Th>Fired At</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {alerts.map((alert) => (
-          <Tr key={alert.id}>
-            <Td>{alert.name}</Td>
-            {multiCluster && <Td>{alert.cluster_id}</Td>}
-            <Td>
-              <Label color={severityColor(alert.severity)}>
-                {alert.severity}
-              </Label>
-            </Td>
-            <Td>
-              <Label color={stateColor(alert.state)}>{alert.state}</Label>
-            </Td>
-            <Td>{alert.message}</Td>
-            <Td>{alert.fired_at}</Td>
-          </Tr>
-        ))}
-      </Tbody>
-    </Table>
+    <>
+      <Toolbar clearAllFilters={() => setFilter("")}>
+        <ToolbarContent>
+          <ToolbarItem>
+            <SearchInput
+              placeholder="Filter by name or message"
+              value={filter}
+              onChange={(_event, value) => setFilter(value)}
+              onClear={() => setFilter("")}
+            />
+          </ToolbarItem>
+        </ToolbarContent>
+      </Toolbar>
+
+      {filtered.length === 0 ? (
+        <EmptyState titleText="No matching alerts" headingLevel="h2">
+          <EmptyStateBody>No alerts match the current filter.</EmptyStateBody>
+        </EmptyState>
+      ) : (
+        <Table aria-label="Alerts" variant="compact">
+          <Thead>
+            <Tr>
+              <Th>Severity</Th>
+              <Th>Alert Name</Th>
+              <Th>State</Th>
+              <Th>Message</Th>
+              <Th>Fired At</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {filtered.map((alert) => (
+              <Tr key={alert.id}>
+                <Td dataLabel="Severity">
+                  <Label color={severityColor(alert.severity)}>
+                    {alert.severity}
+                  </Label>
+                </Td>
+                <Td dataLabel="Alert Name">{alert.name}</Td>
+                <Td dataLabel="State">
+                  <Label color="red">{alert.state}</Label>
+                </Td>
+                <Td dataLabel="Message">{alert.message}</Td>
+                <Td dataLabel="Fired At">
+                  {formatRelativeTime(alert.fired_at)}
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      )}
+    </>
   );
 };
 

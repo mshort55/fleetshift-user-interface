@@ -66,9 +66,10 @@ export const whoami: Command = {
         exp?: number;
       };
       const username = kc.preferred_username ?? "unknown";
-      const roles = kc.realm_access?.roles?.filter(
-        (r) => !r.startsWith("default-roles-"),
-      ) ?? [];
+      const roles =
+        kc.realm_access?.roles?.filter(
+          (r) => !r.startsWith("default-roles-"),
+        ) ?? [];
       const expired = tokens.expires_at < Date.now();
 
       return (

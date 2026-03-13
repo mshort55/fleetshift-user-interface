@@ -18,17 +18,20 @@ export type { CommandResult } from "./types.js";
 
 const userCommands: Command[] = [login, logout, whoami];
 
-const configCommands: Command[] = [clusters, install, uninstall, enable, disable];
+const configCommands: Command[] = [
+  clusters,
+  install,
+  uninstall,
+  enable,
+  disable,
+];
 
 /** Data / query commands that live at the top level. */
 const dataCommands: Command[] = [pods, nodes, alerts, deployments];
 
 // ── Sub-menu helpers ────────────────────────────────────────────────────
 
-function buildGroupHelp(
-  groupName: string,
-  commands: Command[],
-): CommandResult {
+function buildGroupHelp(groupName: string, commands: Command[]): CommandResult {
   return (
     <Box flexDirection="column">
       <Text bold>{groupName} commands:</Text>
@@ -106,15 +109,9 @@ const configGroup = createGroupCommand(
 // ── Top-level command list ──────────────────────────────────────────────
 
 /** Commands visible at the top level (groups + data commands). */
-const topLevelBuiltins: Command[] = [
-  userGroup,
-  configGroup,
-  ...dataCommands,
-];
+const topLevelBuiltins: Command[] = [userGroup, configGroup, ...dataCommands];
 
-function getAllCommands(
-  clusterList: Array<{ plugins?: string[] }>,
-): Command[] {
+function getAllCommands(clusterList: Array<{ plugins?: string[] }>): Command[] {
   return [
     ...topLevelBuiltins,
     ...getPluginCommands(clusterList).map((pc) => pc.command),
@@ -134,9 +131,7 @@ function getCommandMap(
   return map;
 }
 
-function buildHelp(
-  clusterList: Array<{ plugins?: string[] }>,
-): CommandResult {
+function buildHelp(clusterList: Array<{ plugins?: string[] }>): CommandResult {
   const pluginCmds = getPluginCommands(clusterList).map((pc) => pc.command);
 
   return (

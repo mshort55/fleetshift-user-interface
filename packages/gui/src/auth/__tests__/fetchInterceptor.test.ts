@@ -7,7 +7,6 @@ const mockOriginalFetch = vi.fn().mockResolvedValue(new Response("ok"));
 const _origWindow = globalThis.window;
 
 beforeEach(() => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   globalThis.window = {
     fetch: mockOriginalFetch,
     location: { origin: "http://localhost:3000" },
@@ -15,7 +14,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   globalThis.window = _origWindow as any;
 });
 

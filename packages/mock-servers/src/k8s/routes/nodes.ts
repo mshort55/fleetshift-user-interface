@@ -20,10 +20,7 @@ export function nodeRoutes(clusterMap: ClusterMap): Router {
       const nodeResponse = await core.listNode();
       const nodes = nodeResponse.items ?? [];
 
-      const nodeMetrics = new Map<
-        string,
-        { cpu: number; memory: number }
-      >();
+      const nodeMetrics = new Map<string, { cpu: number; memory: number }>();
       const metrics = getMetricsClient();
       if (metrics) {
         try {

@@ -66,7 +66,9 @@ export const disable: Command = {
               Run: disable {cluster.id} {"<plugin>"}
             </Text>
           ) : (
-            <Text color="gray">Only the core plugin is enabled (cannot be disabled).</Text>
+            <Text color="gray">
+              Only the core plugin is enabled (cannot be disabled).
+            </Text>
           )}
         </Box>
       );

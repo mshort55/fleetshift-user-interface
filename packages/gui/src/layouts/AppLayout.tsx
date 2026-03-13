@@ -30,12 +30,11 @@ import {
   Button,
   Divider,
 } from "@patternfly/react-core";
-import { BarsIcon, CogIcon, MoonIcon, SunIcon } from "@patternfly/react-icons";
+import { BarsIcon, MoonIcon, SunIcon } from "@patternfly/react-icons";
 import { useAuth } from "../contexts/AuthContext";
 import { useUserPreferences } from "../contexts/UserPreferencesContext";
 import { useDrawer, DrawerProvider } from "../contexts/DrawerContext";
 import { ClusterSwitcher } from "./ClusterSwitcher";
-import { ClusterManagerDrawerContent } from "../pages/ClusterListPage/ClusterManagerDrawerContent";
 import logo from "../assets/masthead.png";
 
 const UserSwitcher = () => {
@@ -84,19 +83,6 @@ const DarkModeToggle = () => {
   );
 };
 
-const ClusterManagerButton = () => {
-  const { openDrawer } = useDrawer();
-  return (
-    <Button
-      variant="plain"
-      aria-label="Cluster manager"
-      onClick={() => openDrawer(<ClusterManagerDrawerContent />)}
-    >
-      <CogIcon />
-    </Button>
-  );
-};
-
 const AppMasthead = () => (
   <Masthead>
     <MastheadMain>
@@ -128,9 +114,6 @@ const AppMasthead = () => (
           <ToolbarGroup align={{ default: "alignEnd" }}>
             <ToolbarItem>
               <DarkModeToggle />
-            </ToolbarItem>
-            <ToolbarItem>
-              <ClusterManagerButton />
             </ToolbarItem>
           </ToolbarGroup>
         </ToolbarContent>

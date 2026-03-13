@@ -1,24 +1,19 @@
-import { useEffect, useState, type ComponentType } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Card,
-  CardTitle,
   CardBody,
+  CardTitle,
   Grid,
   GridItem,
   Progress,
-  Title,
   Spinner,
+  Title,
+  Content,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import {
-  type Extension,
-  type CodeRef,
-  useResolvedExtensions,
-} from "@openshift/dynamic-plugin-sdk";
-import { makeRequest } from "@fleetshift/common";
-import { useApiBase } from "./api";
+import { Table, Thead, Tbody, Tr, Th, Td } from "@patternfly/react-table";
+import { useApiBase, useClusterIds } from "./api";
 
-interface MetricsData {
+interface ClusterMetrics {
   clusterId: string;
   podCount: number;
   totalCpu: number;
@@ -27,155 +22,182 @@ interface MetricsData {
   avgMemory: number;
   maxCpu: number;
   maxMemory: number;
-  topCpuConsumers: { name: string; namespace: string; cpu: number }[];
-  topMemoryConsumers: { name: string; namespace: string; memory: number }[];
+  topCpuConsumers: Array<{ name: string; namespace: string; cpu: number }>;
+  topMemoryConsumers: Array<{
+    name: string;
+    namespace: string;
+    memory: number;
+  }>;
 }
 
-interface MetricsDashboardProps {
-  clusterIds: string[];
-}
+const LoadingCard: React.FC<{
+  title: string;
+  children: React.ReactNode;
+  loading: boolean;
+}> = ({ title, children, loading }) => (
+  <Card isFullHeight>
+    <CardTitle>
+      <Title headingLevel="h3" size="md">
+        {title}
+      </Title>
+    </CardTitle>
+    <CardBody>
+      {loading ? (
+        <div
+          style={{ display: "flex", justifyContent: "center", padding: "1rem" }}
+        >
+          <Spinner size="lg" />
+        </div>
+      ) : (
+        children
+      )}
+    </CardBody>
+  </Card>
+);
 
-// Extension point type: other plugins can contribute charts here
-type ObservabilityChartExtension = Extension<
-  "fleetshift.observability-chart",
-  {
-    component: CodeRef<ComponentType<{ clusterIds: string[] }>>;
-    label: string;
-  }
->;
-
-function isObservabilityChart(e: Extension): e is ObservabilityChartExtension {
-  return e.type === "fleetshift.observability-chart";
-}
-
-const ClusterMetricsSection = ({ metrics }: { metrics: MetricsData }) => {
-  const cpuPercent = Math.round((metrics.totalCpu / metrics.maxCpu) * 100);
-  const memPercent = Math.round(
-    (metrics.totalMemory / metrics.maxMemory) * 100,
-  );
-
-  return (
-    <>
-      <GridItem>
-        <Title headingLevel="h3">
-          Cluster: {metrics.clusterId} — {metrics.podCount} pods
-        </Title>
-      </GridItem>
-      <GridItem md={6}>
-        <Card>
-          <CardTitle>CPU Usage</CardTitle>
-          <CardBody>
-            <Progress
-              value={cpuPercent}
-              title="Total CPU"
-              label={`${metrics.totalCpu} / ${metrics.maxCpu} cores`}
-            />
-          </CardBody>
-        </Card>
-      </GridItem>
-      <GridItem md={6}>
-        <Card>
-          <CardTitle>Memory Usage</CardTitle>
-          <CardBody>
-            <Progress
-              value={memPercent}
-              title="Total Memory"
-              label={`${metrics.totalMemory} / ${metrics.maxMemory} MB`}
-            />
-          </CardBody>
-        </Card>
-      </GridItem>
-      <GridItem md={6}>
-        <Card>
-          <CardTitle>Top CPU Consumers</CardTitle>
-          <CardBody>
-            <Table aria-label="Top CPU consumers" variant="compact">
-              <Thead>
-                <Tr>
-                  <Th>Pod</Th>
-                  <Th>Namespace</Th>
-                  <Th>CPU (cores)</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {metrics.topCpuConsumers.map((p) => (
-                  <Tr key={p.name}>
-                    <Td>{p.name}</Td>
-                    <Td>{p.namespace}</Td>
-                    <Td>{p.cpu}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </CardBody>
-        </Card>
-      </GridItem>
-      <GridItem md={6}>
-        <Card>
-          <CardTitle>Top Memory Consumers</CardTitle>
-          <CardBody>
-            <Table aria-label="Top memory consumers" variant="compact">
-              <Thead>
-                <Tr>
-                  <Th>Pod</Th>
-                  <Th>Namespace</Th>
-                  <Th>Memory (MB)</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {metrics.topMemoryConsumers.map((p) => (
-                  <Tr key={p.name}>
-                    <Td>{p.name}</Td>
-                    <Td>{p.namespace}</Td>
-                    <Td>{p.memory}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </CardBody>
-        </Card>
-      </GridItem>
-    </>
-  );
-};
-
-const MetricsDashboard = ({ clusterIds }: MetricsDashboardProps) => {
+const MetricsDashboard: React.FC = () => {
   const apiBase = useApiBase();
-  const [allMetrics, setAllMetrics] = useState<MetricsData[]>([]);
+  const clusterIds = useClusterIds();
+  const clusterId = clusterIds[0] ?? null;
+
+  const [metrics, setMetrics] = useState<ClusterMetrics | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Consume chart extensions from other plugins (e.g. operator-plugin)
-  const [chartExtensions, chartsResolved] =
-    useResolvedExtensions(isObservabilityChart);
+  const fetchMetrics = useCallback(async () => {
+    if (!clusterId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`${apiBase}/clusters/${clusterId}/metrics`);
+      if (res.ok) {
+        const data: ClusterMetrics = await res.json();
+        setMetrics(data);
+      }
+    } catch {
+      // silently handle
+    } finally {
+      setLoading(false);
+    }
+  }, [apiBase, clusterId]);
 
   useEffect(() => {
-    Promise.all(
-      clusterIds.map((id) =>
-        makeRequest<MetricsData>(`${apiBase}/clusters/${id}/metrics`),
-      ),
-    ).then((results) => {
-      setAllMetrics(results);
-      setLoading(false);
-    });
-  }, [apiBase, clusterIds]);
+    fetchMetrics();
+  }, [fetchMetrics]);
 
-  if (loading) return <Spinner size="lg" />;
-  if (allMetrics.length === 0) return <div>No metrics data available</div>;
+  if (!clusterId) {
+    return <Content component="p">No clusters available.</Content>;
+  }
+
+  const cpuPercent = metrics
+    ? Math.round((metrics.totalCpu / metrics.maxCpu) * 100)
+    : 0;
+  const memPercent = metrics
+    ? Math.round((metrics.totalMemory / metrics.maxMemory) * 100)
+    : 0;
+
+  const countStyle: React.CSSProperties = {
+    fontSize: "2.5rem",
+    fontWeight: 700,
+    lineHeight: 1.2,
+  };
 
   return (
     <Grid hasGutter>
-      {allMetrics.map((metrics) => (
-        <ClusterMetricsSection key={metrics.clusterId} metrics={metrics} />
-      ))}
-      {chartsResolved &&
-        chartExtensions.map((ext) => {
-          const ChartComponent = ext.properties.component;
-          return (
-            <GridItem key={ext.uid}>
-              <ChartComponent clusterIds={clusterIds} />
-            </GridItem>
-          );
-        })}
+      {/* Summary row */}
+      <GridItem md={4} sm={12}>
+        <LoadingCard title="CPU Usage" loading={loading}>
+          {metrics && (
+            <>
+              <Content component="p" style={{ marginBottom: "0.5rem" }}>
+                {metrics.totalCpu.toFixed(2)} / {metrics.maxCpu} cores
+              </Content>
+              <Progress
+                value={cpuPercent}
+                title="CPU usage"
+                aria-label="CPU usage"
+              />
+            </>
+          )}
+        </LoadingCard>
+      </GridItem>
+
+      <GridItem md={4} sm={12}>
+        <LoadingCard title="Memory Usage" loading={loading}>
+          {metrics && (
+            <>
+              <Content component="p" style={{ marginBottom: "0.5rem" }}>
+                {metrics.totalMemory} / {metrics.maxMemory} MB
+              </Content>
+              <Progress
+                value={memPercent}
+                title="Memory usage"
+                aria-label="Memory usage"
+              />
+            </>
+          )}
+        </LoadingCard>
+      </GridItem>
+
+      <GridItem md={4} sm={12}>
+        <LoadingCard title="Pod Count" loading={loading}>
+          {metrics && <div style={countStyle}>{metrics.podCount}</div>}
+        </LoadingCard>
+      </GridItem>
+
+      {/* Top consumers row */}
+      <GridItem md={6} sm={12}>
+        <LoadingCard title="Top CPU Consumers" loading={loading}>
+          {metrics && (
+            <Table aria-label="Top CPU consumers" variant="compact">
+              <Thead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Namespace</Th>
+                  <Th>CPU (millicores)</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {metrics.topCpuConsumers.map((consumer) => (
+                  <Tr key={`${consumer.namespace}/${consumer.name}`}>
+                    <Td dataLabel="Name">{consumer.name}</Td>
+                    <Td dataLabel="Namespace">{consumer.namespace}</Td>
+                    <Td dataLabel="CPU (millicores)">
+                      {Math.round(consumer.cpu * 1000)}
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          )}
+        </LoadingCard>
+      </GridItem>
+
+      <GridItem md={6} sm={12}>
+        <LoadingCard title="Top Memory Consumers" loading={loading}>
+          {metrics && (
+            <Table aria-label="Top memory consumers" variant="compact">
+              <Thead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>Namespace</Th>
+                  <Th>Memory (Mi)</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {metrics.topMemoryConsumers.map((consumer) => (
+                  <Tr key={`${consumer.namespace}/${consumer.name}`}>
+                    <Td dataLabel="Name">{consumer.name}</Td>
+                    <Td dataLabel="Namespace">{consumer.namespace}</Td>
+                    <Td dataLabel="Memory (Mi)">{consumer.memory}</Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          )}
+        </LoadingCard>
+      </GridItem>
     </Grid>
   );
 };

@@ -43,13 +43,13 @@ const mfOverride = {
   },
 };
 
+const p = (rel: string) => path.resolve(__dirname, rel);
+
 const CorePlugin = new DynamicRemotePlugin({
   extensions: [
     {
       type: "fleetshift.dashboard-widget",
-      properties: {
-        component: { $codeRef: "ClusterOverview.default" },
-      },
+      properties: { component: { $codeRef: "ClusterOverview.default" } },
     },
     {
       type: "fleetshift.module",
@@ -65,67 +65,19 @@ const CorePlugin = new DynamicRemotePlugin({
         component: { $codeRef: "NamespaceList.default" },
       },
     },
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Deployment Details",
-        component: { $codeRef: "DeploymentDetailsPage.default" },
-      },
-    },
   ],
   sharedModules,
   entryScriptFilename: "core-plugin.[contenthash].js",
   pluginManifestFilename: "core-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
+  // @ts-ignore
   moduleFederationSettings: mfOverride,
   pluginMetadata: {
     name: "core-plugin",
     version: "1.0.0",
     exposedModules: {
-      ClusterOverview: path.resolve(
-        __dirname,
-        "./src/plugins/core-plugin/ClusterOverview.tsx",
-      ),
-      PodList: path.resolve(__dirname, "./src/plugins/core-plugin/PodList.tsx"),
-      NamespaceList: path.resolve(
-        __dirname,
-        "./src/plugins/core-plugin/NamespaceList.tsx",
-      ),
-      DeploymentDetailsPage: path.resolve(
-        __dirname,
-        "./src/plugins/core-plugin/Deployment/DeploymentDetailsPage.tsx",
-      ),
-    },
-  },
-});
-
-const ObservabilityPlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Observability",
-        component: { $codeRef: "MetricsDashboard.default" },
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "observability-plugin.[contenthash].js",
-  pluginManifestFilename: "observability-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "observability-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      MetricsDashboard: path.resolve(
-        __dirname,
-        "./src/plugins/observability-plugin/MetricsDashboard.tsx",
-      ),
-      PodMetrics: path.resolve(
-        __dirname,
-        "./src/plugins/observability-plugin/PodMetrics.tsx",
-      ),
+      ClusterOverview: p("./src/plugins/core-plugin/ClusterOverview.tsx"),
+      PodList: p("./src/plugins/core-plugin/PodList.tsx"),
+      NamespaceList: p("./src/plugins/core-plugin/NamespaceList.tsx"),
     },
   },
 });
@@ -143,15 +95,110 @@ const NodesPlugin = new DynamicRemotePlugin({
   sharedModules,
   entryScriptFilename: "nodes-plugin.[contenthash].js",
   pluginManifestFilename: "nodes-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
+  // @ts-ignore
   moduleFederationSettings: mfOverride,
   pluginMetadata: {
     name: "nodes-plugin",
     version: "1.0.0",
     exposedModules: {
-      NodeList: path.resolve(
-        __dirname,
-        "./src/plugins/nodes-plugin/NodeList.tsx",
+      NodeList: p("./src/plugins/nodes-plugin/NodeList.tsx"),
+    },
+  },
+});
+
+const StoragePlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "Storage",
+        component: { $codeRef: "StoragePage.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "storage-plugin.[contenthash].js",
+  pluginManifestFilename: "storage-plugin-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "storage-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      StoragePage: p("./src/plugins/storage-plugin/StoragePage.tsx"),
+    },
+  },
+});
+
+const EventsPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "Events",
+        component: { $codeRef: "EventList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "events-plugin.[contenthash].js",
+  pluginManifestFilename: "events-plugin-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "events-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      EventList: p("./src/plugins/events-plugin/EventList.tsx"),
+    },
+  },
+});
+
+const AlertsPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "Alerts",
+        component: { $codeRef: "AlertList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "alerts-plugin.[contenthash].js",
+  pluginManifestFilename: "alerts-plugin-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "alerts-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      AlertList: p("./src/plugins/alerts-plugin/AlertList.tsx"),
+    },
+  },
+});
+
+const ObservabilityPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "Observability",
+        component: { $codeRef: "MetricsDashboard.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "observability-plugin.[contenthash].js",
+  pluginManifestFilename: "observability-plugin-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "observability-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      MetricsDashboard: p(
+        "./src/plugins/observability-plugin/MetricsDashboard.tsx",
       ),
     },
   },
@@ -170,124 +217,13 @@ const NetworkingPlugin = new DynamicRemotePlugin({
   sharedModules,
   entryScriptFilename: "networking-plugin.[contenthash].js",
   pluginManifestFilename: "networking-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
+  // @ts-ignore
   moduleFederationSettings: mfOverride,
   pluginMetadata: {
     name: "networking-plugin",
     version: "1.0.0",
     exposedModules: {
-      NetworkingPage: path.resolve(
-        __dirname,
-        "./src/plugins/networking-plugin/NetworkingPage.tsx",
-      ),
-    },
-  },
-});
-
-const StoragePlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Storage",
-        component: { $codeRef: "StoragePage.default" },
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "storage-plugin.[contenthash].js",
-  pluginManifestFilename: "storage-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "storage-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      StoragePage: path.resolve(
-        __dirname,
-        "./src/plugins/storage-plugin/StoragePage.tsx",
-      ),
-    },
-  },
-});
-
-const UpgradesPlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Upgrades",
-        component: { $codeRef: "UpgradePage.default" },
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "upgrades-plugin.[contenthash].js",
-  pluginManifestFilename: "upgrades-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "upgrades-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      UpgradePage: path.resolve(
-        __dirname,
-        "./src/plugins/upgrades-plugin/UpgradePage.tsx",
-      ),
-    },
-  },
-});
-
-const AlertsPlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Alerts",
-        component: { $codeRef: "AlertList.default" },
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "alerts-plugin.[contenthash].js",
-  pluginManifestFilename: "alerts-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "alerts-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      AlertList: path.resolve(
-        __dirname,
-        "./src/plugins/alerts-plugin/AlertList.tsx",
-      ),
-    },
-  },
-});
-
-const CostPlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Cost",
-        component: { $codeRef: "CostPage.default" },
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "cost-plugin.[contenthash].js",
-  pluginManifestFilename: "cost-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "cost-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      CostPage: path.resolve(
-        __dirname,
-        "./src/plugins/cost-plugin/CostPage.tsx",
-      ),
+      NetworkingPage: p("./src/plugins/networking-plugin/NetworkingPage.tsx"),
     },
   },
 });
@@ -305,16 +241,13 @@ const DeploymentsPlugin = new DynamicRemotePlugin({
   sharedModules,
   entryScriptFilename: "deployments-plugin.[contenthash].js",
   pluginManifestFilename: "deployments-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
+  // @ts-ignore
   moduleFederationSettings: mfOverride,
   pluginMetadata: {
     name: "deployments-plugin",
     version: "1.0.0",
     exposedModules: {
-      DeploymentList: path.resolve(
-        __dirname,
-        "./src/plugins/deployments-plugin/DeploymentList.tsx",
-      ),
+      DeploymentList: p("./src/plugins/deployments-plugin/DeploymentList.tsx"),
     },
   },
 });
@@ -332,178 +265,13 @@ const LogsPlugin = new DynamicRemotePlugin({
   sharedModules,
   entryScriptFilename: "logs-plugin.[contenthash].js",
   pluginManifestFilename: "logs-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
+  // @ts-ignore
   moduleFederationSettings: mfOverride,
   pluginMetadata: {
     name: "logs-plugin",
     version: "1.0.0",
     exposedModules: {
-      LogViewer: path.resolve(
-        __dirname,
-        "./src/plugins/logs-plugin/LogViewer.tsx",
-      ),
-    },
-  },
-});
-
-const PipelinesPlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Pipelines",
-        component: { $codeRef: "PipelineList.default" },
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "pipelines-plugin.[contenthash].js",
-  pluginManifestFilename: "pipelines-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "pipelines-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      PipelineList: path.resolve(
-        __dirname,
-        "./src/plugins/pipelines-plugin/PipelineList.tsx",
-      ),
-    },
-  },
-});
-
-const ConfigPlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Config",
-        component: { $codeRef: "ConfigPage.default" },
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "config-plugin.[contenthash].js",
-  pluginManifestFilename: "config-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "config-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      ConfigPage: path.resolve(
-        __dirname,
-        "./src/plugins/config-plugin/ConfigPage.tsx",
-      ),
-    },
-  },
-});
-
-const GitOpsPlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "GitOps",
-        component: { $codeRef: "GitOpsList.default" },
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "gitops-plugin.[contenthash].js",
-  pluginManifestFilename: "gitops-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "gitops-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      GitOpsList: path.resolve(
-        __dirname,
-        "./src/plugins/gitops-plugin/GitOpsList.tsx",
-      ),
-    },
-  },
-});
-
-const EventsPlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Events",
-        component: { $codeRef: "EventList.default" },
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "events-plugin.[contenthash].js",
-  pluginManifestFilename: "events-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "events-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      EventList: path.resolve(
-        __dirname,
-        "./src/plugins/events-plugin/EventList.tsx",
-      ),
-    },
-  },
-});
-
-const OperatorPlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.observability-chart",
-      properties: {
-        component: { $codeRef: "CpuTrendChart.default" },
-        label: "CPU Trend",
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "operator-plugin.[contenthash].js",
-  pluginManifestFilename: "operator-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "operator-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      CpuTrendChart: path.resolve(
-        __dirname,
-        "./src/plugins/operator-plugin/CpuTrendChart.tsx",
-      ),
-    },
-  },
-});
-
-const RoutesPlugin = new DynamicRemotePlugin({
-  extensions: [
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Routes",
-        component: { $codeRef: "RouteList.default" },
-      },
-    },
-  ],
-  sharedModules,
-  entryScriptFilename: "routes-plugin.[contenthash].js",
-  pluginManifestFilename: "routes-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "routes-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      RouteList: path.resolve(
-        __dirname,
-        "./src/plugins/routes-plugin/RouteList.tsx",
-      ),
+      LogViewer: p("./src/plugins/logs-plugin/LogViewer.tsx"),
     },
   },
 });
@@ -513,24 +281,17 @@ const RoutingPlugin = new DynamicRemotePlugin({
   sharedModules,
   entryScriptFilename: "routing-plugin.[contenthash].js",
   pluginManifestFilename: "routing-plugin-manifest.json",
-  // @ts-ignore — enhanced MF types differ from SDK expectations
+  // @ts-ignore
   moduleFederationSettings: mfOverride,
   pluginMetadata: {
     name: "routing-plugin",
     version: "1.0.0",
     exposedModules: {
-      PluginLink: path.resolve(
-        __dirname,
-        "./src/plugins/routing-plugin/PluginLink.tsx",
-      ),
-      usePluginNavigate: path.resolve(
-        __dirname,
+      PluginLink: p("./src/plugins/routing-plugin/PluginLink.tsx"),
+      usePluginNavigate: p(
         "./src/plugins/routing-plugin/usePluginNavigate.tsx",
       ),
-      usePluginLinks: path.resolve(
-        __dirname,
-        "./src/plugins/routing-plugin/usePluginLinks.tsx",
-      ),
+      usePluginLinks: p("./src/plugins/routing-plugin/usePluginLinks.tsx"),
     },
   },
 });
@@ -548,39 +309,20 @@ const config: Configuration = {
   },
   plugins: [
     CorePlugin,
-    ObservabilityPlugin,
     NodesPlugin,
-    NetworkingPlugin,
     StoragePlugin,
-    UpgradesPlugin,
+    EventsPlugin,
     AlertsPlugin,
-    CostPlugin,
+    ObservabilityPlugin,
+    NetworkingPlugin,
     DeploymentsPlugin,
     LogsPlugin,
-    PipelinesPlugin,
-    ConfigPlugin,
-    GitOpsPlugin,
-    EventsPlugin,
-    RoutesPlugin,
-    OperatorPlugin,
     RoutingPlugin,
     new PluginRegistryPlugin({
       assetsHost: "http://localhost:8001",
       plugins: [
         { name: "core-plugin", key: "core", label: "Core", persona: "ops" },
-        {
-          name: "observability-plugin",
-          key: "observability",
-          label: "Observability",
-          persona: "ops",
-        },
         { name: "nodes-plugin", key: "nodes", label: "Nodes", persona: "ops" },
-        {
-          name: "networking-plugin",
-          key: "networking",
-          label: "Networking",
-          persona: "ops",
-        },
         {
           name: "storage-plugin",
           key: "storage",
@@ -588,9 +330,9 @@ const config: Configuration = {
           persona: "ops",
         },
         {
-          name: "upgrades-plugin",
-          key: "upgrades",
-          label: "Upgrades",
+          name: "events-plugin",
+          key: "events",
+          label: "Events",
           persona: "ops",
         },
         {
@@ -599,11 +341,16 @@ const config: Configuration = {
           label: "Alerts",
           persona: "ops",
         },
-        { name: "cost-plugin", key: "cost", label: "Cost", persona: "ops" },
         {
-          name: "operator-plugin",
-          key: "operator",
-          label: "Operator",
+          name: "observability-plugin",
+          key: "observability",
+          label: "Observability",
+          persona: "ops",
+        },
+        {
+          name: "networking-plugin",
+          key: "networking",
+          label: "Networking",
           persona: "ops",
         },
         {
@@ -613,36 +360,6 @@ const config: Configuration = {
           persona: "dev",
         },
         { name: "logs-plugin", key: "logs", label: "Logs", persona: "dev" },
-        {
-          name: "pipelines-plugin",
-          key: "pipelines",
-          label: "Pipelines",
-          persona: "dev",
-        },
-        {
-          name: "config-plugin",
-          key: "config",
-          label: "Config",
-          persona: "dev",
-        },
-        {
-          name: "gitops-plugin",
-          key: "gitops",
-          label: "GitOps",
-          persona: "dev",
-        },
-        {
-          name: "events-plugin",
-          key: "events",
-          label: "Events",
-          persona: "dev",
-        },
-        {
-          name: "routes-plugin",
-          key: "routes",
-          label: "Routes",
-          persona: "dev",
-        },
         {
           name: "routing-plugin",
           key: "routing",

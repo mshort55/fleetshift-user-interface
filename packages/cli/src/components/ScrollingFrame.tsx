@@ -54,7 +54,9 @@ export const ScrollingFrame = ({
             />
           </Box>
         )}
-        {input.exitPending && <Text color="gray"> press Ctrl+C again to exit</Text>}
+        {input.exitPending && (
+          <Text color="gray"> press Ctrl+C again to exit</Text>
+        )}
       </Box>
     </Box>
   );

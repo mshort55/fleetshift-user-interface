@@ -167,9 +167,7 @@ export const App = ({ apiBase, mode }: AppProps) => {
                 <Text bold color="cyan">
                   {trimmed} menu
                 </Text>
-                <Text color="gray">
-                  Commands: {subNames.join(", ")}
-                </Text>
+                <Text color="gray">Commands: {subNames.join(", ")}</Text>
                 <Text color="gray">
                   Type &apos;back&apos; to return to the main menu.
                 </Text>
@@ -278,4 +276,3 @@ export const App = ({ apiBase, mode }: AppProps) => {
     </ThemeProvider>
   );
 };
-

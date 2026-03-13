@@ -7,9 +7,15 @@ import {
   useRef,
   ReactNode,
 } from "react";
-import { AuthProvider as OidcAuthProvider, useAuth as useOidcAuth } from "react-oidc-context";
+import {
+  AuthProvider as OidcAuthProvider,
+  useAuth as useOidcAuth,
+} from "react-oidc-context";
 import { oidcConfig } from "../auth/oidcConfig";
-import { setAccessToken, installFetchInterceptor } from "../auth/fetchInterceptor";
+import {
+  setAccessToken,
+  installFetchInterceptor,
+} from "../auth/fetchInterceptor";
 
 // Install the fetch interceptor once at module load
 installFetchInterceptor();
@@ -87,8 +93,7 @@ function KeycloakAuthInner({ children }: { children: ReactNode }) {
           setUser({
             id: `user-${username}`,
             username,
-            display_name:
-              username.charAt(0).toUpperCase() + username.slice(1),
+            display_name: username.charAt(0).toUpperCase() + username.slice(1),
             role,
             navLayout: [],
           });
@@ -99,8 +104,7 @@ function KeycloakAuthInner({ children }: { children: ReactNode }) {
         setUser({
           id: `user-${username}`,
           username,
-          display_name:
-            username.charAt(0).toUpperCase() + username.slice(1),
+          display_name: username.charAt(0).toUpperCase() + username.slice(1),
           role,
           navLayout: [],
         });

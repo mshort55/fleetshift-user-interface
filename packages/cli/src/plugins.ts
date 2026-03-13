@@ -72,7 +72,11 @@ export async function initPlugins(apiBase: string): Promise<void> {
 }
 
 /** Info about plugins loaded at startup, for rendering in the UI. */
-export function getLoadedPlugins(): Array<{ label: string; name: string; exposes: string[] }> {
+export function getLoadedPlugins(): Array<{
+  label: string;
+  name: string;
+  exposes: string[];
+}> {
   return loadedPlugins;
 }
 
