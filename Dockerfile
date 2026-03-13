@@ -103,6 +103,27 @@ EXPOSE 8002
 CMD ["http-server", "dist", "-p", "8002", "-c-1", "--cors=*"]
 
 # ---------------------------------------------------------------------------
+# mock-ui-plugins-dev — watch + serve with source mounts for live reload
+# ---------------------------------------------------------------------------
+FROM registry.access.redhat.com/ubi9/nodejs-22:latest AS mock-ui-plugins-dev
+
+WORKDIR /opt/app-root/src
+
+COPY --from=build --chown=1001:0 /opt/app-root/src/node_modules ./node_modules
+COPY --from=build --chown=1001:0 /opt/app-root/src/package.json ./
+COPY --from=build --chown=1001:0 /opt/app-root/src/tsconfig.json ./
+
+COPY --from=build --chown=1001:0 /opt/app-root/src/packages/common packages/common
+COPY --from=build --chown=1001:0 /opt/app-root/src/packages/build-utils packages/build-utils
+COPY --from=build --chown=1001:0 /opt/app-root/src/packages/mock-ui-plugins packages/mock-ui-plugins
+
+USER 1001
+
+EXPOSE 8001
+
+CMD ["npm", "run", "serve", "-w", "packages/mock-ui-plugins"]
+
+# ---------------------------------------------------------------------------
 # gui — webpack dev server on port 3000
 # ---------------------------------------------------------------------------
 FROM registry.access.redhat.com/ubi9/nodejs-22:latest AS gui

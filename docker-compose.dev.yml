@@ -1,0 +1,24 @@
+# Dev mode — source changes are reflected without rebuilding containers.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#
+# Combine with live mode:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.live.yml up --build
+
+services:
+  mock-servers:
+    build:
+      context: .
+      target: mock-servers
+    volumes:
+      - ./packages/mock-servers/src:/opt/app-root/src/packages/mock-servers/src:ro
+      - ./packages/common/src:/opt/app-root/src/packages/common/src:ro
+
+  mock-ui-plugins:
+    build:
+      context: .
+      target: mock-ui-plugins-dev
+    volumes:
+      - ./packages/mock-ui-plugins/src:/opt/app-root/src/packages/mock-ui-plugins/src:ro
+      - ./packages/mock-ui-plugins/webpack.config.ts:/opt/app-root/src/packages/mock-ui-plugins/webpack.config.ts:ro

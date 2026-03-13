@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@fleetshift/common": "*",
+    "@kubernetes/client-node": "^1.4.0",
     "better-sqlite3": "^12.6.2",
     "chokidar": "^5.0.0",
     "cors": "^2.8.6",

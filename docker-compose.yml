@@ -7,6 +7,9 @@
 # To also run the GUI:
 #   docker compose -f docker-compose.yml -f docker-compose.gui.yml up --build
 #
+# Live mode (real k8s data from minikube instead of mock data):
+#   docker compose -f docker-compose.yml -f docker-compose.live.yml up --build
+#
 # Keycloak admin console: http://localhost:8080/admin (admin / admin)
 # Fleetshift realm:       http://localhost:8080/realms/fleetshift
 #

@@ -3,103 +3,99 @@ import express from "express";
 import cors from "cors";
 import db from "./db";
 import { seedCluster, AVAILABLE_CLUSTERS } from "./seed";
-import clusterRoutes from "./routes/clusters";
-import namespaceRoutes from "./routes/namespaces";
-import podRoutes from "./routes/pods";
-import metricsRoutes from "./routes/metrics";
-import nodeRoutes from "./routes/nodes";
-import serviceRoutes from "./routes/services";
-import storageRoutes from "./routes/storage";
-import upgradeRoutes from "./routes/upgrades";
-import alertRoutes from "./routes/alerts";
-import costRoutes from "./routes/cost";
-import deploymentRoutes from "./routes/deployments";
-import logRoutes from "./routes/logs";
-import pipelineRoutes from "./routes/pipelines";
-import configRoutes from "./routes/config";
-import gitopsRoutes from "./routes/gitops";
-import eventRoutes from "./routes/events";
-import appRoutes from "./routes/appRoutes";
-import userRoutes from "./routes/users";
-import pluginRegistryRoutes from "./routes/pluginRegistry";
-import cliPluginRegistryRoutes from "./routes/cliPluginRegistry";
+import { jwtAuthMiddleware, keycloakLoginHandler } from "./middleware/auth";
 import { initPluginRegistryWatcher } from "./pluginRegistry";
 import { initCliPluginRegistryWatcher } from "./cliPluginRegistry";
 import { attachWebSocket } from "./ws";
-import { jwtAuthMiddleware, keycloakLoginHandler } from "./middleware/auth";
+import { initK8sClient } from "./k8s/client";
+import { createK8sRouter } from "./k8s/routes";
+import mockRoutes from "./routes/mock";
+import userRoutes from "./routes/users";
+import pluginRegistryRoutes from "./routes/pluginRegistry";
+import cliPluginRegistryRoutes from "./routes/cliPluginRegistry";
+
+const MODE = process.env.MODE ?? "mock";
+const PORT = 4000;
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// JWT validation — all API routes require a valid Keycloak token
-app.use("/api/v1", jwtAuthMiddleware);
-// /auth/login returns user info derived from the JWT
-app.post("/api/v1/auth/login", keycloakLoginHandler);
+async function start() {
+  // Auth (optional in live mode via NO_AUTH=1)
+  if (process.env.NO_AUTH !== "1") {
+    app.use("/api/v1", jwtAuthMiddleware);
+    app.post("/api/v1/auth/login", keycloakLoginHandler);
+  }
 
-app.use("/api/v1", clusterRoutes);
-app.use("/api/v1", namespaceRoutes);
-app.use("/api/v1", podRoutes);
-app.use("/api/v1", metricsRoutes);
-app.use("/api/v1", nodeRoutes);
-app.use("/api/v1", serviceRoutes);
-app.use("/api/v1", storageRoutes);
-app.use("/api/v1", upgradeRoutes);
-app.use("/api/v1", alertRoutes);
-app.use("/api/v1", costRoutes);
-app.use("/api/v1", deploymentRoutes);
-app.use("/api/v1", logRoutes);
-app.use("/api/v1", pipelineRoutes);
-app.use("/api/v1", configRoutes);
-app.use("/api/v1", gitopsRoutes);
-app.use("/api/v1", eventRoutes);
-app.use("/api/v1", appRoutes);
-app.use("/api/v1", userRoutes);
-app.use("/api/v1", pluginRegistryRoutes);
-app.use("/api/v1", cliPluginRegistryRoutes);
+  if (MODE === "live") {
+    const liveClusters = await initK8sClient();
 
-// Seed default clusters if none installed
-const clusterCount = (
-  db.prepare("SELECT COUNT(*) as c FROM clusters").get() as { c: number }
-).c;
-if (clusterCount === 0) {
-  seedCluster(AVAILABLE_CLUSTERS[0]); // US East Production
-  seedCluster(AVAILABLE_CLUSTERS[1]); // EU West Staging
+    if (liveClusters.length === 0) {
+      console.error(
+        "MODE=live but no Kubernetes cluster is reachable. Start minikube or switch to MODE=mock.",
+      );
+      process.exit(1);
+    }
 
-  // Assign plugins that match the seeded canvas pages
-  const opsPlugins = [
-    "core",
-    "observability",
-    "nodes",
-    "networking",
-    "alerts",
-    "operator",
-  ];
-  const devPlugins = [
-    "core",
-    "deployments",
-    "pipelines",
-    "gitops",
-    "alerts",
-    "operator",
-  ];
-  db.prepare("UPDATE clusters SET plugins = ? WHERE id = ?").run(
-    JSON.stringify(opsPlugins),
-    AVAILABLE_CLUSTERS[0].id,
-  );
-  db.prepare("UPDATE clusters SET plugins = ? WHERE id = ?").run(
-    JSON.stringify(devPlugins),
-    AVAILABLE_CLUSTERS[1].id,
-  );
-  console.log("Seeded 2 default clusters with plugins");
+    app.use("/api/v1", createK8sRouter(liveClusters));
+  } else {
+    app.use("/api/v1", mockRoutes);
+
+    // Seed default clusters if none installed
+    const clusterCount = (
+      db.prepare("SELECT COUNT(*) as c FROM clusters").get() as { c: number }
+    ).c;
+    if (clusterCount === 0) {
+      seedCluster(AVAILABLE_CLUSTERS[0]);
+      seedCluster(AVAILABLE_CLUSTERS[1]);
+
+      const opsPlugins = [
+        "core",
+        "observability",
+        "nodes",
+        "networking",
+        "alerts",
+        "operator",
+      ];
+      const devPlugins = [
+        "core",
+        "deployments",
+        "pipelines",
+        "gitops",
+        "alerts",
+        "operator",
+      ];
+      db.prepare("UPDATE clusters SET plugins = ? WHERE id = ?").run(
+        JSON.stringify(opsPlugins),
+        AVAILABLE_CLUSTERS[0].id,
+      );
+      db.prepare("UPDATE clusters SET plugins = ? WHERE id = ?").run(
+        JSON.stringify(devPlugins),
+        AVAILABLE_CLUSTERS[1].id,
+      );
+      console.log("Seeded 2 default clusters with plugins");
+    }
+  }
+
+  // Shared across both modes
+  app.use("/api/v1", userRoutes);
+  app.use("/api/v1", pluginRegistryRoutes);
+  app.use("/api/v1", cliPluginRegistryRoutes);
+
+  initPluginRegistryWatcher();
+  initCliPluginRegistryWatcher();
+
+  const server = createServer(app);
+  attachWebSocket(server);
+  server.listen(PORT, () => {
+    console.log(
+      `FleetShift server running on http://localhost:${PORT} [${MODE} mode]`,
+    );
+  });
 }
 
-initPluginRegistryWatcher();
-initCliPluginRegistryWatcher();
-
-const PORT = 4000;
-const server = createServer(app);
-attachWebSocket(server);
-server.listen(PORT, () => {
-  console.log(`FleetShift mock server running on http://localhost:${PORT}`);
+start().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
 });
