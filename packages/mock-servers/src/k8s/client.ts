@@ -62,7 +62,19 @@ const CRD_PLUGIN_MAP: Record<string, string> = {
   "cyndi.cloud.redhat.com": "pipelines",
 };
 
-const ALWAYS_PLUGINS = ["core", "nodes", "storage", "events", "alerts"];
+const ALWAYS_PLUGINS = [
+  "core",
+  "nodes",
+  "storage",
+  "events",
+  "alerts",
+  "networking",
+  "deployments",
+  "logs",
+  "config",
+  "cost",
+  "upgrades",
+];
 
 async function discoverPlugins(kc: k8s.KubeConfig): Promise<string[]> {
   const plugins = new Set(ALWAYS_PLUGINS);

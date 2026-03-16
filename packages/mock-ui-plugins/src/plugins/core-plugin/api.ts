@@ -73,3 +73,9 @@ export function useFetch<T>(url: string | null) {
 
   return { data, loading, error, refetch };
 }
+
+export function fetchJson<T>(url: string): Promise<T> {
+  return fetch(url).then((r) =>
+    r.ok ? r.json() : Promise.reject(r.statusText),
+  );
+}

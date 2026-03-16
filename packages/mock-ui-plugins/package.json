@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
-    "serve": "webpack && concurrently \"webpack --watch\" \"http-server dist -p 8001 -c-1 --cors=*\""
+    "serve": "webpack && concurrently \"nodemon --watch webpack.config.ts --ext ts --exec 'webpack --watch'\" \"http-server dist -p 8001 -c-1 --cors=*\""
   },
   "dependencies": {
     "@fleetshift/common": "*",
@@ -30,6 +30,7 @@
     "@openshift/dynamic-plugin-sdk-webpack": "^4.0.2",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
+    "nodemon": "^3.1.14",
     "concurrently": "^9.2.1",
     "css-loader": "^7.1.4",
     "http-server": "^14.1.1",

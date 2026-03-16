@@ -1,13 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import {
-  Drawer,
-  DrawerActions,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerContentBody,
-  DrawerHead,
-  DrawerPanelContent,
+  Divider,
   Masthead,
   MastheadBrand,
   MastheadContent,
@@ -15,7 +9,6 @@ import {
   MastheadMain,
   MastheadToggle,
   Nav,
-  NavExpandable,
   NavItem,
   NavList,
   Page,
@@ -28,12 +21,11 @@ import {
   ToolbarGroup,
   ToolbarItem,
   Button,
-  Divider,
 } from "@patternfly/react-core";
 import { BarsIcon, MoonIcon, SunIcon } from "@patternfly/react-icons";
 import { useAuth } from "../contexts/AuthContext";
-import { useUserPreferences } from "../contexts/UserPreferencesContext";
-import { useDrawer, DrawerProvider } from "../contexts/DrawerContext";
+import { useAppConfig } from "../contexts/AppConfigContext";
+import type { PluginPage } from "../contexts/AppConfigContext";
 import { ClusterSwitcher } from "./ClusterSwitcher";
 import logo from "../assets/masthead.png";
 
@@ -124,75 +116,62 @@ const AppMasthead = () => (
 
 const AppNav = () => {
   const location = useLocation();
-  const { navLayout, getPage } = useUserPreferences();
+  const { pluginPages, navLayout } = useAppConfig();
 
-  const renderPageNavItem = (pageId: string) => {
-    const page = getPage(pageId);
-    if (!page) return null;
-    const fullPath = `/${page.path}`;
-    return (
-      <NavItem
-        key={pageId}
-        isActive={
-          location.pathname === fullPath ||
-          location.pathname.startsWith(fullPath + "/")
-        }
-      >
-        <Link to={fullPath}>{page.title}</Link>
-      </NavItem>
-    );
-  };
+  // Build a lookup from page ID to plugin page definition
+  const pageMap = useMemo(() => {
+    const map = new Map<string, PluginPage>();
+    for (const page of pluginPages) {
+      map.set(page.id, page);
+    }
+    return map;
+  }, [pluginPages]);
 
-  const layoutEntries: React.ReactNode[] = [];
-  for (const entry of navLayout) {
-    if (entry.type === "page") {
-      const node = renderPageNavItem(entry.pageId);
-      if (node) layoutEntries.push(node);
-    } else if (entry.type === "section") {
-      const children = entry.children
-        .map((child) => renderPageNavItem(child.pageId))
-        .filter(Boolean);
-      if (children.length > 0) {
-        const isActive = entry.children.some((child) => {
-          const page = getPage(child.pageId);
-          if (!page) return false;
-          const fp = `/${page.path}`;
-          return (
-            location.pathname === fp || location.pathname.startsWith(fp + "/")
-          );
-        });
-        layoutEntries.push(
-          <NavExpandable
-            key={entry.id}
-            title={entry.label}
-            isActive={isActive}
-            isExpanded={isActive}
-          >
-            {children}
-          </NavExpandable>,
-        );
+  // Build ordered nav items from the user's nav layout
+  const navItems = useMemo(() => {
+    const items: PluginPage[] = [];
+    for (const entry of navLayout) {
+      if (entry.type === "page") {
+        const page = pageMap.get(entry.pageId);
+        if (page) items.push(page);
       }
     }
-  }
+    return items;
+  }, [navLayout, pageMap]);
 
   return (
     <Nav>
       <NavList>
+        {/* Built-in items */}
         <NavItem isActive={location.pathname === "/"}>
           <Link to="/">Dashboard</Link>
         </NavItem>
-        <NavItem isActive={location.pathname === "/clusters"}>
+        <NavItem
+          isActive={
+            location.pathname === "/clusters" ||
+            location.pathname.startsWith("/clusters/")
+          }
+        >
           <Link to="/clusters">Clusters</Link>
         </NavItem>
-        {layoutEntries.length > 0 && <Divider component="li" />}
-        {layoutEntries}
-        <Divider component="li" />
-        <NavItem isActive={location.pathname === "/navigation"}>
-          <Link to="/navigation">Navigation</Link>
-        </NavItem>
-        <NavItem isActive={location.pathname.startsWith("/pages")}>
-          <Link to="/pages">Composer</Link>
-        </NavItem>
+
+        {navItems.length > 0 && <Divider component="li" />}
+
+        {/* Plugin nav items from server layout */}
+        {navItems.map((page) => {
+          const fullPath = `/${page.path}`;
+          return (
+            <NavItem
+              key={page.id}
+              isActive={
+                location.pathname === fullPath ||
+                location.pathname.startsWith(fullPath + "/")
+              }
+            >
+              <Link to={fullPath}>{page.title}</Link>
+            </NavItem>
+          );
+        })}
       </NavList>
     </Nav>
   );
@@ -206,43 +185,10 @@ const Sidebar = () => (
   </PageSidebar>
 );
 
-const AppDrawer = () => {
-  const { isOpen, content, closeDrawer } = useDrawer();
-
-  const panelContent = (
-    <DrawerPanelContent widths={{ default: "width_33" }}>
-      <DrawerHead>
-        <DrawerActions>
-          <DrawerCloseButton onClick={closeDrawer} />
-        </DrawerActions>
-      </DrawerHead>
-      {content}
-    </DrawerPanelContent>
-  );
-
-  return (
-    <Page masthead={<AppMasthead />} sidebar={<Sidebar />} isManagedSidebar>
-      <Drawer
-        isExpanded={isOpen}
-        onExpand={() => {}}
-        position="end"
-        isInline
-        style={{ flex: 1 }}
-      >
-        <DrawerContent panelContent={panelContent}>
-          <DrawerContentBody hasPadding={false}>
-            <PageSection isFilled hasOverflowScroll>
-              <Outlet />
-            </PageSection>
-          </DrawerContentBody>
-        </DrawerContent>
-      </Drawer>
-    </Page>
-  );
-};
-
 export const AppLayout = () => (
-  <DrawerProvider>
-    <AppDrawer />
-  </DrawerProvider>
+  <Page masthead={<AppMasthead />} sidebar={<Sidebar />} isManagedSidebar>
+    <PageSection isFilled hasOverflowScroll>
+      <Outlet />
+    </PageSection>
+  </Page>
 );

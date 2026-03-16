@@ -6,13 +6,35 @@ import {
   ReactNode,
 } from "react";
 import type { AppsConfig } from "@scalprum/core";
-import type { CanvasPage, NavLayoutEntry } from "../utils/extensions";
 import type { PluginEntry } from "./PluginRegistryContext";
 import { useAuth } from "./AuthContext";
 
+export interface PluginPage {
+  id: string;
+  title: string;
+  path: string;
+  scope: string;
+  module: string;
+  pluginKey: string;
+}
+
+export interface NavLayoutPage {
+  type: "page";
+  pageId: string;
+}
+
+export interface NavLayoutSection {
+  type: "section";
+  id: string;
+  label: string;
+  children: { pageId: string }[];
+}
+
+export type NavLayoutEntry = NavLayoutPage | NavLayoutSection;
+
 interface AppConfigContextValue {
   scalprumConfig: AppsConfig<{ assetsHost: string }>;
-  canvasPages: CanvasPage[];
+  pluginPages: PluginPage[];
   navLayout: NavLayoutEntry[];
   pluginEntries: PluginEntry[];
   assetsHost: string;
@@ -37,7 +59,7 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
       .then((data) => {
         setConfig({
           scalprumConfig: data.scalprumConfig,
-          canvasPages: data.canvasPages,
+          pluginPages: data.pluginPages,
           navLayout: data.navLayout,
           pluginEntries: data.pluginEntries,
           assetsHost: data.assetsHost,

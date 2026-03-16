@@ -69,16 +69,24 @@ async function start() {
         "observability",
         "nodes",
         "networking",
+        "storage",
         "alerts",
-        "operator",
+        "upgrades",
+        "cost",
+        "events",
+        "logs",
+        "deployments",
       ];
       const devPlugins = [
         "core",
         "deployments",
         "pipelines",
+        "config",
         "gitops",
+        "events",
+        "routes",
+        "logs",
         "alerts",
-        "operator",
       ];
       db.prepare("UPDATE clusters SET plugins = ? WHERE id = ?").run(
         JSON.stringify(opsPlugins),

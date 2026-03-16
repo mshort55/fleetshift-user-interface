@@ -75,6 +75,9 @@ const CorePlugin = new DynamicRemotePlugin({
     name: "core-plugin",
     version: "1.0.0",
     exposedModules: {
+      Dashboard: p("./src/plugins/core-plugin/Dashboard.tsx"),
+      ClusterListPage: p("./src/plugins/core-plugin/ClusterListPage.tsx"),
+      ClusterDetailPage: p("./src/plugins/core-plugin/ClusterDetailPage.tsx"),
       ClusterOverview: p("./src/plugins/core-plugin/ClusterOverview.tsx"),
       PodList: p("./src/plugins/core-plugin/PodList.tsx"),
       NamespaceList: p("./src/plugins/core-plugin/NamespaceList.tsx"),
@@ -289,6 +292,150 @@ const LogsPlugin = new DynamicRemotePlugin({
   },
 });
 
+const PipelinesPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "Pipelines",
+        component: { $codeRef: "PipelineList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "pipelines-plugin.[contenthash].js",
+  pluginManifestFilename: "pipelines-plugin-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "pipelines-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      PipelineList: p("./src/plugins/pipelines-plugin/PipelineList.tsx"),
+    },
+  },
+});
+
+const ConfigPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "Config",
+        component: { $codeRef: "ConfigPage.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "config-plugin.[contenthash].js",
+  pluginManifestFilename: "config-plugin-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "config-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      ConfigPage: p("./src/plugins/config-plugin/ConfigPage.tsx"),
+    },
+  },
+});
+
+const GitOpsPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "GitOps",
+        component: { $codeRef: "GitOpsList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "gitops-plugin.[contenthash].js",
+  pluginManifestFilename: "gitops-plugin-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "gitops-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      GitOpsList: p("./src/plugins/gitops-plugin/GitOpsList.tsx"),
+    },
+  },
+});
+
+const RoutesPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "Routes",
+        component: { $codeRef: "RouteList.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "routes-plugin-ext.[contenthash].js",
+  pluginManifestFilename: "routes-plugin-ext-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "routes-plugin-ext",
+    version: "1.0.0",
+    exposedModules: {
+      RouteList: p("./src/plugins/routes-plugin/RouteList.tsx"),
+    },
+  },
+});
+
+const CostPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "Cost",
+        component: { $codeRef: "CostPage.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "cost-plugin.[contenthash].js",
+  pluginManifestFilename: "cost-plugin-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "cost-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      CostPage: p("./src/plugins/cost-plugin/CostPage.tsx"),
+    },
+  },
+});
+
+const UpgradesPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.module",
+      properties: {
+        label: "Upgrades",
+        component: { $codeRef: "UpgradesPage.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "upgrades-plugin.[contenthash].js",
+  pluginManifestFilename: "upgrades-plugin-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "upgrades-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      UpgradesPage: p("./src/plugins/upgrades-plugin/UpgradesPage.tsx"),
+    },
+  },
+});
+
 const RoutingPlugin = new DynamicRemotePlugin({
   extensions: [],
   sharedModules,
@@ -330,6 +477,12 @@ const config: Configuration = {
     NetworkingPlugin,
     DeploymentsPlugin,
     LogsPlugin,
+    PipelinesPlugin,
+    ConfigPlugin,
+    GitOpsPlugin,
+    RoutesPlugin,
+    CostPlugin,
+    UpgradesPlugin,
     RoutingPlugin,
     new PluginRegistryPlugin({
       assetsHost: "http://localhost:8001",
@@ -346,7 +499,7 @@ const config: Configuration = {
           name: "events-plugin",
           key: "events",
           label: "Events",
-          persona: "ops",
+          persona: "dev",
         },
         {
           name: "alerts-plugin",
@@ -373,6 +526,37 @@ const config: Configuration = {
           persona: "dev",
         },
         { name: "logs-plugin", key: "logs", label: "Logs", persona: "dev" },
+        {
+          name: "pipelines-plugin",
+          key: "pipelines",
+          label: "Pipelines",
+          persona: "dev",
+        },
+        {
+          name: "config-plugin",
+          key: "config",
+          label: "Config",
+          persona: "dev",
+        },
+        {
+          name: "gitops-plugin",
+          key: "gitops",
+          label: "GitOps",
+          persona: "dev",
+        },
+        {
+          name: "routes-plugin-ext",
+          key: "routes",
+          label: "Routes",
+          persona: "dev",
+        },
+        { name: "cost-plugin", key: "cost", label: "Cost", persona: "ops" },
+        {
+          name: "upgrades-plugin",
+          key: "upgrades",
+          label: "Upgrades",
+          persona: "ops",
+        },
         {
           name: "routing-plugin",
           key: "routing",

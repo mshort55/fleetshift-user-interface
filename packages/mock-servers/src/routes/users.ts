@@ -44,6 +44,17 @@ interface PluginRegistry {
   plugins: Record<string, PluginEntry>;
 }
 
+// --- Plugin Pages ---
+// A plugin page maps a route to a specific plugin module.
+interface PluginPage {
+  id: string;
+  title: string;
+  path: string;
+  scope: string; // plugin name, e.g. "core-plugin"
+  module: string; // exposed module, e.g. "PodList"
+  pluginKey: string; // e.g. "core" — used to check if plugin is enabled
+}
+
 // Live clusters from K8s mode — set by the server at startup
 let liveClusters: ClusterInfo[] | null = null;
 
@@ -52,10 +63,8 @@ export function setLiveClusters(clusters: ClusterInfo[]): void {
 }
 
 function getClusters(): ClusterInfo[] {
-  // In live mode, use the K8s-discovered clusters
   if (liveClusters) return liveClusters;
 
-  // In mock mode, read from SQLite
   const rows = db.prepare("SELECT id, plugins FROM clusters").all() as Array<{
     id: string;
     plugins: string;
@@ -94,70 +103,96 @@ function buildScalprumConfigServer(
   return config;
 }
 
-function generateDefaultConfig(
+// Built-in pages from core-plugin (always available, not tied to a specific cluster plugin)
+const BUILTIN_PAGES: PluginPage[] = [
+  {
+    id: "dashboard",
+    title: "Dashboard",
+    path: "",
+    scope: "core-plugin",
+    module: "Dashboard",
+    pluginKey: "core",
+  },
+  {
+    id: "clusters",
+    title: "Clusters",
+    path: "clusters",
+    scope: "core-plugin",
+    module: "ClusterListPage",
+    pluginKey: "core",
+  },
+  {
+    id: "cluster-detail",
+    title: "Cluster Detail",
+    path: "clusters/:clusterId",
+    scope: "core-plugin",
+    module: "ClusterDetailPage",
+    pluginKey: "core",
+  },
+];
+
+function generatePluginPages(
   registry: PluginRegistry,
   clusters: ClusterInfo[],
-  userId: string,
-) {
-  const pages: CanvasPage[] = [];
-  const navLayout: Array<{ type: string; pageId?: string }> = [];
+): PluginPage[] {
+  const pages: PluginPage[] = [...BUILTIN_PAGES];
 
   for (const [, entry] of Object.entries(registry.plugins)) {
-    // Only include plugins that are installed on at least one cluster
     const isInstalled = clusters.some((c) => c.plugins.includes(entry.key));
     if (!isInstalled) continue;
 
     const manifest = entry.pluginManifest;
-    if (!manifest.extensions) continue;
+    if (!manifest?.extensions) continue;
 
     for (const ext of manifest.extensions) {
       if (ext.type !== "fleetshift.module") continue;
 
       const props = ext.properties as {
         label?: string;
-        module?: string;
+        component?: { $codeRef?: string };
       };
       const label = props.label ?? entry.label;
-      const moduleName = props.module ?? "";
+      // Extract module name from $codeRef (e.g. "PodList.default" → "PodList")
+      const codeRef = props.component?.$codeRef ?? "";
+      const moduleName = codeRef.split(".")[0] || "";
       const slug = label
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "");
 
-      // Avoid duplicate paths
+      // Avoid duplicates
       if (pages.some((p) => p.path === slug)) continue;
 
-      const pageId = `auto-${entry.name}-${moduleName.replace(/^\.\//, "")}`;
+      const pageId = `${entry.key}-${moduleName
+        .replace(/^\.\//, "")
+        .toLowerCase()}`;
+
       pages.push({
         id: pageId,
         title: label,
         path: slug,
-        modules: [
-          {
-            i: `${pageId}-1`,
-            x: 0,
-            y: 0,
-            w: 12,
-            h: 14,
-            moduleRef: {
-              scope: entry.name,
-              module: moduleName,
-              label,
-            },
-          },
-        ],
+        scope: entry.name,
+        module: moduleName,
+        pluginKey: entry.key,
       });
-
-      navLayout.push({ type: "page", pageId });
     }
   }
 
-  // Persist to DB
-  db.prepare(
-    "UPDATE users SET canvas_pages = ?, nav_layout = ? WHERE id = ?",
-  ).run(JSON.stringify(pages), JSON.stringify(navLayout), userId);
+  return pages;
+}
 
-  return { pages, navLayout };
+function generateDefaultNavLayout(
+  pages: PluginPage[],
+): Array<{ type: string; pageId: string }> {
+  // Exclude built-in pages (dashboard/clusters) — shell handles those separately
+  return pages
+    .filter(
+      (p) =>
+        p.id !== "dashboard" &&
+        p.id !== "clusters" &&
+        p.id !== "cluster-detail",
+    )
+    .map((p) => ({ type: "page" as const, pageId: p.id }));
 }
 
 // GET /users/:id/config — full per-user config payload
@@ -179,22 +214,24 @@ router.get("/users/:id/config", (req, res) => {
 
   const clusters = getClusters();
   const scalprumConfig = buildScalprumConfigServer(registry, clusters);
+  const pluginPages = generatePluginPages(registry, clusters);
 
-  let canvasPages: CanvasPage[] = JSON.parse(user.canvas_pages);
   let navLayout = JSON.parse(user.nav_layout);
 
-  // Auto-generate defaults for new users with empty config
-  if (canvasPages.length === 0 && navLayout.length === 0) {
-    const generated = generateDefaultConfig(registry, clusters, user.id);
-    canvasPages = generated.pages;
-    navLayout = generated.navLayout;
+  // Auto-generate default nav layout for users with empty config
+  if (navLayout.length === 0) {
+    navLayout = generateDefaultNavLayout(pluginPages);
+    db.prepare("UPDATE users SET nav_layout = ? WHERE id = ?").run(
+      JSON.stringify(navLayout),
+      user.id,
+    );
   }
 
   const pluginEntries = Object.values(registry.plugins);
 
   res.json({
     scalprumConfig,
-    canvasPages,
+    pluginPages,
     navLayout,
     pluginEntries,
     assetsHost: registry.assetsHost,
@@ -203,7 +240,6 @@ router.get("/users/:id/config", (req, res) => {
 
 // POST /ws/ticket — issue a one-time ticket for WS authentication
 router.post("/ws/ticket", (req, res) => {
-  // When NO_AUTH=1, skip JWT checks and use a default user
   if (process.env.NO_AUTH === "1") {
     const fallback = db.prepare("SELECT id FROM users LIMIT 1").get() as
       | { id: string }
@@ -214,14 +250,12 @@ router.post("/ws/ticket", (req, res) => {
     return;
   }
 
-  // req.user is set by jwtAuthMiddleware (username from JWT)
   const tokenUser = req.user;
   if (!tokenUser) {
     res.status(401).json({ error: "Not authenticated" });
     return;
   }
 
-  // Look up the DB user ID from the JWT username
   const user = db
     .prepare("SELECT id FROM users WHERE username = ?")
     .get(tokenUser.username) as { id: string } | undefined;
@@ -286,132 +320,6 @@ router.put("/users/:id/preferences", (req, res) => {
   const originSessionId = req.headers["x-session-id"] as string | undefined;
   broadcast("nav_layout", { userId: req.params.id, originSessionId });
   res.json({ navLayout });
-});
-
-// --- Canvas Pages CRUD ---
-
-interface CanvasPage {
-  id: string;
-  title: string;
-  path: string;
-  modules: unknown[];
-}
-
-const PATH_RE = /^[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)*$/;
-const RESERVED_SEGMENTS = new Set(["", "clusters", "navigation", "pages"]);
-
-function getCanvasPages(userId: string): CanvasPage[] {
-  const row = db
-    .prepare("SELECT canvas_pages FROM users WHERE id = ?")
-    .get(userId) as { canvas_pages: string } | undefined;
-  if (!row) return [];
-  return JSON.parse(row.canvas_pages);
-}
-
-function setCanvasPages(userId: string, pages: CanvasPage[]): void {
-  db.prepare("UPDATE users SET canvas_pages = ? WHERE id = ?").run(
-    JSON.stringify(pages),
-    userId,
-  );
-}
-
-// GET /users/:id/canvas-pages
-router.get("/users/:id/canvas-pages", (req, res) => {
-  const user = db
-    .prepare("SELECT id FROM users WHERE id = ?")
-    .get(req.params.id);
-  if (!user) {
-    res.status(404).json({ error: "User not found" });
-    return;
-  }
-  res.json({ pages: getCanvasPages(req.params.id) });
-});
-
-// POST /users/:id/canvas-pages
-router.post("/users/:id/canvas-pages", (req, res) => {
-  const user = db
-    .prepare("SELECT id FROM users WHERE id = ?")
-    .get(req.params.id);
-  if (!user) {
-    res.status(404).json({ error: "User not found" });
-    return;
-  }
-  const { title, path } = req.body as { title: string; path: string };
-
-  if (!path || !PATH_RE.test(path)) {
-    res.status(400).json({ error: "Invalid path format" });
-    return;
-  }
-  if (RESERVED_SEGMENTS.has(path.split("/")[0])) {
-    res.status(400).json({ error: `"${path}" is a reserved path` });
-    return;
-  }
-
-  const pages = getCanvasPages(req.params.id);
-  if (pages.some((p) => p.path === path)) {
-    res.status(400).json({ error: `Path "${path}" is already in use` });
-    return;
-  }
-
-  const page: CanvasPage = {
-    id: `canvas-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    title: title || "Untitled Page",
-    path,
-    modules: [],
-  };
-  pages.push(page);
-  setCanvasPages(req.params.id, pages);
-  const originSessionId = req.headers["x-session-id"] as string | undefined;
-  broadcast("canvas_pages", { userId: req.params.id, originSessionId });
-  res.json(page);
-});
-
-// PUT /users/:id/canvas-pages/:pageId
-router.put("/users/:id/canvas-pages/:pageId", (req, res) => {
-  const pages = getCanvasPages(req.params.id);
-  const idx = pages.findIndex((p) => p.id === req.params.pageId);
-  if (idx === -1) {
-    res.status(404).json({ error: "Page not found" });
-    return;
-  }
-  const { title, path, modules } = req.body as {
-    title?: string;
-    path?: string;
-    modules?: unknown[];
-  };
-
-  if (path !== undefined) {
-    if (!PATH_RE.test(path)) {
-      res.status(400).json({ error: "Invalid path format" });
-      return;
-    }
-    if (RESERVED_SEGMENTS.has(path.split("/")[0])) {
-      res.status(400).json({ error: `"${path}" is a reserved path` });
-      return;
-    }
-    if (pages.some((p) => p.path === path && p.id !== req.params.pageId)) {
-      res.status(400).json({ error: `Path "${path}" is already in use` });
-      return;
-    }
-    pages[idx].path = path;
-  }
-
-  if (title !== undefined) pages[idx].title = title;
-  if (modules !== undefined) pages[idx].modules = modules;
-  setCanvasPages(req.params.id, pages);
-  const originSessionId = req.headers["x-session-id"] as string | undefined;
-  broadcast("canvas_pages", { userId: req.params.id, originSessionId });
-  res.json(pages[idx]);
-});
-
-// DELETE /users/:id/canvas-pages/:pageId
-router.delete("/users/:id/canvas-pages/:pageId", (req, res) => {
-  const pages = getCanvasPages(req.params.id);
-  const filtered = pages.filter((p) => p.id !== req.params.pageId);
-  setCanvasPages(req.params.id, filtered);
-  const originSessionId = req.headers["x-session-id"] as string | undefined;
-  broadcast("canvas_pages", { userId: req.params.id, originSessionId });
-  res.json({ ok: true });
 });
 
 export default router;
