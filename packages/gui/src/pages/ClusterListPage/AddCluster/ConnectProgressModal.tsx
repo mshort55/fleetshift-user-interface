@@ -9,6 +9,7 @@ import {
   ModalHeader,
   ProgressStepper,
   ProgressStep,
+  Spinner,
 } from "@patternfly/react-core";
 import type { StepState, StepStatus } from "./types";
 
@@ -85,6 +86,9 @@ export const ConnectProgressModal: React.FC<{
               variant={stepVariant(step.status)}
               isCurrent={step.status === "running"}
               description={step.detail}
+              icon={
+                step.status === "running" ? <Spinner isInline /> : undefined
+              }
             >
               {step.label}
             </ProgressStep>
