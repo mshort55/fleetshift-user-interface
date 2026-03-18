@@ -183,7 +183,7 @@ const PodList: React.FC = () => {
         </EmptyState>
       ) : (
         <>
-          <Table aria-label="Pods" variant="compact">
+          <Table aria-label="Pods" variant="compact" hasAnimations>
             <Thead>
               <Tr>
                 <Th>Name</Th>

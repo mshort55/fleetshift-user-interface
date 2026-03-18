@@ -105,7 +105,7 @@ const NamespaceList: React.FC = () => {
         </EmptyState>
       ) : (
         <>
-          <Table aria-label="Namespaces" variant="compact">
+          <Table aria-label="Namespaces" variant="compact" hasAnimations>
             <Thead>
               <Tr>
                 <Th>Name</Th>

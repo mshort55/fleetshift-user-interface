@@ -188,7 +188,7 @@ const LogViewer: React.FC<{ clusterIds: string[] }> = () => {
           </EmptyStateBody>
         </EmptyState>
       ) : (
-        <Table aria-label="Logs" variant="compact">
+        <Table aria-label="Logs" variant="compact" hasAnimations>
           <Thead>
             <Tr>
               <Th>Timestamp</Th>

@@ -122,7 +122,7 @@ const ServicesTab: React.FC = () => {
         </EmptyState>
       ) : (
         <>
-          <Table aria-label="Services" variant="compact">
+          <Table aria-label="Services" variant="compact" hasAnimations>
             <Thead>
               <Tr>
                 <Th>Name</Th>
@@ -272,7 +272,7 @@ const IngressesTab: React.FC = () => {
         </EmptyState>
       ) : (
         <>
-          <Table aria-label="Ingresses" variant="compact">
+          <Table aria-label="Ingresses" variant="compact" hasAnimations>
             <Thead>
               <Tr>
                 <Th>Name</Th>

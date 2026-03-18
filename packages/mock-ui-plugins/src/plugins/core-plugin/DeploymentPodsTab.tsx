@@ -98,7 +98,7 @@ const DeploymentPodsTab: React.FC<DeploymentTabProps> = ({
   }
 
   return (
-    <Table aria-label="Deployment Pods" variant="compact">
+    <Table aria-label="Deployment Pods" variant="compact" hasAnimations>
       <Thead>
         <Tr>
           <Th>Name</Th>

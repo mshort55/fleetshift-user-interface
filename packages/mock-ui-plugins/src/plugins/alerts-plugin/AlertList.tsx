@@ -176,7 +176,7 @@ const AlertList: React.FC<{ clusterIds: string[] }> = () => {
           </EmptyStateBody>
         </EmptyState>
       ) : (
-        <Table aria-label="Alerts" variant="compact">
+        <Table aria-label="Alerts" variant="compact" hasAnimations>
           <Thead>
             <Tr>
               <Th>Severity</Th>

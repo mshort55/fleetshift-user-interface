@@ -15,6 +15,7 @@ import { AddClusterPage } from "./pages/ClusterListPage";
 import { DebugPage } from "./pages/DebugPage";
 import { GrantAccessPage } from "./pages/GrantAccessPage/GrantAccessPage";
 import { UserPreferencesProvider } from "./contexts/UserPreferencesContext";
+import { AnimationsProvider } from "@patternfly/react-core";
 
 const API_BASE = "http://localhost:4000/api/v1";
 
@@ -192,23 +193,25 @@ const AppConfigBridge = ({ children }: PropsWithChildren) => {
         </ScalprumShell>
       </ClusterProvider>
     </PluginRegistryProvider>
-);
+  );
 };
 
 export const App = () => (
-  <ScopeInitializer>
-    <BrowserRouter>
-      <AuthProvider>
-        <AuthGate>
-          <AppConfigProvider>
-            <AppConfigBridge>
-              <UserPreferencesProvider>
-                <AppRoutes />
-              </UserPreferencesProvider>
-            </AppConfigBridge>
-          </AppConfigProvider>
-        </AuthGate>
-      </AuthProvider>
-    </BrowserRouter>
-  </ScopeInitializer>
+  <AnimationsProvider config={{ hasAnimations: true }}>
+    <ScopeInitializer>
+      <BrowserRouter>
+        <AuthProvider>
+          <AuthGate>
+            <AppConfigProvider>
+              <AppConfigBridge>
+                <UserPreferencesProvider>
+                  <AppRoutes />
+                </UserPreferencesProvider>
+              </AppConfigBridge>
+            </AppConfigProvider>
+          </AuthGate>
+        </AuthProvider>
+      </BrowserRouter>
+    </ScopeInitializer>
+  </AnimationsProvider>
 );

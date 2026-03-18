@@ -149,7 +149,7 @@ const RouteList: React.FC<{ clusterIds: string[] }> = ({ clusterIds }) => {
           </EmptyStateBody>
         </EmptyState>
       ) : (
-        <Table aria-label="OpenShift Routes" variant="compact">
+        <Table aria-label="OpenShift Routes" variant="compact" hasAnimations>
           <Thead>
             <Tr>
               <Th>Name</Th>

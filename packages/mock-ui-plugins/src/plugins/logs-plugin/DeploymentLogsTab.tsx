@@ -87,7 +87,7 @@ const DeploymentLogsTab: React.FC<DeploymentTabProps> = ({
   }
 
   return (
-    <Table aria-label="Deployment Logs" variant="compact">
+    <Table aria-label="Deployment Logs" variant="compact" hasAnimations>
       <Thead>
         <Tr>
           <Th>Timestamp</Th>

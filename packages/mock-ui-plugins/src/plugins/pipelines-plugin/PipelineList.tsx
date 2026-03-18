@@ -155,7 +155,7 @@ const PipelineList: React.FC<PipelineListProps> = ({ clusterIds }) => {
           </EmptyStateBody>
         </EmptyState>
       ) : (
-        <Table aria-label="Pipelines" variant="compact">
+        <Table aria-label="Pipelines" variant="compact" hasAnimations>
           <Thead>
             <Tr>
               <Th>Name</Th>

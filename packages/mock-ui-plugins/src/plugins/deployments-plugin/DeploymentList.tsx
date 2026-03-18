@@ -108,7 +108,7 @@ const DeploymentList: React.FC = () => {
         </EmptyState>
       ) : (
         <>
-          <Table aria-label="Deployments" variant="compact">
+          <Table aria-label="Deployments" variant="compact" hasAnimations>
             <Thead>
               <Tr>
                 <Th>Name</Th>

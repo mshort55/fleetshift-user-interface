@@ -120,7 +120,7 @@ const PVTab: React.FC = () => {
         </EmptyState>
       ) : (
         <>
-          <Table aria-label="Persistent Volumes" variant="compact">
+          <Table aria-label="Persistent Volumes" variant="compact" hasAnimations>
             <Thead>
               <Tr>
                 <Th>Name</Th>
@@ -276,7 +276,7 @@ const PVCTab: React.FC = () => {
         </EmptyState>
       ) : (
         <>
-          <Table aria-label="Persistent Volume Claims" variant="compact">
+          <Table aria-label="Persistent Volume Claims" variant="compact" hasAnimations>
             <Thead>
               <Tr>
                 <Th>Name</Th>

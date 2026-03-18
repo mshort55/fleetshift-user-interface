@@ -140,7 +140,7 @@ const ClowdAppsTab: React.FC<{ clusterIds: string[] }> = ({ clusterIds }) => {
           </EmptyStateBody>
         </EmptyState>
       ) : (
-        <Table aria-label="ClowdApps" variant="compact">
+        <Table aria-label="ClowdApps" variant="compact" hasAnimations>
           <Thead>
             <Tr>
               <Th screenReaderText="Expand" />
@@ -206,7 +206,7 @@ const ClowdAppsTab: React.FC<{ clusterIds: string[] }> = ({ clusterIds }) => {
                               ) : (
                                 <Table
                                   variant="compact"
-                                  aria-label="Deployments"
+                                  aria-label="Deployments" hasAnimations
                                 >
                                   <Thead>
                                     <Tr>
@@ -484,7 +484,7 @@ const ClowdEnvsTab: React.FC<{ clusterIds: string[] }> = () => {
                   <Title headingLevel="h4" size="md">
                     Apps in Environment
                   </Title>
-                  <Table variant="compact" aria-label="Environment apps">
+                  <Table variant="compact" aria-label="Environment apps" hasAnimations>
                     <Thead>
                       <Tr>
                         <Th>App</Th>

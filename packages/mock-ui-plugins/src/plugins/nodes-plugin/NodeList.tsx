@@ -146,7 +146,7 @@ const NodeList: React.FC = () => {
         </EmptyState>
       ) : (
         <>
-          <Table aria-label="Nodes" variant="compact">
+          <Table aria-label="Nodes" variant="compact" hasAnimations>
             <Thead>
               <Tr>
                 <Th>Name</Th>

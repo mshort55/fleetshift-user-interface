@@ -136,7 +136,7 @@ const UpgradesPage: React.FC<{ clusterIds: string[] }> = ({ clusterIds }) => {
       {/* Upgrades table */}
       <Card>
         <CardBody>
-          <Table aria-label="Cluster upgrades" variant="compact">
+          <Table aria-label="Cluster upgrades" variant="compact" hasAnimations>
             <Thead>
               <Tr>
                 <Th>Cluster</Th>

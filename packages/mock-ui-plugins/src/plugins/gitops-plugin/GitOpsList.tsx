@@ -176,7 +176,7 @@ const GitOpsList: React.FC<GitOpsListProps> = ({ clusterIds }) => {
           </EmptyStateBody>
         </EmptyState>
       ) : (
-        <Table aria-label="GitOps applications" variant="compact">
+        <Table aria-label="GitOps applications" variant="compact" hasAnimations>
           <Thead>
             <Tr>
               <Th>Name</Th>

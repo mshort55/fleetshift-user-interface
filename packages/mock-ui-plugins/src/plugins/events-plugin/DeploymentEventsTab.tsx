@@ -76,7 +76,7 @@ const DeploymentEventsTab: React.FC<DeploymentTabProps> = ({
   }
 
   return (
-    <Table aria-label="Deployment Events" variant="compact">
+    <Table aria-label="Deployment Events" variant="compact" hasAnimations>
       <Thead>
         <Tr>
           <Th>Type</Th>

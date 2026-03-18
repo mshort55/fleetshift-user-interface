@@ -139,7 +139,7 @@ const ConfigMapsTab: React.FC<{ clusterIds: string[] }> = ({ clusterIds }) => {
           </EmptyStateBody>
         </EmptyState>
       ) : (
-        <Table aria-label="ConfigMaps" variant="compact">
+        <Table aria-label="ConfigMaps" variant="compact" hasAnimations>
           <Thead>
             <Tr>
               <Th>Name</Th>
@@ -268,7 +268,7 @@ const SecretsTab: React.FC<{ clusterIds: string[] }> = ({ clusterIds }) => {
           </EmptyStateBody>
         </EmptyState>
       ) : (
-        <Table aria-label="Secrets" variant="compact">
+        <Table aria-label="Secrets" variant="compact" hasAnimations>
           <Thead>
             <Tr>
               <Th>Name</Th>

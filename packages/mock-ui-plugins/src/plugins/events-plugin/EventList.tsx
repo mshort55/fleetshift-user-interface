@@ -153,7 +153,7 @@ const EventList: React.FC<{ clusterIds: string[] }> = () => {
           </EmptyStateBody>
         </EmptyState>
       ) : (
-        <Table aria-label="Events" variant="compact">
+        <Table aria-label="Events" variant="compact" hasAnimations>
           <Thead>
             <Tr>
               <Th>Type</Th>
