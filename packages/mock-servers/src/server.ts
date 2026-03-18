@@ -16,6 +16,7 @@ import { createK8sRouter } from "./k8s/routes";
 import mockRoutes from "./routes/mock";
 import userRoutes from "./routes/users";
 import { setLiveClusters } from "./routes/users";
+import passkeyRoutes from "./routes/passkey";
 import pluginRegistryRoutes from "./routes/pluginRegistry";
 import cliPluginRegistryRoutes from "./routes/cliPluginRegistry";
 
@@ -26,14 +27,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Log every incoming request
+app.use((req, _res, next) => {
+  console.log(`→ ${req.method} ${req.path}`);
+  next();
+});
+
 async function start() {
   let discoveredClusters: LiveCluster[] = [];
-
-  // Auth (optional in live mode via NO_AUTH=1)
-  if (process.env.NO_AUTH !== "1") {
-    app.use("/api/v1", jwtAuthMiddleware);
-    app.post("/api/v1/auth/login", keycloakLoginHandler);
-  }
+  app.use("/api/v1", jwtAuthMiddleware);
+  app.post("/api/v1/auth/login", keycloakLoginHandler);
 
   if (MODE === "live") {
     discoveredClusters = await initK8sClient((updatedClusters) => {
@@ -101,6 +104,7 @@ async function start() {
 
   // Shared across both modes
   app.use("/api/v1", userRoutes);
+  app.use("/api/v1", passkeyRoutes);
   app.use("/api/v1", pluginRegistryRoutes);
   app.use("/api/v1", cliPluginRegistryRoutes);
 

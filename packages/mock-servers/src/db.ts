@@ -221,6 +221,18 @@ try {
   // Column already exists
 }
 
+// Migrate: add passkey columns if missing
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN passkey_public_key TEXT`);
+} catch {
+  // Column already exists
+}
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN passkey_credential_id TEXT`);
+} catch {
+  // Column already exists
+}
+
 // Seed default users if they don't exist
 // Nav layout starts empty — the config endpoint auto-generates defaults from plugin extensions
 const userCount = (

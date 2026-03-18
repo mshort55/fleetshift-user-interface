@@ -13,6 +13,8 @@ import { subscribe as eventBusSubscribe } from "./hooks/useInvalidationSocket";
 import { PluginPage } from "./pages/PluginPage";
 import { AddClusterPage } from "./pages/ClusterListPage";
 import { DebugPage } from "./pages/DebugPage";
+import { GrantAccessPage } from "./pages/GrantAccessPage/GrantAccessPage";
+import { UserPreferencesProvider } from "./contexts/UserPreferencesContext";
 
 const API_BASE = "http://localhost:4000/api/v1";
 
@@ -154,6 +156,7 @@ const AppRoutes = () => {
       <Route element={<AppLayout />}>
         <Route path="/clusters/add" element={<AddClusterPage />} />
         <Route path="/debug" element={<DebugPage />} />
+        <Route path="/grant-access" element={<GrantAccessPage />} />
         {sortedPages.map((page) => (
           <Route
             key={page.id}
@@ -189,7 +192,7 @@ const AppConfigBridge = ({ children }: PropsWithChildren) => {
         </ScalprumShell>
       </ClusterProvider>
     </PluginRegistryProvider>
-  );
+);
 };
 
 export const App = () => (
@@ -199,7 +202,9 @@ export const App = () => (
         <AuthGate>
           <AppConfigProvider>
             <AppConfigBridge>
-              <AppRoutes />
+              <UserPreferencesProvider>
+                <AppRoutes />
+              </UserPreferencesProvider>
             </AppConfigBridge>
           </AppConfigProvider>
         </AuthGate>

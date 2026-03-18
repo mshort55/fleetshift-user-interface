@@ -50,7 +50,6 @@ services:
     environment:
       MODE: live
       K8S_TLS_INSECURE: "1"
-      NO_AUTH: "1"
       KEYCLOAK_URL: http://keycloak:8080
     depends_on:
       keycloak:

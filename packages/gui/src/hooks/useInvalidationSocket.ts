@@ -109,6 +109,12 @@ async function ensureConnection(userId: string) {
       return;
     }
 
+    // Passkey registration confirmation
+    if (msg.type === "passkey-registered") {
+      emit("passkey-registered", msg);
+      return;
+    }
+
     // Custom derived events — topic is the resource (e.g. "alerts", "logs")
     if (msg.type === "alerts" || msg.type === "logs") {
       emit(msg.resource, msg);

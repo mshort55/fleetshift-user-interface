@@ -22,3 +22,7 @@ FleetShift is a multi-cluster management UI that dynamically composes its interf
 - [OCP Plugin Re-use](./ocp-plugin-reuse.md) — priority: re-using existing OpenShift console plugins in FleetShift
 - [Plugin Versioning](./plugin-versioning.md) — loading multiple versions of the same plugin from different clusters
 - [API Requirements](./api-requirements.md) — aggregate data layer and per-cluster drill-down proxy
+
+## Experimental
+
+- [Passkey & Grant Access](./passkey-grant-access.md) — WebAuthn-based identity verification flow

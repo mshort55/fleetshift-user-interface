@@ -261,16 +261,6 @@ router.get("/users/:id/config", (req, res) => {
 
 // POST /ws/ticket — issue a one-time ticket for WS authentication
 router.post("/ws/ticket", (req, res) => {
-  if (process.env.NO_AUTH === "1") {
-    const fallback = db.prepare("SELECT id FROM users LIMIT 1").get() as
-      | { id: string }
-      | undefined;
-    const userId = fallback?.id ?? "user-ops";
-    const ticket = createWsTicket(userId);
-    res.json({ ticket });
-    return;
-  }
-
   const tokenUser = req.user;
   if (!tokenUser) {
     res.status(401).json({ error: "Not authenticated" });

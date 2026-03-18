@@ -33,6 +33,7 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   token: string | undefined;
+  email: string | undefined;
   login: () => void;
   logout: () => void;
 }
@@ -41,6 +42,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 interface OidcProfile {
   preferred_username?: string;
+  email?: string;
   realm_access?: { roles?: string[] };
 }
 
@@ -54,6 +56,7 @@ function KeycloakAuthInner({ children }: { children: ReactNode }) {
   const fetchedForToken = useRef<string | undefined>(undefined);
 
   const accessToken = oidc.user?.access_token;
+  const email = (oidc.user?.profile as OidcProfile | undefined)?.email;
 
   // Keep the fetch interceptor token in sync
   useEffect(() => {
@@ -134,6 +137,7 @@ function KeycloakAuthInner({ children }: { children: ReactNode }) {
         user,
         loading,
         token: accessToken,
+        email,
         login,
         logout,
       }}

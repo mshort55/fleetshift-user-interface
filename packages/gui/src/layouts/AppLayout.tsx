@@ -22,12 +22,19 @@ import {
   ToolbarItem,
   Button,
 } from "@patternfly/react-core";
-import { BarsIcon, BugIcon, MoonIcon, SunIcon } from "@patternfly/react-icons";
+import {
+  BarsIcon,
+  BugIcon,
+  KeyIcon,
+  MoonIcon,
+  SunIcon,
+} from "@patternfly/react-icons";
 import { useAuth } from "../contexts/AuthContext";
 import { useAppConfig } from "../contexts/AppConfigContext";
 import type { PluginPage } from "../contexts/AppConfigContext";
 import { ClusterSwitcher } from "./ClusterSwitcher";
 import logo from "../assets/masthead.png";
+import "./AppLayout.scss";
 
 const UserSwitcher = () => {
   const { user, logout } = useAuth();
@@ -181,6 +188,14 @@ const AppNav = () => {
             </NavItem>
           );
         })}
+
+        <Divider component="li" />
+
+        <NavItem isActive={location.pathname === "/grant-access"}>
+          <Link to="/grant-access">
+            <KeyIcon /> Grant Access
+          </Link>
+        </NavItem>
       </NavList>
     </Nav>
   );

@@ -6,7 +6,9 @@ const KEYCLOAK_URL = process.env.KEYCLOAK_URL ?? "http://localhost:8080";
 const JWKS_URL = `${KEYCLOAK_URL}/realms/fleetshift/protocol/openid-connect/certs`;
 
 interface TokenUser {
+  userId: string;
   username: string;
+  email: string;
   roles: string[];
 }
 
@@ -29,6 +31,7 @@ function getJWKS() {
 
 interface KeycloakJWTPayload extends JWTPayload {
   preferred_username?: string;
+  email?: string;
   realm_access?: { roles?: string[] };
 }
 
@@ -39,7 +42,7 @@ export async function jwtAuthMiddleware(
 ): Promise<void> {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
-    console.warn(`Auth: ${req.method} ${req.path} — 401 (no Bearer token)`);
+    console.log(`Auth: ${req.method} ${req.path} — 401 (no Bearer token)`);
     res.status(401).json({ error: "Missing or invalid Authorization header" });
     return;
   }
@@ -54,34 +57,39 @@ export async function jwtAuthMiddleware(
 
     const kc = payload as KeycloakJWTPayload;
     const username = kc.preferred_username ?? "unknown";
+    const email = kc.email ?? "";
     const roles = kc.realm_access?.roles ?? [];
 
     console.log(
       `Auth: ${req.method} ${req.path} — user=${username} roles=[${roles.join(",")}]`,
     );
 
-    req.user = { username, roles };
-
     // Auto-create user in DB if not present
-    const existing = db
+    let existing = db
       .prepare("SELECT id FROM users WHERE username = ?")
       .get(username) as { id: string } | undefined;
 
     if (!existing) {
       const role = roles.includes("ops") ? "ops" : "dev";
       const displayName = username.charAt(0).toUpperCase() + username.slice(1);
+      const userId = `user-${username}`;
       db.prepare(
         "INSERT INTO users (id, username, display_name, role, nav_layout, canvas_pages) VALUES (?, ?, ?, ?, ?, ?)",
-      ).run(`user-${username}`, username, displayName, role, "[]", "[]");
+      ).run(userId, username, displayName, role, "[]", "[]");
       console.log(`Auth: auto-created user "${username}" (${role})`);
+      existing = { id: userId };
     }
+
+    req.user = { userId: existing.id, username, email, roles };
 
     next();
   } catch (err) {
-    console.warn(
-      `Auth: ${req.method} ${req.path} — 401 (${err instanceof Error ? err.message : "unknown error"})`,
-    );
-    res.status(401).json({ error: "Invalid or expired token" });
+    const reason = err instanceof Error ? err.message : String(err);
+    console.log(`Auth: ${req.method} ${req.path} — 401 (${reason})`);
+    if (err instanceof Error && err.stack) {
+      console.log(`Auth: stack: ${err.stack}`);
+    }
+    res.status(401).json({ error: "Invalid or expired token", reason });
   }
 }
 
