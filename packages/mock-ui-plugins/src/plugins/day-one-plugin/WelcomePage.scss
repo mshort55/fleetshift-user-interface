@@ -3,27 +3,6 @@
   margin: auto;
 }
 
-.day-one-welcome__subtitle {
-  margin-top: var(--pf-t--global--spacer--xs);
-  color: var(--pf-t--global--text--color--subtle);
-}
-
-.day-one-welcome__section-heading {
-  display: flex;
-  align-items: center;
-  gap: var(--pf-t--global--spacer--md);
-
-  h2 {
-    white-space: nowrap;
-  }
-
-  &::after {
-    content: "";
-    flex: 1;
-    border-top: 1px solid var(--pf-t--global--border--color--default);
-  }
-}
-
 // Workload cards - no PF card border, just a subtle outline
 .day-one-welcome__workload-card {
   text-decoration: none;
@@ -75,18 +54,5 @@
 }
 
 .day-one-welcome__workload-description {
-  color: var(--pf-t--global--text--color--subtle);
-}
-
-// Footer actions - centered
-.day-one-welcome__footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--pf-t--global--spacer--sm);
-  padding-top: var(--pf-t--global--spacer--lg);
-}
-
-.day-one-welcome__footer-text {
   color: var(--pf-t--global--text--color--subtle);
 }
