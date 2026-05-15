@@ -7,6 +7,7 @@
     "build": "webpack"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "@fleetshift/common": "*",
     "@patternfly/react-charts": "^8.4.1",
     "@patternfly/react-component-groups": "^6.4.0",
