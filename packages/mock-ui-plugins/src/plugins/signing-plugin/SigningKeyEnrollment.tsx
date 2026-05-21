@@ -12,6 +12,7 @@ import {
 } from "@patternfly/react-core";
 import { KeyIcon } from "@patternfly/react-icons";
 import { AnimatePresence, motion } from "motion/react";
+import { Link } from "react-router-dom";
 import { useSigningKeyEnrollment } from "./useSigningKeyEnrollment";
 import "./SetupPage.scss";
 import AnimatedHeight from "./components/AnimatedHeight";
@@ -96,19 +97,36 @@ const SigningKeyEnrollment = () => {
               transition={{ ...transition, delay: 0.15 }}
               className="pf-v6-u-mt-xl"
             >
-              {isSetupFlow && (
-                <Button
-                  variant="primary"
-                  component="a"
-                  href="/"
-                  className="pf-v6-u-mr-md"
-                >
-                  Continue to console
+              {isSetupFlow ? (
+                <>
+                  <Button
+                    variant="primary"
+                    component={(props) => (
+                      <Link {...props} to="/setup/deploy" />
+                    )}
+                    className="pf-v6-u-mr-md"
+                  >
+                    Deploy first cluster
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={handleReenroll}
+                    className="pf-v6-u-mr-md"
+                  >
+                    Re-enroll
+                  </Button>
+                  <Button
+                    variant="link"
+                    component={(props) => <Link {...props} to="/" />}
+                  >
+                    Skip to console
+                  </Button>
+                </>
+              ) : (
+                <Button variant="secondary" onClick={handleReenroll}>
+                  Re-enroll
                 </Button>
               )}
-              <Button variant="secondary" onClick={handleReenroll}>
-                Re-enroll
-              </Button>
             </motion.div>
           </motion.div>
         ) : (
@@ -154,8 +172,7 @@ const SigningKeyEnrollment = () => {
 
             <Button
               variant="link"
-              component="a"
-              href="/"
+              component={(props) => <Link {...props} to="/" />}
               className="pf-v6-u-mt-xl"
             >
               Skip to console

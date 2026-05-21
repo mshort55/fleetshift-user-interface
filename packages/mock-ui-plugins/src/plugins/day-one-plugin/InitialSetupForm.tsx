@@ -25,6 +25,7 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons";
+import { Link } from "react-router-dom";
 import "../signing-plugin/SetupPage.scss";
 
 type BackingStore = "sqlite" | "postgres";
@@ -375,13 +376,15 @@ const SetupPage = () => {
           <Button
             variant="primary"
             isDisabled={!authConfigured}
-            component="a"
-            href="/setup/enroll"
+            component={(props) => <Link {...props} to="/setup/enroll" />}
           >
             Sign in &amp; enroll signing key
           </Button>
           {authConfigured && (
-            <Button variant="link" component="a" href="/">
+            <Button
+              variant="link"
+              component={(props) => <Link {...props} to="/" />}
+            >
               Skip to console
             </Button>
           )}

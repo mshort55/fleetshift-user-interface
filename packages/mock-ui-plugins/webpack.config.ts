@@ -111,6 +111,9 @@ const DayOnePlugin = new DynamicRemotePlugin({
     exposedModules: {
       DayOnePage: p("./src/plugins/day-one-plugin/DayOnePage.tsx"),
       InitialSetupForm: p("./src/plugins/day-one-plugin/InitialSetupForm.tsx"),
+      CreateClusterWizard: p(
+        "./src/plugins/day-one-plugin/CreateClusterWizard.tsx",
+      ),
     },
   },
 });

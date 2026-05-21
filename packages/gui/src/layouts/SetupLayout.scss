@@ -1,10 +1,12 @@
 .ome-setup-layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background-color: var(--pf-t--global--background--color--secondary--default);
 
   &__content {
+    flex: 1;
     max-width: 900px;
     width: 100%;
     align-self: center;
@@ -21,6 +23,6 @@
     border: var(--pf-t--global--border--width--main--default) solid
       var(--pf-t--global--border--color--main--default);
     box-shadow: var(--pf-t--global--box-shadow--glass--default, none);
-    overflow: hidden;
+    overflow-y: auto;
   }
 }
