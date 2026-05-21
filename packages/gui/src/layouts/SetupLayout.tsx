@@ -1,7 +1,5 @@
-import { useState, useCallback } from "react";
 import { Outlet } from "react-router-dom";
 import {
-  Button,
   Masthead,
   MastheadBrand,
   MastheadContent,
@@ -14,40 +12,12 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { MoonIcon, SunIcon } from "@patternfly/react-icons";
+import { MoonIcon, SunIcon, WineGlassIcon } from "@patternfly/react-icons";
 import logo from "../assets/masthead.png";
 import "./AppLayout.scss";
+import ThemeToggle, { ThemeToggleType } from "../components/Themes/ThemeToggle";
 
-const DARK_MODE_KEY = "fleetshift_dark_mode";
-const DARK_CLASS = "pf-v6-theme-dark";
-
-function initDarkMode(): boolean {
-  const stored = localStorage.getItem(DARK_MODE_KEY);
-  const isDark = stored === "true";
-  if (isDark) {
-    document.documentElement.classList.add(DARK_CLASS);
-  }
-  return isDark;
-}
-
-const DarkModeToggle = () => {
-  const [dark, setDark] = useState(initDarkMode);
-
-  const toggle = useCallback(() => {
-    setDark((prev) => {
-      const next = !prev;
-      document.documentElement.classList.toggle(DARK_CLASS, next);
-      localStorage.setItem(DARK_MODE_KEY, String(next));
-      return next;
-    });
-  }, []);
-
-  return (
-    <Button variant="plain" aria-label="Toggle dark mode" onClick={toggle}>
-      {dark ? <SunIcon /> : <MoonIcon />}
-    </Button>
-  );
-};
+import "./SetupLayout.scss";
 
 const SetupMasthead = () => (
   <Masthead>
@@ -68,7 +38,18 @@ const SetupMasthead = () => (
         <ToolbarContent>
           <ToolbarGroup align={{ default: "alignEnd" }}>
             <ToolbarItem>
-              <DarkModeToggle />
+              <ThemeToggle
+                theme={ThemeToggleType.Glass}
+                OnIcon={WineGlassIcon}
+                OffIcon={WineGlassIcon}
+              />
+            </ToolbarItem>
+            <ToolbarItem>
+              <ThemeToggle
+                theme={ThemeToggleType.Dark}
+                OnIcon={MoonIcon}
+                OffIcon={SunIcon}
+              />
             </ToolbarItem>
           </ToolbarGroup>
         </ToolbarContent>
@@ -78,9 +59,11 @@ const SetupMasthead = () => (
 );
 
 export const SetupLayout = () => (
-  <Page masthead={<SetupMasthead />}>
-    <PageSection isFilled hasOverflowScroll>
-      <Outlet />
-    </PageSection>
-  </Page>
+  <div className="ome-setup-layout">
+    <Page masthead={<SetupMasthead />}>
+      <PageSection isFilled={false} hasOverflowScroll>
+        <Outlet />
+      </PageSection>
+    </Page>
+  </div>
 );
