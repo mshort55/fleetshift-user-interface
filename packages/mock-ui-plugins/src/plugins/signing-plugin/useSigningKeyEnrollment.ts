@@ -43,6 +43,7 @@ function useGitHubKeyPolling(
 
     const keyData = sshPublicKey.split(" ")[1];
 
+    let timer: ReturnType<typeof setTimeout>;
     const poll = async () => {
       try {
         const res = await fetch(
@@ -54,16 +55,17 @@ function useGitHubKeyPolling(
         const keys: string[] = await res.json();
         if (keys.some((k) => k.includes(keyData))) {
           setFound(true);
+          return;
         }
       } catch {
-        // ignore fetch errors
+        // back off on errors
         pollInterval += pollIncrement;
-        setTimeout(poll, pollInterval);
       }
+      timer = setTimeout(poll, pollInterval);
     };
-    const id = setTimeout(poll, pollInterval);
+    timer = setTimeout(poll, pollInterval);
     return () => {
-      clearTimeout(id);
+      clearTimeout(timer);
     };
   }, [enabled, username, sshPublicKey, found]);
 

@@ -59,8 +59,10 @@ const SetupMasthead = () => (
 export const SetupLayout = () => (
   <div className="ome-setup-layout">
     <SetupMasthead />
-    <div className="ome-setup-layout__content">
-      <Outlet />
+    <div className="ome-setup-layout__scroll">
+      <div className="ome-setup-layout__content">
+        <Outlet />
+      </div>
     </div>
   </div>
 );

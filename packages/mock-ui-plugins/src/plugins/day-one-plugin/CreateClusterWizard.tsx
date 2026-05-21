@@ -77,9 +77,11 @@ export default function CreateClusterWizard() {
     [],
   );
 
+  const isSetupFlow = window.location.pathname.startsWith("/setup");
+
   const handleCancel = useCallback(() => {
-    navigate("/day-one/welcome");
-  }, [navigate]);
+    navigate(isSetupFlow ? "/setup/enroll" : "/day-one/welcome");
+  }, [navigate, isSetupFlow]);
 
   const handleSubmit = useCallback(async () => {
     if (!formData.name.trim()) {
@@ -212,37 +214,28 @@ export default function CreateClusterWizard() {
         )}
 
         <StackItem>
-          <Wizard onClose={handleCancel} height={500}>
+          <Wizard onClose={handleCancel} height={500} isVisitRequired>
             <WizardStep
               name="Cluster details"
               id="cluster-details"
               status={isStep1Valid ? "default" : "error"}
               isDisabled={creating}
+              footer={{
+                isNextDisabled: !isStep1Valid,
+              }}
             >
               <ClusterDetailsStep formData={formData} onChange={updateField} />
             </WizardStep>
 
-            <WizardStep
-              name="Networking"
-              id="networking"
-              isDisabled={!isStep1Valid || creating}
-            >
+            <WizardStep name="Networking" id="networking" isDisabled={creating}>
               <NetworkingStep formData={formData} onChange={updateField} />
             </WizardStep>
 
-            <WizardStep
-              name="Nodes"
-              id="nodes"
-              isDisabled={!isStep1Valid || creating}
-            >
+            <WizardStep name="Nodes" id="nodes" isDisabled={creating}>
               <NodesStep formData={formData} onChange={updateField} />
             </WizardStep>
 
-            <WizardStep
-              name="Settings"
-              id="settings"
-              isDisabled={!isStep1Valid || creating}
-            >
+            <WizardStep name="Settings" id="settings" isDisabled={creating}>
               <SettingsStep
                 formData={formData}
                 onChange={updateField}
@@ -254,7 +247,7 @@ export default function CreateClusterWizard() {
             <WizardStep
               name="Review"
               id="review"
-              isDisabled={!isStep1Valid || creating}
+              isDisabled={creating}
               footer={{
                 nextButtonText: creating ? "Creating..." : "Create cluster",
                 onNext: handleSubmit,
