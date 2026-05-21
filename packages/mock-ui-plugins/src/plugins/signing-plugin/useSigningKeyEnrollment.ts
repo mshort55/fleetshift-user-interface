@@ -44,6 +44,7 @@ function useGitHubKeyPolling(
     const keyData = sshPublicKey.split(" ")[1];
 
     let timer: ReturnType<typeof setTimeout>;
+    let cancelled = false;
     const poll = async () => {
       try {
         const res = await fetch(
@@ -58,13 +59,15 @@ function useGitHubKeyPolling(
           return;
         }
       } catch {
-        // back off on errors
         pollInterval += pollIncrement;
       }
-      timer = setTimeout(poll, pollInterval);
+      if (!cancelled) {
+        timer = setTimeout(poll, pollInterval);
+      }
     };
     timer = setTimeout(poll, pollInterval);
     return () => {
+      cancelled = true;
       clearTimeout(timer);
     };
   }, [enabled, username, sshPublicKey, found]);
