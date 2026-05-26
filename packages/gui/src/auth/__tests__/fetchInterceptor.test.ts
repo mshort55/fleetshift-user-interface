@@ -39,12 +39,12 @@ describe("GUI fetchInterceptor", () => {
     expect(headers.get("Authorization")).toBe("Bearer gui-token-abc");
   });
 
-  it("adds Authorization header to API_ORIGIN requests", async () => {
+  it("adds Authorization header to relative path requests", async () => {
     const { setAccessToken, installFetchInterceptor } = await loadModule();
     setAccessToken("gui-token-abc");
     installFetchInterceptor();
 
-    await window.fetch("http://localhost:4000/api/v1/clusters");
+    await window.fetch("/v1/clusters");
 
     expect(mockOriginalFetch).toHaveBeenCalled();
     const [, init] = mockOriginalFetch.mock.calls[0];
