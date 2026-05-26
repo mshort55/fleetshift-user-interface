@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "webpack build"
+    "build": "webpack build",
+    "test": "vitest run --root ../.. packages/gui/"
   },
   "dependencies": {
     "@dnd-kit/react": "^0.3.2",

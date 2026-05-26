@@ -99,6 +99,28 @@ const DayOnePlugin = new DynamicRemotePlugin({
         component: { $codeRef: "DayOnePage.default" },
       },
     },
+    {
+      type: "fleetshift.setup",
+      properties: {
+        id: "auth-setup",
+        label: "Authentication",
+        path: "auth",
+        component: { $codeRef: "InitialSetupForm.default" },
+        requires: [],
+        requiresAuth: false,
+      },
+    },
+    {
+      type: "fleetshift.setup",
+      properties: {
+        id: "cluster-deploy",
+        label: "Deploy Cluster",
+        path: "deploy",
+        component: { $codeRef: "CreateClusterWizard.default" },
+        requires: ["signing-key-enrollment"],
+        requiresAuth: true,
+      },
+    },
   ],
   sharedModules,
   entryScriptFilename: "plugins/day-one/day-one-plugin.[contenthash].js",
@@ -149,6 +171,17 @@ const SigningPlugin = new DynamicRemotePlugin({
       properties: {
         label: "Signing Keys",
         component: { $codeRef: "SigningKeyEnrollment.default" },
+      },
+    },
+    {
+      type: "fleetshift.setup",
+      properties: {
+        id: "signing-key-enrollment",
+        label: "Signing Key Enrollment",
+        path: "enroll",
+        component: { $codeRef: "SigningKeyEnrollment.default" },
+        requires: ["auth-setup"],
+        requiresAuth: true,
       },
     },
   ],
