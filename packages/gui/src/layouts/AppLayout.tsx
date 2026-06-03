@@ -31,6 +31,8 @@ import { useAppConfig } from "../contexts/AppConfigContext";
 import type { PluginPage } from "../contexts/AppConfigContext";
 import ThemeDropdown from "../components/Themes/ThemeDropdown";
 import logo from "../assets/masthead.png";
+import { SearchProvider } from "../components/Search/SearchProvider";
+import FleetSearch from "../components/Search/FleetSearch";
 
 const AppMasthead = () => {
   const { user, logout } = useAuth();
@@ -58,6 +60,9 @@ const AppMasthead = () => {
       <MastheadContent>
         <Toolbar isFullHeight>
           <ToolbarContent>
+            <ToolbarGroup className="pf-v6-u-flex-grow-1" variant="filter-group">
+              <FleetSearch />
+            </ToolbarGroup>
             <ToolbarGroup align={{ default: "alignEnd" }}>
               <ToolbarItem>
                 <ThemeDropdown />
@@ -154,9 +159,11 @@ const Sidebar = () => (
 );
 
 export const AppLayout = () => (
-  <Page masthead={<AppMasthead />} sidebar={<Sidebar />} isManagedSidebar>
-    <PageSection isFilled hasOverflowScroll>
-      <Outlet />
-    </PageSection>
-  </Page>
+  <SearchProvider>
+    <Page masthead={<AppMasthead />} sidebar={<Sidebar />} isManagedSidebar>
+      <PageSection isFilled hasOverflowScroll>
+        <Outlet />
+      </PageSection>
+    </Page>
+  </SearchProvider>
 );
