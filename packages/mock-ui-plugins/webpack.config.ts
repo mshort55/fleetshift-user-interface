@@ -136,8 +136,22 @@ const DayOnePlugin = new DynamicRemotePlugin({
         title: "Create Cluster",
         description: "Launch the cluster creation wizard",
         category: "action",
-        meta: "deploy new cluster wizard gcp",
+        meta: ["deploy", "new", "cluster", "wizard", "provision"],
+        scope: "day-one-plugin",
+        module: "CreateClusterPage",
         component: { $codeRef: "CreateClusterSearchResult.default" },
+      },
+    },
+    {
+      type: "fleetshift.search-extension",
+      properties: {
+        id: "create-kind-cluster",
+        title: "Create Kind cluster",
+        description:
+          "Create a local Kind cluster for development and testing",
+        feature: "create-cluster",
+        meta: ["kind", "local", "development", "testing"],
+        to: { pathname: "/kind" },
       },
     },
   ],
@@ -273,6 +287,18 @@ const GcpHcpPlugin = new DynamicRemotePlugin({
         icon: { $codeRef: "GcpHcpProviderCard.GcpHcpIcon" },
         card: { $codeRef: "GcpHcpProviderCard.default" },
         wizard: { $codeRef: "CreateGcpHcpWizard.default" },
+      },
+    },
+    {
+      type: "fleetshift.search-extension",
+      properties: {
+        id: "create-gcphcp-cluster",
+        title: "Create GCP HCP cluster",
+        description:
+          "Managed OpenShift cluster on Google Cloud Platform",
+        feature: "create-cluster",
+        meta: ["gcp", "google cloud", "hosted control plane", "managed", "hcp"],
+        to: { pathname: "/gcphcp" },
       },
     },
   ],
