@@ -9,7 +9,7 @@ import {
   Split,
 } from "@patternfly/react-core";
 import type { ClusterProviderCardProps } from "@fleetshift/common";
-import kindLogo from "../assets/kind-logo.png";
+import kindLogo from "./assets/kind-logo.png";
 
 export function KindIcon() {
   return <img src={kindLogo} alt="Kind Logo" />;

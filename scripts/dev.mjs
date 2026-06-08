@@ -48,7 +48,7 @@ function spawnWebpack(cwd) {
     {
       cwd,
       stdio: "inherit",
-      env: { ...process.env, NODE_OPTIONS: "--loader ts-node/esm" },
+      env: { ...process.env, NODE_OPTIONS: "--loader ts-node/esm --max-old-space-size=8192" },
     },
   );
 }

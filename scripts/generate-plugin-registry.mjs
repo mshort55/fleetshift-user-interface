@@ -10,6 +10,7 @@ const pluginMeta = [
   { name: "management-plugin", key: "management", label: "Management", persona: "ops" },
   { name: "day-one-plugin", key: "day-one", label: "Day One", persona: "ops" },
   { name: "core-plugin", key: "core", label: "Core Plugin", persona: "ops" },
+  { name: "kind-plugin", key: "kind", label: "Kind", persona: "ops" },
   { name: "signing-plugin", key: "signing", label: "Signing Keys", persona: "ops" },
   { name: "routing-plugin", key: "routing", label: "Routing", persona: "ops" },
   { name: "gcphcp-plugin", key: "gcphcp", label: "GCP HCP", persona: "ops" },

@@ -61,8 +61,11 @@ const ManagementPlugin = new DynamicRemotePlugin({
     {
       type: "fleetshift.module",
       properties: {
+        id: "targets",
         label: "Targets",
         component: { $codeRef: "TargetsPage.default" },
+        description: "View and manage deployment targets",
+        keywords: ["target", "deploy", "rollout"],
       },
     },
   ],
@@ -85,15 +88,11 @@ const DayOnePlugin = new DynamicRemotePlugin({
     {
       type: "fleetshift.module",
       properties: {
+        id: "day-one",
         label: "Day One",
         component: { $codeRef: "DayOnePage.default" },
-      },
-    },
-    {
-      type: "fleetshift.module",
-      properties: {
-        label: "Create Cluster",
-        component: { $codeRef: "CreateClusterPage.default" },
+        description: "Initial setup and onboarding",
+        keywords: ["setup", "onboarding", "welcome"],
       },
     },
     {
@@ -118,42 +117,6 @@ const DayOnePlugin = new DynamicRemotePlugin({
         requiresAuth: true,
       },
     },
-    {
-      type: "fleetshift.cluster-provider",
-      properties: {
-        id: "kind",
-        label: "Kind",
-        description: "Create a local Kind cluster for development and testing.",
-        icon: { $codeRef: "KindProviderCard.KindIcon" },
-        card: { $codeRef: "KindProviderCard.default" },
-        wizard: { $codeRef: "CreateClusterWizard.default" },
-      },
-    },
-    {
-      type: "fleetshift.search-index",
-      properties: {
-        id: "create-cluster",
-        title: "Create Cluster",
-        description: "Launch the cluster creation wizard",
-        category: "action",
-        meta: ["deploy", "new", "cluster", "wizard", "provision"],
-        scope: "day-one-plugin",
-        module: "CreateClusterPage",
-        component: { $codeRef: "CreateClusterSearchResult.default" },
-      },
-    },
-    {
-      type: "fleetshift.search-extension",
-      properties: {
-        id: "create-kind-cluster",
-        title: "Create Kind cluster",
-        description:
-          "Create a local Kind cluster for development and testing",
-        feature: "create-cluster",
-        meta: ["kind", "local", "development", "testing"],
-        to: { pathname: "/kind" },
-      },
-    },
   ],
   sharedModules,
   entryScriptFilename: "plugins/day-one/day-one-plugin.[contenthash].js",
@@ -165,21 +128,9 @@ const DayOnePlugin = new DynamicRemotePlugin({
     version: "1.0.0",
     exposedModules: {
       DayOnePage: p("./src/plugins/day-one-plugin/DayOnePage.tsx"),
-      CreateClusterPage: p(
-        "./src/plugins/day-one-plugin/CreateClusterPage.tsx",
-      ),
       InitialSetupForm: p("./src/plugins/day-one-plugin/InitialSetupForm.tsx"),
-      CreateClusterWizard: p(
-        "./src/plugins/day-one-plugin/CreateClusterWizard.tsx",
-      ),
-      KindProviderCard: p(
-        "./src/plugins/day-one-plugin/cluster-providers/KindProviderCard.tsx",
-      ),
       SetupClusterDeploy: p(
         "./src/plugins/day-one-plugin/cluster-providers/SetupClusterDeploy.tsx",
-      ),
-      CreateClusterSearchResult: p(
-        "./src/plugins/day-one-plugin/CreateClusterSearchResult.tsx",
       ),
     },
   },
@@ -190,8 +141,28 @@ const CorePlugin = new DynamicRemotePlugin({
     {
       type: "fleetshift.module",
       properties: {
+        id: "clusters",
         label: "Clusters",
         component: { $codeRef: "ClustersModule.default" },
+        description: "View and manage your fleet of clusters",
+        keywords: ["cluster", "fleet", "manage"],
+      },
+    },
+    {
+      type: "fleetshift.module",
+      properties: {
+        id: "create-cluster",
+        label: "Create Cluster",
+        component: { $codeRef: "CreateClusterModule.default" },
+        description: "Launch the cluster creation wizard",
+        keywords: ["cluster", "create", "deploy", "provision", "wizard"],
+        searchResult: { $codeRef: "CreateClusterSearchResult.default" },
+        extensionPoints: {
+          providers: {
+            description: "Cluster providers available in the creation wizard",
+            type: "fleetshift.cluster-provider",
+          },
+        },
       },
     },
   ],
@@ -205,6 +176,12 @@ const CorePlugin = new DynamicRemotePlugin({
     version: "1.0.0",
     exposedModules: {
       ClustersModule: p("./src/plugins/core-plugin/ClustersModule.tsx"),
+      CreateClusterModule: p(
+        "./src/plugins/core-plugin/CreateClusterModule.tsx",
+      ),
+      CreateClusterSearchResult: p(
+        "./src/plugins/core-plugin/CreateClusterSearchResult.tsx",
+      ),
     },
   },
 });
@@ -214,8 +191,11 @@ const SigningPlugin = new DynamicRemotePlugin({
     {
       type: "fleetshift.module",
       properties: {
+        id: "signing-keys",
         label: "Signing Keys",
         component: { $codeRef: "SigningKeyEnrollment.default" },
+        description: "Manage signing keys for deployment verification",
+        keywords: ["signing", "key", "enrollment", "cosign"],
       },
     },
     {
@@ -273,8 +253,11 @@ const GcpHcpPlugin = new DynamicRemotePlugin({
     {
       type: "fleetshift.module",
       properties: {
+        id: "gcphcp-clusters",
         label: "GCP HCP Clusters",
         component: { $codeRef: "GcpHcpClustersModule.default" },
+        description: "Manage GCP Hosted Control Plane clusters",
+        keywords: ["gcp", "google cloud", "hosted control plane", "hcp"],
       },
     },
     {
@@ -284,21 +267,18 @@ const GcpHcpPlugin = new DynamicRemotePlugin({
         label: "GCP Hosted Control Plane",
         description:
           "Create a managed OpenShift cluster on Google Cloud Platform.",
+        keywords: [
+          "gcp",
+          "google cloud",
+          "hosted control plane",
+          "managed",
+          "hcp",
+        ],
+        to: { pathname: "/gcphcp" },
         icon: { $codeRef: "GcpHcpProviderCard.GcpHcpIcon" },
         card: { $codeRef: "GcpHcpProviderCard.default" },
         wizard: { $codeRef: "CreateGcpHcpWizard.default" },
-      },
-    },
-    {
-      type: "fleetshift.search-extension",
-      properties: {
-        id: "create-gcphcp-cluster",
-        title: "Create GCP HCP cluster",
-        description:
-          "Managed OpenShift cluster on Google Cloud Platform",
-        feature: "create-cluster",
-        meta: ["gcp", "google cloud", "hosted control plane", "managed", "hcp"],
-        to: { pathname: "/gcphcp" },
+        searchIcon: { $codeRef: "GcpHcpIcon.default" },
       },
     },
   ],
@@ -320,6 +300,7 @@ const GcpHcpPlugin = new DynamicRemotePlugin({
       CreateGcpHcpWizard: p(
         "./src/plugins/gcphcp-plugin/CreateGcpHcpWizard.tsx",
       ),
+      GcpHcpIcon: p("./src/plugins/gcphcp-plugin/GcpHcpIcon.tsx"),
     },
   },
 });
@@ -329,8 +310,11 @@ const OverviewPlugin = new DynamicRemotePlugin({
     {
       type: "fleetshift.module",
       properties: {
+        id: "overview",
         label: "Overview",
         component: { $codeRef: "OverviewDashboard.default" },
+        description: "Fleet overview dashboard",
+        keywords: ["overview", "dashboard", "summary"],
       },
     },
   ],
@@ -350,6 +334,41 @@ const OverviewPlugin = new DynamicRemotePlugin({
   },
 });
 
+const KindPlugin = new DynamicRemotePlugin({
+  extensions: [
+    {
+      type: "fleetshift.cluster-provider",
+      properties: {
+        id: "kind",
+        label: "Kind",
+        description: "Create a local Kind cluster for development and testing.",
+        keywords: ["kind", "local", "development", "testing"],
+        to: { pathname: "/kind" },
+        icon: { $codeRef: "KindProviderCard.KindIcon" },
+        card: { $codeRef: "KindProviderCard.default" },
+        wizard: { $codeRef: "CreateClusterWizard.default" },
+        searchIcon: { $codeRef: "KindIcon.default" },
+      },
+    },
+  ],
+  sharedModules,
+  entryScriptFilename: "plugins/kind/kind-plugin.[contenthash].js",
+  pluginManifestFilename: "plugins/kind/kind-plugin-manifest.json",
+  // @ts-ignore
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "kind-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      KindProviderCard: p("./src/plugins/kind-plugin/KindProviderCard.tsx"),
+      CreateClusterWizard: p(
+        "./src/plugins/kind-plugin/CreateClusterWizard.tsx",
+      ),
+      KindIcon: p("./src/plugins/kind-plugin/KindIcon.tsx"),
+    },
+  },
+});
+
 const pluginConfigs = [
   { plugin: OverviewPlugin, key: "overview" },
   { plugin: ManagementPlugin, key: "management" },
@@ -358,6 +377,7 @@ const pluginConfigs = [
   { plugin: SigningPlugin, key: "signing" },
   { plugin: RoutingPlugin, key: "routing" },
   { plugin: GcpHcpPlugin, key: "gcphcp" },
+  { plugin: KindPlugin, key: "kind" },
 ] as const;
 
 const configs: Configuration[] = pluginConfigs.map(({ plugin, key }) => ({

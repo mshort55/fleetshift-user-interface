@@ -8,9 +8,9 @@ import {
 } from "react";
 import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
 import { useAppConfig } from "../../contexts/AppConfigContext";
-import { isSearchIndexExtension } from "../../extensions/isSearchIndexExtension";
-import { isSearchExtension } from "../../extensions/isSearchExtension";
-import type { SearchResultProps } from "../../extensions/isSearchIndexExtension";
+import { isModuleExtension } from "../../extensions/isModuleExtension";
+import { isClusterProviderExtension } from "../../extensions/isClusterProviderExtension";
+import type { SearchResultProps } from "../../extensions/searchTypes";
 import {
   createSearchDB,
   insertEntry,
@@ -26,31 +26,6 @@ interface SearchContextValue {
 }
 
 const SearchContext = createContext<SearchContextValue | null>(null);
-
-interface FeatureInfo {
-  scope: string;
-  module: string;
-  to?: { pathname?: string; search?: string };
-}
-
-function resolveFeaturePath(
-  feature: FeatureInfo,
-  pluginPages: { scope: string; module: string; path: string }[],
-  extensionTo?: { pathname?: string; search?: string },
-): string {
-  const page = pluginPages.find(
-    (p) => p.scope === feature.scope && p.module === feature.module,
-  );
-  const basePath = page ? `/${page.path}` : "";
-  const featurePath = feature.to?.pathname ?? "";
-  const extPath = extensionTo?.pathname ?? "";
-  const parts = [basePath, featurePath, extPath].filter(Boolean);
-  let pathname = parts.join("/").replace(/\/+/g, "/");
-  if (!pathname.startsWith("/")) pathname = "/" + pathname;
-
-  const search = extensionTo?.search ?? "";
-  return search ? `${pathname}?${search}` : pathname;
-}
 
 const MOCK_CLUSTERS: Omit<SearchEntry, "category" | "icon">[] = [
   {
@@ -132,11 +107,11 @@ const SETTINGS: Omit<SearchEntry, "category" | "icon">[] = [
 
 export function SearchProvider({ children }: { children: ReactNode }) {
   const { pluginPages } = useAppConfig();
-  const [indexExtensions, indexLoaded] = useResolvedExtensions(
-    isSearchIndexExtension,
+  const [moduleExtensions, modulesLoaded] =
+    useResolvedExtensions(isModuleExtension);
+  const [cpExtensions, cpLoaded] = useResolvedExtensions(
+    isClusterProviderExtension,
   );
-  const [featureExtensions, featureLoaded] =
-    useResolvedExtensions(isSearchExtension);
   const dbRef = useRef<SearchDB | null>(null);
   const componentMapRef = useRef(
     new Map<string, React.ComponentType<SearchResultProps>>(),
@@ -146,13 +121,26 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const builtRef = useRef(false);
 
   useEffect(() => {
-    if (!indexLoaded || !featureLoaded || builtRef.current) return;
+    if (!modulesLoaded || !cpLoaded || builtRef.current) return;
     builtRef.current = true;
 
     const db = createSearchDB();
     dbRef.current = db;
 
+    // Maps extension type → global feature ID for parent-child linking
+    const typeToFeatureId = new Map<string, string>();
+
+    // Build a set of page IDs that have a richer module extension
+    const modulePageIds = new Set<string>();
+    for (const ext of moduleExtensions) {
+      const page = pluginPages.find((p) => p.title === ext.properties.label);
+      if (page) modulePageIds.add(page.id);
+    }
+
+    // Nav pages — skip any that have a module extension (those get richer entries below)
     for (const page of pluginPages) {
+      if (modulePageIds.has(page.id)) continue;
+
       const navId = `nav-${page.id}`;
       const pathname = `/${page.path}`;
       insertEntry(db, {
@@ -185,115 +173,96 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       insertEntry(db, { ...setting, category: "setting", icon: "CogIcon" });
     }
 
-    const featureRegistry = new Map<string, FeatureInfo>();
+    // Module extensions: feature entries with description, keywords, extensionPoints
+    for (const ext of moduleExtensions) {
+      const { id, label, description, keywords, extensionPoints, searchResult } =
+        ext.properties;
 
-    for (const ext of indexExtensions) {
-      const {
-        id,
-        title,
-        description,
-        category,
-        meta,
-        scope,
-        module,
-        to,
-        component,
-      } = ext.properties;
-      const entryId = `ext-${id}`;
+      const page = pluginPages.find((p) => p.title === label);
+      if (!page) continue;
 
-      if (scope && module) {
-        featureRegistry.set(id, { scope, module, to });
-      }
-
-      const resolvedPathname =
-        scope && module
-          ? resolveFeaturePath({ scope, module, to }, pluginPages)
-          : "";
+      const globalFeatureId = `${page.pluginKey}.${id}`;
+      const basePath = `/${page.path}`;
+      const entryId = `ext-${globalFeatureId}`;
 
       insertEntry(db, {
         id: entryId,
-        title,
+        title: label,
+        description: description ?? `Navigate to ${label}`,
+        category: "nav",
+        pathname: basePath,
+        icon: "CubesIcon",
+        status: "",
+        meta: keywords ? keywords.join(" ") : "",
+      });
+
+      if (searchResult) {
+        componentMapRef.current.set(entryId, searchResult);
+      }
+
+      featureParentRef.current.set(globalFeatureId, {
+        id: entryId,
+        title: label,
+        description: description ?? `Navigate to ${label}`,
+        category: "nav",
+        pathname: basePath,
+        icon: "CubesIcon",
+        status: "",
+      });
+
+      if (extensionPoints) {
+        for (const ep of Object.values(extensionPoints)) {
+          typeToFeatureId.set(ep.type, globalFeatureId);
+        }
+      }
+    }
+
+    // Scan cluster-provider extensions: link to parent via type
+    for (const ext of cpExtensions) {
+      const {
+        id,
+        label,
         description,
-        category: category ?? "action",
+        keywords,
+        to,
+        searchResult,
+        searchIcon,
+      } = ext.properties;
+
+      const parentFeatureId = typeToFeatureId.get("fleetshift.cluster-provider");
+      const parent = parentFeatureId
+        ? featureParentRef.current.get(parentFeatureId)
+        : undefined;
+
+      const extPath = to?.pathname ?? "";
+      let resolvedPathname = "";
+      if (parent) {
+        const parts = [parent.pathname, extPath].filter(Boolean);
+        resolvedPathname = parts.join("/").replace(/\/+/g, "/");
+      }
+
+      const entryId = `ext-${id}`;
+
+      insertEntry(db, {
+        id: entryId,
+        title: `Create ${label} cluster`,
+        description,
+        category: parent?.category ?? "nav",
         pathname: resolvedPathname,
         icon: "",
         status: "",
-        meta: meta ? meta.join(" ") : "",
+        meta: keywords ? keywords.join(" ") : "",
+        feature: parentFeatureId,
       });
 
-      if (component) {
-        componentMapRef.current.set(entryId, component);
+      if (searchIcon) {
+        iconMapRef.current.set(entryId, searchIcon);
       }
-
-      if (scope && module) {
-        featureParentRef.current.set(id, {
-          id: entryId,
-          title,
-          description,
-          category: category ?? "action",
-          pathname: resolvedPathname,
-          icon: "",
-          status: "",
-        });
+      if (searchResult) {
+        componentMapRef.current.set(entryId, searchResult);
       }
     }
-
-    for (const ext of featureExtensions) {
-      const {
-        id,
-        title,
-        description,
-        feature,
-        meta,
-        to,
-        icon,
-        iconComponent,
-        component,
-      } = ext.properties;
-      const entryId = `ext-${id}`;
-
-      const featureInfo = featureRegistry.get(feature);
-      const parent = featureParentRef.current.get(feature);
-      const extPath = to?.pathname ?? "";
-
-      let resolvedPathname: string;
-      if (featureInfo) {
-        resolvedPathname = resolveFeaturePath(featureInfo, pluginPages, to);
-      } else if (parent) {
-        const parts = [parent.pathname, extPath].filter(Boolean);
-        resolvedPathname = parts.join("/").replace(/\/+/g, "/");
-      } else {
-        resolvedPathname = "";
-      }
-
-      const category = parent?.category ?? "nav";
-
-      insertEntry(db, {
-        id: entryId,
-        title,
-        description,
-        category,
-        pathname: resolvedPathname,
-        icon: icon ?? "",
-        status: "",
-        meta: meta ? meta.join(" ") : "",
-        feature,
-      });
-
-      if (iconComponent) {
-        iconMapRef.current.set(entryId, iconComponent);
-      }
-      if (component) {
-        componentMapRef.current.set(entryId, component);
-      }
-    }
-  }, [
-    indexLoaded,
-    featureLoaded,
-    indexExtensions,
-    featureExtensions,
-    pluginPages,
-  ]);
+  }, [modulesLoaded, cpLoaded, moduleExtensions, cpExtensions, pluginPages]);
 
   const query = useCallback(async (term: string): Promise<GroupedResults> => {
     if (!dbRef.current) return {};

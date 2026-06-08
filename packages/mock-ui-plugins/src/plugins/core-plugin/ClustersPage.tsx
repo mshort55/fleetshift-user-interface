@@ -210,8 +210,7 @@ export default function ClustersPage() {
                       <PluginLink
                         {...props}
                         scope="core-plugin"
-                        module="ClustersModule"
-                        to="create"
+                        module="CreateClusterModule"
                       />
                     )}
                   >
@@ -276,8 +275,7 @@ export default function ClustersPage() {
                   <PluginLink
                     {...props}
                     scope="core-plugin"
-                    module="ClustersModule"
-                    to="create"
+                    module="CreateClusterModule"
                   />
                 )}
               >

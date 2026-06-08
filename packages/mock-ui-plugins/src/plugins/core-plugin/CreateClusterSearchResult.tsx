@@ -15,9 +15,8 @@ const CreateClusterSearchResult = ({ title, description }: Props) => {
       component={(props) => (
         <PluginLink
           {...props}
-          module="DayOnePage"
-          scope="day-one-plugin"
-          to={{ pathname: "/create", search: `provider=gcp` }}
+          module="CreateClusterModule"
+          scope="core-plugin"
         />
       )}
     >

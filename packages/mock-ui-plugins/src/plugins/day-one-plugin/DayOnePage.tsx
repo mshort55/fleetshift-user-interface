@@ -1,7 +1,7 @@
 import { type ReactNode, lazy, Suspense, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { PluginLink } from "@fleetshift/common";
-import CompletionModal from "./CompletionModal";
+import CompletionModal from "../kind-plugin/CompletionModal";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,7 +16,7 @@ import {
 
 const InitialSetupForm = lazy(() => import("./InitialSetupForm"));
 const WelcomePage = lazy(() => import("./WelcomePage"));
-const CreateClusterWizard = lazy(() => import("./CreateClusterWizard"));
+const CreateClusterWizard = lazy(() => import("../kind-plugin/CreateClusterWizard"));
 
 interface ComponentCard {
   title: string;

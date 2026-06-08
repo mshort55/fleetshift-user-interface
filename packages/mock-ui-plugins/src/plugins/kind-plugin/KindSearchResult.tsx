@@ -1,19 +1,18 @@
-import { Icon } from "@patternfly/react-core";
-import { MenuItem } from "@patternfly/react-core";
+import { Icon, MenuItem } from "@patternfly/react-core";
 import PluginLink from "../routing-plugin/PluginLink";
-import gcpIcon from "./assets/gcp.webp";
+import kindLogo from "./assets/kind-logo.png";
 
 interface Props {
   title: string;
   description: string;
 }
 
-const GcpHcpSearchResult = ({ title, description }: Props) => {
+const KindSearchResult = ({ title, description }: Props) => {
   return (
     <MenuItem
       icon={
         <Icon isInline>
-          <img src={gcpIcon} alt="" width={16} height={16} />
+          <img src={kindLogo} alt="" width={16} height={16} />
         </Icon>
       }
       description={<span dangerouslySetInnerHTML={{ __html: description }} />}
@@ -22,7 +21,7 @@ const GcpHcpSearchResult = ({ title, description }: Props) => {
           {...props}
           module="CreateClusterModule"
           scope="core-plugin"
-          to={{ pathname: "/gcphcp" }}
+          to={{ pathname: "/kind" }}
         />
       )}
     >
@@ -31,4 +30,4 @@ const GcpHcpSearchResult = ({ title, description }: Props) => {
   );
 };
 
-export default GcpHcpSearchResult;
+export default KindSearchResult;
