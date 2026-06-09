@@ -23,16 +23,9 @@ const ConsoleRoutes = () => {
         <AppConfigBridge>
           <Routes>
             <Route element={<AppLayout />}>
-              <Route path="/" element={<Navigate to="/overview" replace />} />
               <Route
-                path="/overview"
-                element={
-                  <PluginPage
-                    scope="overview-plugin"
-                    module="OverviewDashboard"
-                    pluginKey="overview"
-                  />
-                }
+                path="/"
+                element={<Navigate to="/overview/overview" replace />}
               />
               <Route path="/debug" element={<DebugPage />} />
               {sortedPages.map((page) => (

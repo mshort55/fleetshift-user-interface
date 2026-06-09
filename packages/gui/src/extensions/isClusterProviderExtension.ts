@@ -4,6 +4,7 @@ import type {
   ClusterProviderCardProps,
   ClusterProviderWizardProps,
 } from "@fleetshift/common";
+import type { SearchReservedProperties } from "./searchTypes";
 
 export type ClusterProviderExtension = Extension<
   "fleetshift.cluster-provider",
@@ -11,10 +12,12 @@ export type ClusterProviderExtension = Extension<
     id: string;
     label: string;
     description: string;
+    keywords?: string[];
+    to?: { pathname?: string; search?: string; hash?: string };
     icon: CodeRef<ComponentType>;
     card: CodeRef<ComponentType<ClusterProviderCardProps>>;
     wizard: CodeRef<ComponentType<ClusterProviderWizardProps>>;
-  }
+  } & SearchReservedProperties
 >;
 
 export function isClusterProviderExtension(

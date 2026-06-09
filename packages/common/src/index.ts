@@ -4,6 +4,7 @@ export type {
   PluginRegistry,
   ClusterProviderCardProps,
   ClusterProviderWizardProps,
+  SearchEntry,
 } from "./types.js";
 
 export {

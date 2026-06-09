@@ -6,7 +6,7 @@ import {
   GridItem,
   Title,
 } from "@patternfly/react-core";
-import type { ClusterRow } from "./clusterUtils";
+import type { GcpHcpClusterRow } from "../gcphcp-plugin/gcpHcpUtils";
 
 interface SummaryCard {
   label: string;
@@ -14,18 +14,18 @@ interface SummaryCard {
   color?: string;
 }
 
-function buildSummary(rows: ClusterRow[]): SummaryCard[] {
-  const healthy = rows.filter(
-    (r) => r.deployment.state === "STATE_ACTIVE",
+const FAILURE_STATES = ["ERROR", "DEGRADED", "FAILED"];
+
+function buildSummary(rows: GcpHcpClusterRow[]): SummaryCard[] {
+  const healthy = rows.filter((r) => r.cluster.state === "ACTIVE").length;
+  const needsAttention = rows.filter((r) =>
+    FAILURE_STATES.includes(r.cluster.state),
   ).length;
-  const needsAttention = rows.length - healthy;
+  const totalNodePools = rows.reduce((sum, r) => sum + r.nodePoolCount, 0);
 
   return [
     { label: "Total Clusters", value: rows.length },
-    {
-      label: "Total Nodes",
-      value: rows.reduce((sum, r) => sum + r.nodeCount, 0),
-    },
+    { label: "Total Node Pools", value: totalNodePools },
     {
       label: "Healthy",
       value: healthy,
@@ -42,7 +42,11 @@ function buildSummary(rows: ClusterRow[]): SummaryCard[] {
   ];
 }
 
-export default function ClusterSummaryCards({ rows }: { rows: ClusterRow[] }) {
+export default function ClusterSummaryCards({
+  rows,
+}: {
+  rows: GcpHcpClusterRow[];
+}) {
   const cards = buildSummary(rows);
 
   return (

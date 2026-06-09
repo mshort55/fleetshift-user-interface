@@ -25,3 +25,15 @@ export interface ClusterProviderWizardProps {
   onSetupNext?: () => void;
   onSetupSkip?: () => void;
 }
+
+export interface SearchEntry {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  pathname: string;
+  icon: string;
+  status: string;
+  meta: string;
+  feature?: string;
+}
