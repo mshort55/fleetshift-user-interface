@@ -12,7 +12,13 @@
     "lint:fix": "eslint packages/ --fix && stylelint 'packages/**/*.{css,scss}' --fix --ignore-pattern '**/node_modules/**' --ignore-pattern '**/dist/**'",
     "lint:css": "stylelint 'packages/**/*.{css,scss}' --ignore-pattern '**/node_modules/**' --ignore-pattern '**/dist/**'",
     "test": "vitest run",
-    "test:e2e": "npm test --workspace=packages/e2e"
+    "test:e2e": "npm test --workspace=packages/e2e",
+    "lint-staged": "lint-staged",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx}": "eslint --fix",
+    "**/*.{css,scss}": "stylelint --fix"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.56.1",
@@ -22,6 +28,8 @@
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-simple-import-sort": "^13.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.8.1",
     "stylelint": "^17.13.0",
     "stylelint-config-standard-scss": "^17.0.0",
