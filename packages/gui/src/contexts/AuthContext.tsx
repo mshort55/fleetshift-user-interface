@@ -1,23 +1,24 @@
 import {
   createContext,
-  useContext,
-  useState,
+  ReactNode,
   useCallback,
+  useContext,
   useEffect,
   useRef,
-  ReactNode,
+  useState,
 } from "react";
+import type { AuthProviderProps } from "react-oidc-context";
 import {
   AuthProvider as OidcAuthProvider,
   useAuth as useOidcAuth,
 } from "react-oidc-context";
-import type { AuthProviderProps } from "react-oidc-context";
-import { fetchOidcConfig } from "../auth/oidcConfig";
+
 import {
+  installFetchInterceptor,
   setAccessToken,
   setOnUnauthorized,
-  installFetchInterceptor,
 } from "../auth/fetchInterceptor";
+import { fetchOidcConfig } from "../auth/oidcConfig";
 
 // Install the fetch interceptor once at module load
 installFetchInterceptor();
@@ -93,7 +94,7 @@ function KeycloakAuthInner({ children }: { children: ReactNode }) {
       navLayout: [],
     });
     setLoading(false);
-  }, [oidc.isLoading, oidc.isAuthenticated, accessToken]);
+  }, [oidc.isLoading, oidc.isAuthenticated, oidc.user, accessToken]);
 
   useEffect(() => {
     setOnUnauthorized(() => setAuthError(true));
@@ -136,9 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   if (error) {
     return (
-      <div style={{ padding: "2rem", color: "red" }}>
-        Failed to load OIDC config: {error}
-      </div>
+      <div className="ome-oidc-error">Failed to load OIDC config: {error}</div>
     );
   }
 

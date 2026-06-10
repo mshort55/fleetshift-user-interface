@@ -1,4 +1,5 @@
-import { Outlet } from "react-router-dom";
+import "./SetupLayout.scss";
+
 import {
   Masthead,
   MastheadBrand,
@@ -11,22 +12,17 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { MoonIcon, SunIcon, WineGlassIcon } from "@patternfly/react-icons";
+import { Outlet } from "react-router-dom";
+
 import logo from "../assets/masthead.png";
 import ThemeToggle, { ThemeToggleType } from "../components/Themes/ThemeToggle";
-
-import "./SetupLayout.scss";
 
 const SetupMasthead = () => (
   <Masthead>
     <MastheadMain>
       <MastheadBrand>
         <MastheadLogo component="span">
-          <img
-            src={logo}
-            alt="FleetShift"
-            className="fs-masthead-logo"
-            style={{ height: 36 }}
-          />
+          <img src={logo} alt="FleetShift" className="ome-masthead-logo" />
         </MastheadLogo>
       </MastheadBrand>
     </MastheadMain>
@@ -56,7 +52,7 @@ const SetupMasthead = () => (
 );
 
 export const SetupLayout = () => (
-  <div className="ome-setup-layout">
+  <div className="ome-app ome-setup-layout">
     <SetupMasthead />
     <div className="ome-setup-layout__scroll">
       <div className="ome-setup-layout__content">

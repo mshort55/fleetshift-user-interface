@@ -1,7 +1,8 @@
 import { PropsWithChildren } from "react";
+
 import { useAppConfig } from "../../contexts/AppConfigContext";
-import { PluginRegistryProvider } from "../../contexts/PluginRegistryContext";
 import { ClusterProvider } from "../../contexts/ClusterContext";
+import { PluginRegistryProvider } from "../../contexts/PluginRegistryContext";
 import { ScopeProvider } from "../../contexts/ScopeContext";
 import ScopeBridge from "./ScopeBridge";
 

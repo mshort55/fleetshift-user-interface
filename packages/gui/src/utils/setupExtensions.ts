@@ -1,4 +1,5 @@
 import type { LoadedAndResolvedExtension } from "@openshift/dynamic-plugin-sdk";
+
 import type { SetupExtension } from "../extensions/isSetupExtension";
 
 export type ResolvedSetup = LoadedAndResolvedExtension<SetupExtension>;

@@ -1,10 +1,10 @@
-import { ReactNode } from "react";
 import {
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
 } from "@patternfly/react-core";
+import { ReactNode } from "react";
 
 export type EnrollmentDLProps = {
   enrollmentName?: ReactNode;
@@ -39,7 +39,7 @@ const EnrollmentDL = ({
         <DescriptionListGroup>
           <DescriptionListTerm>Public key</DescriptionListTerm>
           <DescriptionListDescription>
-            <code className="fs-setup__pubkey-snippet">
+            <code className="ome-signing-setup__pubkey-snippet">
               {sshPublicKey.slice(0, 60)}...
             </code>
           </DescriptionListDescription>

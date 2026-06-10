@@ -1,11 +1,12 @@
+import type { AppsConfig } from "@scalprum/core";
 import {
   createContext,
-  useContext,
-  useState,
-  useEffect,
   ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
-import type { AppsConfig } from "@scalprum/core";
+
 import type { PluginEntry } from "./PluginRegistryContext";
 
 export interface PluginPage {

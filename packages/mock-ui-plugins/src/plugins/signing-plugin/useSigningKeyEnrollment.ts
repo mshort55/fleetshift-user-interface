@@ -1,24 +1,25 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useAuth as useOidcAuth } from "react-oidc-context";
-import {
-  generateSigningKey,
-  getSigningKeyStatus,
-  getStoredPublicKey,
-  exportPublicKeyDER,
-  removeSigningKey,
-} from "./signingKeyApi";
+
 import { createSignerEnrollment, getAuthMethod } from "./api";
+import {
+  Action,
+  enrollmentReducer,
+  EnrollStep,
+  initialState,
+} from "./enrollmentReducer";
 import {
   detectRegistry,
   refreshAndGetIdToken,
   testSign,
 } from "./enrollmentUtils";
 import {
-  Action,
-  EnrollStep,
-  enrollmentReducer,
-  initialState,
-} from "./enrollmentReducer";
+  exportPublicKeyDER,
+  generateSigningKey,
+  getSigningKeyStatus,
+  getStoredPublicKey,
+  removeSigningKey,
+} from "./signingKeyApi";
 export { EnrollStep } from "./enrollmentReducer";
 
 const POLL_LIMIT = 6;
@@ -128,7 +129,7 @@ export function useSigningKeyEnrollment() {
     if (keyFound || state.ghPollEnabled) {
       clearPollingError();
     }
-  }, [keyFound, state.ghPollEnabled]);
+  }, [keyFound, state.ghPollEnabled, clearPollingError]);
 
   useEffect(() => {
     if (ghKeyError) {

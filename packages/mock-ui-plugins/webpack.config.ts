@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import path from "path";
+import { createTsLoaderRule, getDynamicModules } from "@fleetshift/build-utils";
 import {
-  ModuleFederationPlugin as BaseMFPlugin,
   ContainerPlugin,
+  ModuleFederationPlugin as BaseMFPlugin,
 } from "@module-federation/enhanced";
 import { DynamicRemotePlugin } from "@openshift/dynamic-plugin-sdk-webpack";
-import { getDynamicModules, createTsLoaderRule } from "@fleetshift/build-utils";
-import webpack from "webpack";
+import path from "path";
 import type { Configuration } from "webpack";
+import webpack from "webpack";
 
 const monorepoRoot = path.resolve(__dirname, "../..");
 const nodeModulesRoot = path.resolve(monorepoRoot, "node_modules");

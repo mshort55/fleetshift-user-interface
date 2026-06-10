@@ -1,10 +1,12 @@
+import "./AnimatedHeight.scss";
+
 import {
   motion,
+  type SpringOptions,
   useMotionValue,
   useSpring,
-  type SpringOptions,
 } from "motion/react";
-import { useRef, useEffect, type ReactNode } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 
 const springConfig: SpringOptions = {
   stiffness: 200,
@@ -41,7 +43,7 @@ const AnimatedHeight = ({ children, className }: AnimatedHeightProps) => {
 
   return (
     <motion.div style={{ height, overflow: "hidden" }} className={className}>
-      <div ref={contentRef} style={{ display: "flow-root" }}>
+      <div ref={contentRef} className="ome-signing-animated-height__inner">
         {children}
       </div>
     </motion.div>

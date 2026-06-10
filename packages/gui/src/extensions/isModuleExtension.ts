@@ -1,5 +1,6 @@
 import type { CodeRef, Extension } from "@openshift/dynamic-plugin-sdk";
 import type { ComponentType } from "react";
+
 import type { SearchReservedProperties } from "./searchTypes";
 
 export type ExtensionPointDeclaration = {

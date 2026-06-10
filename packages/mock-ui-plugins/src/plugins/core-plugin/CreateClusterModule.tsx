@@ -1,6 +1,6 @@
-import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
 import { Bullseye, Spinner } from "@patternfly/react-core";
+import { lazy, Suspense } from "react";
+import { Route, Routes } from "react-router-dom";
 
 const ClusterProviderSelectionPage = lazy(
   () => import("./cluster-providers/ClusterProviderSelectionPage"),

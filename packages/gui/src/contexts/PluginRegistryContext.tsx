@@ -1,5 +1,5 @@
-import { createContext, useContext, ReactNode } from "react";
 import type { PluginManifest } from "@openshift/dynamic-plugin-sdk";
+import { createContext, ReactNode, useContext } from "react";
 
 export interface PluginEntry {
   name: string;

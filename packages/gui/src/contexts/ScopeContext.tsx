@@ -1,9 +1,9 @@
 import {
   createContext,
+  ReactNode,
+  useCallback,
   useContext,
   useState,
-  useCallback,
-  ReactNode,
 } from "react";
 
 type Scope = "all" | string;

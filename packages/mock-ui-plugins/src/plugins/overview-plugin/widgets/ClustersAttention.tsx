@@ -1,12 +1,14 @@
-import { useMemo } from "react";
+import "./ClustersAttention.scss";
+
 import { Label, Stack, StackItem } from "@patternfly/react-core";
 import {
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
 } from "@patternfly/react-icons";
-import { useFleetDataContext } from "../useFleetData";
+import { useMemo } from "react";
+
 import type { DashboardCluster } from "../useFleetData";
-import "./ClustersAttention.scss";
+import { useFleetDataContext } from "../useFleetData";
 
 interface AttentionItem {
   id: string;
@@ -46,18 +48,18 @@ export default function ClustersAttention(_props: { widgetId: string }) {
 
   if (attentionClusters.length === 0) {
     return (
-      <div className="ov-attention-wrap pf-v6-u-color-200 pf-v6-u-text-align-center pf-v6-u-pt-lg">
+      <div className="ome-overview-attention-wrap pf-v6-u-color-200 pf-v6-u-text-align-center pf-v6-u-pt-lg">
         All clusters healthy
       </div>
     );
   }
 
   return (
-    <Stack hasGutter className="ov-attention-wrap">
+    <Stack hasGutter className="ome-overview-attention-wrap">
       {attentionClusters.map((c) => (
         <StackItem key={c.id}>
-          <div className="ov-attention-row">
-            <div className="ov-attention-row__name">{c.name}</div>
+          <div className="ome-overview-attention-row">
+            <div className="ome-overview-attention-row__name">{c.name}</div>
             <Label
               color={c.severity === "danger" ? "red" : "orange"}
               icon={

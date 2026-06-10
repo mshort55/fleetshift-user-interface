@@ -1,6 +1,6 @@
-import type { NavLayoutEntry, CanvasPage, CanvasModule } from "./extensions";
+import type { CanvasModule, CanvasPage, NavLayoutEntry } from "./extensions";
 
-export type { NavLayoutEntry, CanvasPage, CanvasModule };
+export type { CanvasModule, CanvasPage, NavLayoutEntry };
 
 export interface User {
   id: string;

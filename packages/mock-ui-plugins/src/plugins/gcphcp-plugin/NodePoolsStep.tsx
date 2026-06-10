@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   Button,
   Checkbox,
@@ -19,10 +19,20 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@patternfly/react-core";
-import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import TrashIcon from "@patternfly/react-icons/dist/dynamic/icons/trash-icon";
 import PlusCircleIcon from "@patternfly/react-icons/dist/dynamic/icons/plus-circle-icon";
+import TrashIcon from "@patternfly/react-icons/dist/dynamic/icons/trash-icon";
+import { useCallback, useEffect, useState } from "react";
+
 import type { GcpHcpFormData, NodepoolEntry } from "./CreateGcpHcpWizard";
+import {
+  DEFAULT_NODEPOOL,
+  INSTANCE_TYPES,
+  parseFromYaml,
+  serializeToYaml,
+  UPGRADE_TYPES,
+  validatePools,
+  VOLUME_TYPES,
+} from "./nodePoolYaml";
 
 interface NodePoolsStepProps {
   formData: GcpHcpFormData;
@@ -32,151 +42,8 @@ interface NodePoolsStepProps {
   ) => void;
 }
 
-const DEFAULT_NODEPOOL: NodepoolEntry = {
-  id: "",
-  replicas: 2,
-  instanceType: "n1-standard-4",
-  rootVolumeSize: 128,
-  rootVolumeType: "pd-standard",
-  autoRepair: true,
-  upgradeType: "Replace",
-};
-
 function poolSummary(pool: NodepoolEntry): string {
   return `${pool.replicas}x ${pool.instanceType}, ${pool.rootVolumeSize}GB ${pool.rootVolumeType}`;
-}
-
-function serializeToYaml(pools: NodepoolEntry[]): string {
-  return pools
-    .map((p) =>
-      [
-        `- id: ${p.id || '""'}`,
-        `  replicas: ${p.replicas}`,
-        `  instanceType: ${p.instanceType}`,
-        `  rootVolumeSize: ${p.rootVolumeSize}`,
-        `  rootVolumeType: ${p.rootVolumeType}`,
-        `  autoRepair: ${p.autoRepair}`,
-        `  upgradeType: ${p.upgradeType}`,
-      ].join("\n"),
-    )
-    .join("\n");
-}
-
-function parseFromYaml(text: string): NodepoolEntry[] | null {
-  try {
-    const pools: NodepoolEntry[] = [];
-    let current: Partial<NodepoolEntry> | null = null;
-
-    for (const rawLine of text.split("\n")) {
-      const line = rawLine.trimEnd();
-      if (!line.trim()) continue;
-
-      if (line.startsWith("- ")) {
-        if (current) pools.push(finishPool(current));
-        current = {};
-        parseField(current, line.slice(2));
-      } else if (line.startsWith("  ") && current) {
-        parseField(current, line.trim());
-      } else {
-        return null;
-      }
-    }
-    if (current) pools.push(finishPool(current));
-    return pools.length > 0 ? pools : null;
-  } catch {
-    return null;
-  }
-}
-
-function parseField(pool: Partial<NodepoolEntry>, field: string) {
-  const colonIdx = field.indexOf(":");
-  if (colonIdx === -1) return;
-  const key = field.slice(0, colonIdx).trim();
-  let val = field.slice(colonIdx + 1).trim();
-
-  if (val.startsWith('"') && val.endsWith('"')) {
-    val = val.slice(1, -1);
-  }
-
-  switch (key) {
-    case "id":
-      pool.id = val;
-      break;
-    case "replicas":
-      pool.replicas = parseInt(val, 10) || 1;
-      break;
-    case "instanceType":
-      pool.instanceType = val;
-      break;
-    case "rootVolumeSize":
-      pool.rootVolumeSize = parseInt(val, 10) || 128;
-      break;
-    case "rootVolumeType":
-      pool.rootVolumeType = val;
-      break;
-    case "autoRepair":
-      pool.autoRepair = val === "true";
-      break;
-    case "upgradeType":
-      pool.upgradeType = val;
-      break;
-  }
-}
-
-function finishPool(partial: Partial<NodepoolEntry>): NodepoolEntry {
-  return { ...DEFAULT_NODEPOOL, ...partial };
-}
-
-const VALID_INSTANCE_TYPES = new Set([
-  "n1-standard-4",
-  "n1-standard-8",
-  "n1-standard-16",
-  "n2-standard-4",
-  "n2-standard-8",
-]);
-const VALID_VOLUME_TYPES = new Set(["pd-standard", "pd-ssd"]);
-const VALID_UPGRADE_TYPES = new Set(["Replace", "InPlace"]);
-
-function validatePools(pools: NodepoolEntry[]): string[] {
-  const errors: string[] = [];
-  const ids = new Set<string>();
-
-  pools.forEach((pool, i) => {
-    const label = pool.id || `pool ${i + 1}`;
-
-    if (pool.id && !/^[a-z][-a-z0-9]*$/.test(pool.id)) {
-      errors.push(
-        `${label}: ID must start with a lowercase letter and contain only a-z, 0-9, hyphens`,
-      );
-    }
-
-    if (pool.id && ids.has(pool.id)) {
-      errors.push(`${label}: duplicate pool ID`);
-    }
-    if (pool.id) ids.add(pool.id);
-
-    if (pool.replicas < 1) {
-      errors.push(`${label}: replicas must be at least 1`);
-    }
-
-    if (!VALID_INSTANCE_TYPES.has(pool.instanceType)) {
-      errors.push(`${label}: unknown instance type "${pool.instanceType}"`);
-    }
-
-    if (pool.rootVolumeSize < 1) {
-      errors.push(`${label}: root volume size must be at least 1`);
-    }
-
-    if (!VALID_VOLUME_TYPES.has(pool.rootVolumeType)) {
-      errors.push(`${label}: unknown volume type "${pool.rootVolumeType}"`);
-    }
-
-    if (!VALID_UPGRADE_TYPES.has(pool.upgradeType)) {
-      errors.push(`${label}: upgrade type must be "Replace" or "InPlace"`);
-    }
-  });
-
-  return errors;
 }
 
 export default function NodePoolsStep({
@@ -340,26 +207,9 @@ export default function NodePoolsStep({
                         updatePool(i, { instanceType: val })
                       }
                     >
-                      <FormSelectOption
-                        value="n1-standard-4"
-                        label="n1-standard-4"
-                      />
-                      <FormSelectOption
-                        value="n1-standard-8"
-                        label="n1-standard-8"
-                      />
-                      <FormSelectOption
-                        value="n1-standard-16"
-                        label="n1-standard-16"
-                      />
-                      <FormSelectOption
-                        value="n2-standard-4"
-                        label="n2-standard-4"
-                      />
-                      <FormSelectOption
-                        value="n2-standard-8"
-                        label="n2-standard-8"
-                      />
+                      {INSTANCE_TYPES.map((t) => (
+                        <FormSelectOption key={t} value={t} label={t} />
+                      ))}
                     </FormSelect>
                   </FormGroup>
                 </GridItem>
@@ -407,11 +257,9 @@ export default function NodePoolsStep({
                         updatePool(i, { rootVolumeType: val })
                       }
                     >
-                      <FormSelectOption
-                        value="pd-standard"
-                        label="pd-standard"
-                      />
-                      <FormSelectOption value="pd-ssd" label="pd-ssd" />
+                      {VOLUME_TYPES.map((t) => (
+                        <FormSelectOption key={t} value={t} label={t} />
+                      ))}
                     </FormSelect>
                   </FormGroup>
                 </GridItem>
@@ -428,8 +276,13 @@ export default function NodePoolsStep({
                         updatePool(i, { upgradeType: val })
                       }
                     >
-                      <FormSelectOption value="Replace" label="Replace" />
-                      <FormSelectOption value="InPlace" label="In-place" />
+                      {UPGRADE_TYPES.map((t) => (
+                        <FormSelectOption
+                          key={t.value}
+                          value={t.value}
+                          label={t.label}
+                        />
+                      ))}
                     </FormSelect>
                   </FormGroup>
                 </GridItem>

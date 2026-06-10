@@ -1,26 +1,27 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  Alert,
-  PageSection,
-  Stack,
-  StackItem,
-  Title,
-  Content,
-  Wizard,
-  WizardStep,
-} from "@patternfly/react-core";
 import {
   buildSignedInputEnvelope,
   usePluginNavigate,
 } from "@fleetshift/common";
+import {
+  Alert,
+  Content,
+  PageSection,
+  Stack,
+  StackItem,
+  Title,
+  Wizard,
+  WizardStep,
+} from "@patternfly/react-core";
 import { getModule } from "@scalprum/core";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { createDeployment } from "../management-plugin/api";
 import ClusterDetailsStep from "./ClusterDetailsStep";
 import NetworkingStep from "./NetworkingStep";
 import NodesStep from "./NodesStep";
-import SettingsStep from "./SettingsStep";
 import ReviewStep from "./ReviewStep";
+import SettingsStep from "./SettingsStep";
 
 export interface NodeEntry {
   role: "control-plane" | "worker";

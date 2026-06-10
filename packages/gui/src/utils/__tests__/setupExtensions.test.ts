@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
-import { resolveSetupExtensions, type ResolvedSetup } from "../setupExtensions";
+import { describe, expect, it, vi } from "vitest";
+
+import { type ResolvedSetup, resolveSetupExtensions } from "../setupExtensions";
 
 function makeExt(
   id: string,
@@ -12,7 +13,8 @@ function makeExt(
       id,
       label,
       path: id,
-      component: (() => {}) as any,
+      component:
+        (() => {}) as unknown as ResolvedSetup["properties"]["component"],
       requires,
       requiresAuth: true,
       ...(priority !== undefined ? { priority } : {}),

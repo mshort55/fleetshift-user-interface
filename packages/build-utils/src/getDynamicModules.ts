@@ -1,7 +1,7 @@
-import path from "path";
-import * as glob from "glob";
-import fs from "fs";
 import chalk from "chalk";
+import fs from "fs";
+import * as glob from "glob";
+import path from "path";
 
 const checkPfVersion = (version: string) => {
   const number = version?.replace(/[^0-9]/g, "");
@@ -62,16 +62,38 @@ const getDynamicModules = (root: string, nodeModulesRoot?: string) => {
     "node_modules/@patternfly/react-icons/dist/dynamic/*/**/package.json",
   );
 
+  const readInstalledVersion = (pkg: string) => {
+    const pkgJson = JSON.parse(
+      fs.readFileSync(
+        path.resolve(modulesRoot, "node_modules", pkg, "package.json"),
+        { encoding: "utf-8" },
+      ),
+    );
+    return pkgJson.version as string;
+  };
+
+  const coreInstalledVersion = readInstalledVersion("@patternfly/react-core");
+  const iconsInstalledVersion = readInstalledVersion("@patternfly/react-icons");
+
   const files = [
-    { requiredVersion: coreVersion, files: glob.sync(componentsGlob) },
-    { requiredVersion: iconsVersion, files: glob.sync(iconsGlob) },
+    {
+      requiredVersion: coreVersion,
+      version: coreInstalledVersion,
+      files: glob.sync(componentsGlob),
+    },
+    {
+      requiredVersion: iconsVersion,
+      version: iconsInstalledVersion,
+      files: glob.sync(iconsGlob),
+    },
   ];
   const modules: {
     [moduleName: string]: {
       requiredVersion: string;
+      version: string;
     };
   } = files
-    .map(({ files, requiredVersion }) =>
+    .map(({ files, requiredVersion, version }) =>
       files.reduce(
         (acc, curr) => {
           const moduleName = curr
@@ -85,10 +107,11 @@ const getDynamicModules = (root: string, nodeModulesRoot?: string) => {
             ...acc,
             [moduleName]: {
               requiredVersion,
+              version,
             },
           };
         },
-        {} as Record<string, { requiredVersion: string }>,
+        {} as Record<string, { requiredVersion: string; version: string }>,
       ),
     )
     .reduce(

@@ -1,13 +1,14 @@
 import {
   DescriptionList,
+  DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  DescriptionListDescription,
   Label,
   Stack,
   StackItem,
   Title,
 } from "@patternfly/react-core";
+
 import type { ClusterFormData } from "./CreateClusterWizard";
 
 interface ReviewStepProps {

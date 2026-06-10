@@ -1,5 +1,5 @@
-import path from "path";
 import * as mf from "@module-federation/enhanced";
+import path from "path";
 import webpack from "webpack";
 const { ModuleFederationPlugin: BaseMFPlugin } = mf;
 // Disable federated type generation (dts-plugin crashes in Docker containers)
@@ -8,9 +8,9 @@ class ModuleFederationPlugin extends BaseMFPlugin {
     super({ ...options, dts: false });
   }
 }
+import * as buildUtils from "@fleetshift/build-utils";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import * as buildUtils from "@fleetshift/build-utils";
 const { getDynamicModules, createTsLoaderRule } = buildUtils;
 import type { Configuration } from "webpack";
 

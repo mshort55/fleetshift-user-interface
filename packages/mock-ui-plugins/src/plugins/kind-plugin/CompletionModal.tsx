@@ -1,3 +1,5 @@
+import "./CompletionModal.scss";
+
 import {
   Button,
   Content,
@@ -9,10 +11,10 @@ import {
   Stack,
   StackItem,
 } from "@patternfly/react-core";
-import SearchIcon from "@patternfly/react-icons/dist/dynamic/icons/search-icon";
+import AngleRightIcon from "@patternfly/react-icons/dist/dynamic/icons/angle-right-icon";
 import PlusCircleIcon from "@patternfly/react-icons/dist/dynamic/icons/plus-circle-icon";
 import RocketIcon from "@patternfly/react-icons/dist/dynamic/icons/rocket-icon";
-import AngleRightIcon from "@patternfly/react-icons/dist/dynamic/icons/angle-right-icon";
+import SearchIcon from "@patternfly/react-icons/dist/dynamic/icons/search-icon";
 
 import successImage from "./assets/day-one-complete.png";
 
@@ -43,7 +45,7 @@ export default function CompletionModal({
             <img
               src={successImage}
               alt="Success illustration"
-              style={{ width: 160 }}
+              className="ome-kind-completion-image"
             />
           </SplitItem>
           <SplitItem isFilled>

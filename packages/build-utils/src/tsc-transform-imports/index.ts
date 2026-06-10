@@ -1,7 +1,7 @@
-import path from "path";
-import * as ts from "typescript";
 import * as fs from "fs";
 import * as glob from "glob";
+import path from "path";
+import * as ts from "typescript";
 
 export interface TransformImportsConfig {
   /** Absolute path to the node_modules directory where PF packages are installed. */

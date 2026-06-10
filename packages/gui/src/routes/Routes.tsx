@@ -1,4 +1,5 @@
 import { useLocation } from "react-router-dom";
+
 import ConsoleRoutes from "./ConsoleRoutes";
 import SetupRoutes from "./SetupRoutes";
 

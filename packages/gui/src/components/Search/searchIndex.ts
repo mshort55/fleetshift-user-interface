@@ -1,6 +1,7 @@
-import { create, insert, search } from "@orama/orama";
-import type { Orama } from "@orama/orama";
 import type { SearchEntry } from "@fleetshift/common";
+import type { Orama } from "@orama/orama";
+import { create, insert, search } from "@orama/orama";
+
 import { highlightText } from "./highlightUtils";
 
 export type { SearchEntry };

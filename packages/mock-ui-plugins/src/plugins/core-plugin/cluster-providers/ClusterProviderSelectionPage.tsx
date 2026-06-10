@@ -1,8 +1,6 @@
-import { useMemo, type ComponentType } from "react";
-import { useNavigate } from "react-router-dom";
-import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
-import type { CodeRef, Extension } from "@openshift/dynamic-plugin-sdk";
 import type { ClusterProviderCardProps } from "@fleetshift/common";
+import type { CodeRef, Extension } from "@openshift/dynamic-plugin-sdk";
+import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
 import {
   Bullseye,
   Content,
@@ -16,6 +14,8 @@ import {
   StackItem,
   Title,
 } from "@patternfly/react-core";
+import { type ComponentType, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 type ClusterProviderExtension = Extension<
   "fleetshift.cluster-provider",
@@ -71,7 +71,7 @@ export default function ClusterProviderSelectionPage() {
         </StackItem>
         <StackItem>
           <Gallery
-            className="core-cluster-provider-gallery"
+            className="ome-core-cluster-provider-gallery"
             hasGutter
             minWidths={{ default: "300px" }}
           >

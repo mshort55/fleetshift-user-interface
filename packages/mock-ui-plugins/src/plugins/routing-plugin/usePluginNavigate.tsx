@@ -1,6 +1,6 @@
+import { useScalprum } from "@scalprum/react-core";
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useScalprum } from "@scalprum/react-core";
 
 interface FleetShiftApi {
   fleetshift: {

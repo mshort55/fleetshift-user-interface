@@ -1,10 +1,11 @@
-import { describe, it, expect } from "vitest";
-import { buildSignedInputEnvelope, hashIntent } from "../canonical";
+import { describe, expect, it } from "vitest";
+
 import type {
   ManifestStrategy,
-  PlacementStrategy,
   OutputConstraint,
+  PlacementStrategy,
 } from "../canonical";
+import { buildSignedInputEnvelope, hashIntent } from "../canonical";
 
 // Matches Go: time.Date(2026, 3, 11, 12, 0, 0, 0, time.UTC)
 const testValidUntil = new Date(Date.UTC(2026, 2, 11, 12, 0, 0));

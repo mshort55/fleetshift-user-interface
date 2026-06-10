@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+
 import { useScope } from "../../contexts/ScopeContext";
 
 export const scopeRef = { current: "all" as string };

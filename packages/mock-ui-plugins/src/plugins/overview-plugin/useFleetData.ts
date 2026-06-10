@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
+
 import type { GcpHcpCluster } from "../gcphcp-plugin/api";
-import { listGcpHcpClusters, extractClusterId } from "../gcphcp-plugin/api";
+import { extractClusterId, listGcpHcpClusters } from "../gcphcp-plugin/api";
 
 export interface DashboardCluster {
   id: string;

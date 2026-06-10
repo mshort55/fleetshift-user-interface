@@ -1,14 +1,15 @@
+import type { ClusterProviderCardProps } from "@fleetshift/common";
 import {
   Card,
-  CardHeader,
   CardBody,
+  CardHeader,
   CardTitle,
   Content,
   Icon,
   Split,
   SplitItem,
 } from "@patternfly/react-core";
-import type { ClusterProviderCardProps } from "@fleetshift/common";
+
 import gcpLogo from "./assets/gcp.webp";
 
 export function GcpHcpIcon() {

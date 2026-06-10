@@ -1,23 +1,24 @@
+import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
 import {
   createContext,
+  ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useRef,
-  ReactNode,
-  useCallback,
 } from "react";
-import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
+
 import { useAppConfig } from "../../contexts/AppConfigContext";
-import { isModuleExtension } from "../../extensions/isModuleExtension";
 import { isClusterProviderExtension } from "../../extensions/isClusterProviderExtension";
+import { isModuleExtension } from "../../extensions/isModuleExtension";
 import { isSetupExtension } from "../../extensions/isSetupExtension";
 import type { SearchResultProps } from "../../extensions/searchTypes";
 import {
   createSearchDB,
+  type GroupedResults,
   insertEntry,
   queryIndex,
   type SearchDB,
-  type GroupedResults,
   type SearchEntry,
   type SearchResultItem,
 } from "./searchIndex";

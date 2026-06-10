@@ -1,18 +1,18 @@
-import type { ComponentType } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
-import type { CodeRef, Extension } from "@openshift/dynamic-plugin-sdk";
 import type { ClusterProviderWizardProps } from "@fleetshift/common";
 import { usePluginNavigate } from "@fleetshift/common";
+import type { CodeRef, Extension } from "@openshift/dynamic-plugin-sdk";
+import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
 import {
   Bullseye,
+  Button,
   EmptyState,
+  EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateActions,
-  Button,
   Spinner,
 } from "@patternfly/react-core";
+import type { ComponentType } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 type ClusterProviderExtension = Extension<
   "fleetshift.cluster-provider",

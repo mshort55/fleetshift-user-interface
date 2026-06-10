@@ -1,20 +1,19 @@
-import { useMemo } from "react";
-import type { ComponentType } from "react";
-import { Routes, Route, useNavigate, useParams } from "react-router-dom";
-import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
-import type { CodeRef, Extension } from "@openshift/dynamic-plugin-sdk";
+import "./SetupClusterDeploy.scss";
+
 import type {
   ClusterProviderCardProps,
   ClusterProviderWizardProps,
 } from "@fleetshift/common";
+import type { CodeRef, Extension } from "@openshift/dynamic-plugin-sdk";
+import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
 import {
   Bullseye,
   Button,
   Content,
   EmptyState,
+  EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateActions,
   Gallery,
   GalleryItem,
   PageSection,
@@ -23,8 +22,9 @@ import {
   StackItem,
   Title,
 } from "@patternfly/react-core";
-
-import "./SetupClusterDeploy.scss";
+import type { ComponentType } from "react";
+import { useMemo } from "react";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 
 type ClusterProviderExtension = Extension<
   "fleetshift.cluster-provider",
@@ -93,7 +93,7 @@ function ProviderGallery({ onSetupSkip }: ProviderGalleryProps) {
               const CardComponent = ext.properties.card;
               return (
                 <GalleryItem
-                  className="day-one-cluster-provider-gallery-item"
+                  className="ome-day-one-cluster-provider-gallery-item"
                   key={ext.properties.id}
                 >
                   <CardComponent

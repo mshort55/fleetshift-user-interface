@@ -1,15 +1,16 @@
+import { Bullseye, Spinner } from "@patternfly/react-core";
+import { preloadModule } from "@scalprum/core";
 import { useCallback, useEffect, useMemo } from "react";
 import { Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
-import { preloadModule } from "@scalprum/core";
-import { SetupLayout } from "../layouts/SetupLayout";
-import { AuthProvider } from "../contexts/AuthContext";
+
 import AuthGate from "../components/Auth/AuthGate";
+import { AuthProvider } from "../contexts/AuthContext";
 import {
-  useSetupExtensions,
   type PreloadTarget,
+  useSetupExtensions,
 } from "../hooks/useSetupExtensions";
+import { SetupLayout } from "../layouts/SetupLayout";
 import type { ResolvedSetup } from "../utils/setupExtensions";
-import { Bullseye, Spinner } from "@patternfly/react-core";
 
 interface StepWrapperProps {
   ext: ResolvedSetup;

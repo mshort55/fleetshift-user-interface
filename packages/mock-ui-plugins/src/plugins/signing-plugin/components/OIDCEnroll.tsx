@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@patternfly/react-core";
+
 import { EnrollStep } from "../enrollmentReducer";
 
 export type OIDCEnrollProps = {

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import "../signing-plugin/SetupPage.scss";
+
 import {
   ActionGroup,
   Alert,
@@ -25,7 +26,14 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons";
-import "../signing-plugin/SetupPage.scss";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import {
+  type AuthMethod,
+  type AuthState,
+  fetchAuthMethod,
+  triggerAuthSetup,
+} from "./api";
 
 interface SetupPageProps {
   onSetupNext?: () => void;
@@ -34,78 +42,6 @@ interface SetupPageProps {
 
 type BackingStore = "sqlite" | "postgres";
 type KeyRegistry = "oidc" | "github";
-
-interface OidcConfig {
-  issuerUrl: string;
-  audience: string;
-  authorizationEndpoint: string;
-  tokenEndpoint: string;
-  jwksUri: string;
-  registrySubjectMapping?: {
-    registryId: string;
-    expression: string;
-  };
-}
-
-interface AuthMethod {
-  name: string;
-  type: string;
-  oidcConfig: OidcConfig;
-}
-
-type AuthState =
-  | { status: "idle" }
-  | { status: "submitting" }
-  | { status: "configured"; authMethod: AuthMethod }
-  | { status: "error"; message: string };
-
-async function fetchAuthMethod(): Promise<AuthMethod | null> {
-  const res = await fetch("/v1/authMethods/default");
-  if (res.status === 404 || res.status === 500) return null;
-  if (!res.ok) throw new Error(`Unexpected status ${res.status}`);
-  return res.json();
-}
-
-async function getOidcClientId(): Promise<string> {
-  const res = await fetch("/api/ui/config");
-  if (!res.ok) {
-    throw new Error(`Failed to fetch UI config (${res.status})`);
-  }
-  const config = await res.json();
-  return config.oidc?.clientId ?? "fleetshift-ui";
-}
-
-async function triggerAuthSetup(
-  issuerUrl: string,
-  audience: string,
-  keyRegistry: KeyRegistry,
-): Promise<void> {
-  const enrollmentAudience = await getOidcClientId();
-  const oidcConfig: Record<string, unknown> = {
-    issuer_url: issuerUrl.replace(/\/+$/, ""),
-    audience,
-    key_enrollment_audience: enrollmentAudience,
-  };
-
-  if (keyRegistry === "github") {
-    oidcConfig.registry_subject_mapping = {
-      registry_id: "github.com",
-      expression: "claims.github_username",
-    };
-  } else {
-    oidcConfig.public_key_claim_expression = "claims.signing_public_key";
-  }
-
-  const res = await fetch("/v1/authMethods?auth_method_id=default", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "TYPE_OIDC", oidc_config: oidcConfig }),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Auth setup failed (${res.status}): ${text}`);
-  }
-}
 
 interface SetupWsCallbacks {
   onCreated: (method: AuthMethod) => void;

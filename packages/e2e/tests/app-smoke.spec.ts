@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("App smoke tests", () => {
   test("app loads after OIDC login", async ({ page }) => {

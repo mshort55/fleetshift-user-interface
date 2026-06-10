@@ -1,3 +1,5 @@
+import "./WelcomePage.scss";
+
 import { usePluginNavigate } from "@fleetshift/common";
 import {
   Bullseye,
@@ -12,11 +14,9 @@ import BrainIcon from "@patternfly/react-icons/dist/dynamic/icons/brain-icon";
 import CodeIcon from "@patternfly/react-icons/dist/dynamic/icons/code-icon";
 import ServerIcon from "@patternfly/react-icons/dist/dynamic/icons/server-icon";
 
-import WorkloadCard, { type WorkloadOption } from "./WorkloadCard";
 import ScalingCard from "./ScalingCard";
 import WelcomeFooter from "./WelcomeFooter";
-
-import "./WelcomePage.scss";
+import WorkloadCard, { type WorkloadOption } from "./WorkloadCard";
 
 const workloads: WorkloadOption[] = [
   {
@@ -55,7 +55,7 @@ export default function WelcomePage() {
   const dayOne = usePluginNavigate("day-one-plugin", "DayOnePage");
 
   return (
-    <Stack hasGutter className="day-one-welcome">
+    <Stack hasGutter className="ome-day-one-welcome">
       <StackItem className="pf-v6-u-mb-lg">
         <Bullseye>
           <Stack hasGutter>

@@ -1,6 +1,6 @@
+import { useScalprum } from "@scalprum/react-core";
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useScalprum } from "@scalprum/react-core";
 
 interface FleetShiftApi {
   fleetshift: {
@@ -28,9 +28,6 @@ const usePluginLinks = (
 ): Record<string, PluginLinkEntry> => {
   const { api } = useScalprum<{ api: FleetShiftApi }>();
   const navigate = useNavigate();
-
-  // Stable serialisation of targets for dependency tracking
-  const targetsKey = JSON.stringify(targets);
 
   const makeNavigate = useCallback(
     (scope: string, module: string) => (to?: string | PluginNavigateTo) => {
@@ -64,7 +61,7 @@ const usePluginLinks = (
       };
     }
     return result;
-  }, [api, makeNavigate, targetsKey]);
+  }, [api, makeNavigate, targets]);
 };
 
 export default usePluginLinks;

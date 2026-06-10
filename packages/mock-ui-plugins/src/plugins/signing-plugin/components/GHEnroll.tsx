@@ -11,11 +11,11 @@ import {
   StackItem,
 } from "@patternfly/react-core";
 import { ExternalLinkAltIcon } from "@patternfly/react-icons";
+import { ReactNode } from "react";
 
 import ghSigningKeyImg from "../assets/gh-signing-screen.png";
 import ghSigningKeyDarkImg from "../assets/gh-signing-screen-dark.png";
 import MotionPollingAnimation from "./MotionPollingAnimation";
-import { ReactNode } from "react";
 
 export type GHEnrollProps = {
   githubUsername?: string | null;
@@ -47,12 +47,12 @@ const GHEnroll = ({
             <img
               src={ghSigningKeyImg}
               alt="GitHub SSH key settings page — select Signing Key from the key type dropdown"
-              className="fs-setup__screenshot fs-setup__screenshot--light"
+              className="ome-signing-setup__screenshot ome-signing-setup__screenshot--light"
             />
             <img
               src={ghSigningKeyDarkImg}
               alt="GitHub SSH key settings page — select Signing Key from the key type dropdown"
-              className="fs-setup__screenshot fs-setup__screenshot--dark"
+              className="ome-signing-setup__screenshot ome-signing-setup__screenshot--dark"
             />
           </StackItem>
           <StackItem>

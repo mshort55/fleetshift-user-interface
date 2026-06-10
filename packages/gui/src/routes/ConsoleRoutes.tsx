@@ -1,13 +1,14 @@
 import { useMemo } from "react";
-import { useAppConfig } from "../contexts/AppConfigContext";
 import { Navigate, Route, Routes } from "react-router-dom";
+
+import AuthGate from "../components/Auth/AuthGate";
+import AppConfigBridge from "../components/Root/AppConfigBridge";
+import { useAppConfig } from "../contexts/AppConfigContext";
+import { AuthProvider } from "../contexts/AuthContext";
 import { AppLayout } from "../layouts/AppLayout";
 import { DebugPage } from "../pages/DebugPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { PluginPage } from "../pages/PluginPage";
-import { AuthProvider } from "../contexts/AuthContext";
-import AuthGate from "../components/Auth/AuthGate";
-import AppConfigBridge from "../components/Root/AppConfigBridge";
 
 const ConsoleRoutes = () => {
   const { pluginPages } = useAppConfig();

@@ -1,17 +1,16 @@
-import { type ReactNode, useMemo } from "react";
-import type { ComponentType } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
-import type { CodeRef, Extension } from "@openshift/dynamic-plugin-sdk";
+import "./DayOnePage.scss";
+
 import { PluginLink } from "@fleetshift/common";
+import type { CodeRef, Extension } from "@openshift/dynamic-plugin-sdk";
+import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
 import {
   Breadcrumb,
   BreadcrumbItem,
   Bullseye,
   Card,
+  CardBody,
   CardHeader,
   CardTitle,
-  CardBody,
   Content,
   Gallery,
   Label,
@@ -20,6 +19,9 @@ import {
   StackItem,
   Title,
 } from "@patternfly/react-core";
+import type { ComponentType } from "react";
+import { type ReactNode, useMemo } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
 
 interface SetupComponentProps {
   onSetupNext?: () => void;
@@ -47,7 +49,7 @@ function isSetupExtension(e: Extension): e is SetupExtension {
 function SubPage({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
-      <Breadcrumb style={{ marginBottom: "var(--pf-t--global--spacer--md)" }}>
+      <Breadcrumb className="pf-v6-u-mb-md">
         <BreadcrumbItem
           render={({ className, ariaCurrent }) => (
             <PluginLink
@@ -110,7 +112,7 @@ function SetupGallery() {
                 isClickable
                 isSelectable
                 onClick={() => navigate(path)}
-                style={{ cursor: "pointer" }}
+                className="ome-day-one-setup-card"
               >
                 <CardHeader
                   actions={{

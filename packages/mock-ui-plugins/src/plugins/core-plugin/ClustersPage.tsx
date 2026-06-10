@@ -1,5 +1,10 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import "./ClustersPage.css";
+
 import { PluginLink } from "@fleetshift/common";
+import {
+  SkeletonTableBody,
+  SkeletonTableHead,
+} from "@patternfly/react-component-groups";
 import {
   Button,
   Content,
@@ -17,39 +22,35 @@ import {
   StackItem,
   Title,
 } from "@patternfly/react-core";
-import { ActionsColumn, Tbody, Td, Tr } from "@patternfly/react-table";
-import { CubesIcon } from "@patternfly/react-icons";
-import {
-  SkeletonTableHead,
-  SkeletonTableBody,
-} from "@patternfly/react-component-groups";
-import "./ClustersPage.css";
-import {
-  useDataViewFilters,
-  useDataViewPagination,
-} from "@patternfly/react-data-view/dist/dynamic/Hooks";
 import {
   DataView,
   DataViewState,
 } from "@patternfly/react-data-view/dist/dynamic/DataView";
+import { DataViewFilters } from "@patternfly/react-data-view/dist/dynamic/DataViewFilters";
 import {
   DataViewTable,
-  type DataViewTr,
   type DataViewTh,
+  type DataViewTr,
 } from "@patternfly/react-data-view/dist/dynamic/DataViewTable";
-import { DataViewToolbar } from "@patternfly/react-data-view/dist/dynamic/DataViewToolbar";
-import { DataViewFilters } from "@patternfly/react-data-view/dist/dynamic/DataViewFilters";
 import { DataViewTextFilter } from "@patternfly/react-data-view/dist/dynamic/DataViewTextFilter";
+import { DataViewToolbar } from "@patternfly/react-data-view/dist/dynamic/DataViewToolbar";
+import {
+  useDataViewFilters,
+  useDataViewPagination,
+} from "@patternfly/react-data-view/dist/dynamic/Hooks";
+import { CubesIcon } from "@patternfly/react-icons";
+import { ActionsColumn, Tbody, Td, Tr } from "@patternfly/react-table";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
-  listGcpHcpClusters,
   deleteGcpHcpCluster,
   extractClusterId,
+  listGcpHcpClusters,
 } from "../gcphcp-plugin/api";
 import {
-  stateLabel,
   formatTime,
   type GcpHcpClusterRow,
+  stateLabel,
 } from "../gcphcp-plugin/gcpHcpUtils";
 import ClusterSummaryCards from "./ClusterSummaryCards";
 
@@ -287,7 +288,7 @@ export default function ClustersPage() {
         <DataView activeState={activeState}>
           <DataViewToolbar
             clearAllFilters={clearAllFilters}
-            className="clusters-toolbar"
+            className="ome-core-clusters-toolbar"
             actions={
               <Button
                 variant="primary"

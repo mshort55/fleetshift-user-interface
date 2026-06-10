@@ -1,14 +1,14 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import { LogViewer, LogViewerSearch } from "@patternfly/react-log-viewer";
 import {
+  EmptyState,
+  EmptyStateBody,
   Label,
   Toolbar,
   ToolbarContent,
-  ToolbarItem,
   ToolbarGroup,
-  EmptyState,
-  EmptyStateBody,
+  ToolbarItem,
 } from "@patternfly/react-core";
+import { LogViewer, LogViewerSearch } from "@patternfly/react-log-viewer";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface DeliveryEvent {
   type: string;

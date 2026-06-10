@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useFleetDataContext } from "../useFleetData";
 import "./GlobalMap.scss";
+
+import { useEffect, useState } from "react";
+import { CircleMarker, MapContainer, TileLayer, Tooltip } from "react-leaflet";
+
+import { useFleetDataContext } from "../useFleetData";
 
 const TILES = {
   light: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -47,7 +49,7 @@ export default function GlobalMap(_props: { widgetId: string }) {
       worldCopyJump
       attributionControl={false}
       zoomControl={false}
-      className="ov-global-map"
+      className="ome-overview-global-map"
     >
       <TileLayer
         key={isDark ? "dark" : "light"}

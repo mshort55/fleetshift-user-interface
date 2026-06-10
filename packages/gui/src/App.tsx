@@ -1,11 +1,12 @@
-import { BrowserRouter } from "react-router-dom";
+import { AnimationsProvider } from "@patternfly/react-core";
 import { ScalprumProvider } from "@scalprum/react-core";
 import { PropsWithChildren, useMemo, useRef } from "react";
-import { AppConfigProvider, useAppConfig } from "./contexts/AppConfigContext";
-import { AnimationsProvider } from "@patternfly/react-core";
-import ScopeInitializer from "./components/Root/ScopeInitializer";
+import { BrowserRouter } from "react-router-dom";
+
 import PluginLoader from "./components/Root/PluginLoader";
 import { scopeListenersRef, scopeRef } from "./components/Root/ScopeBridge";
+import ScopeInitializer from "./components/Root/ScopeInitializer";
+import { AppConfigProvider, useAppConfig } from "./contexts/AppConfigContext";
 import Routes from "./routes/Routes";
 
 const ScalprumShell = ({ children }: PropsWithChildren) => {

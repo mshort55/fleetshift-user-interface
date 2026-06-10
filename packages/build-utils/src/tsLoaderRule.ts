@@ -1,4 +1,5 @@
 import type { RuleSetRule } from "webpack";
+
 import { createTransformer } from "./tsc-transform-imports";
 
 export interface TsLoaderRuleOptions {

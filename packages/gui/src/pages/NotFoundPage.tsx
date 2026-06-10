@@ -1,4 +1,3 @@
-import { Link, useLocation } from "react-router-dom";
 import {
   Button,
   EmptyState,
@@ -7,6 +6,7 @@ import {
   EmptyStateFooter,
 } from "@patternfly/react-core";
 import { PathMissingIcon } from "@patternfly/react-icons";
+import { Link, useLocation } from "react-router-dom";
 
 export function NotFoundPage() {
   const { pathname } = useLocation();

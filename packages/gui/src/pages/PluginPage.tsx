@@ -1,11 +1,12 @@
 import {
-  Spinner,
+  Bullseye,
   EmptyState,
   EmptyStateBody,
-  Bullseye,
+  Spinner,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import { ScalprumComponent, useScalprum } from "@scalprum/react-core";
+
 import { useScope } from "../contexts/ScopeContext";
 import { pluginKeyFromName } from "../utils/extensions";
 

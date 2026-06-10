@@ -1,5 +1,3 @@
-import { useMemo, useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   Divider,
   Dropdown,
@@ -26,13 +24,16 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { BarsIcon, BugIcon } from "@patternfly/react-icons";
-import { useAuth } from "../contexts/AuthContext";
-import { useAppConfig } from "../contexts/AppConfigContext";
-import type { PluginPage } from "../contexts/AppConfigContext";
-import ThemeDropdown from "../components/Themes/ThemeDropdown";
+import { useMemo, useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+
 import logo from "../assets/masthead.png";
-import { SearchProvider } from "../components/Search/SearchProvider";
 import FleetSearch from "../components/Search/FleetSearch";
+import { SearchProvider } from "../components/Search/SearchProvider";
+import ThemeDropdown from "../components/Themes/ThemeDropdown";
+import type { PluginPage } from "../contexts/AppConfigContext";
+import { useAppConfig } from "../contexts/AppConfigContext";
+import { useAuth } from "../contexts/AuthContext";
 
 const AppMasthead = () => {
   const { user, logout } = useAuth();
@@ -48,12 +49,7 @@ const AppMasthead = () => {
         </MastheadToggle>
         <MastheadBrand>
           <MastheadLogo component="a" href="/">
-            <img
-              src={logo}
-              alt="FleetShift"
-              className="fs-masthead-logo"
-              style={{ height: 36 }}
-            />
+            <img src={logo} alt="FleetShift" className="ome-masthead-logo" />
           </MastheadLogo>
         </MastheadBrand>
       </MastheadMain>
@@ -163,7 +159,12 @@ const Sidebar = () => (
 
 export const AppLayout = () => (
   <SearchProvider>
-    <Page masthead={<AppMasthead />} sidebar={<Sidebar />} isManagedSidebar>
+    <Page
+      masthead={<AppMasthead />}
+      sidebar={<Sidebar />}
+      isManagedSidebar
+      className="ome-app"
+    >
       <PageSection isFilled hasOverflowScroll>
         <Outlet />
       </PageSection>

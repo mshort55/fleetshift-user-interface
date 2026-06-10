@@ -4,13 +4,14 @@ import {
   useResolvedExtensions,
 } from "@openshift/dynamic-plugin-sdk";
 import { useMemo } from "react";
+
 import {
   isSetupExtension,
   SetupExtension,
 } from "../extensions/isSetupExtension";
 import {
-  resolveSetupExtensions,
   type ResolvedSetup,
+  resolveSetupExtensions,
 } from "../utils/setupExtensions";
 
 export interface PreloadTarget {
@@ -60,18 +61,18 @@ export function useSetupExtensions() {
         },
         [[], []],
       ),
-    [extensions, loaded],
+    [extensions],
   );
 
   const authRoutes = useMemo<ResolvedSetup[]>(() => {
     if (!loaded) return [];
     return resolveSetupExtensions(authExtensions, extensions);
-  }, [authExtensions, loaded]);
+  }, [authExtensions, extensions, loaded]);
 
   const nonAuthRoutes = useMemo<ResolvedSetup[]>(() => {
     if (!loaded) return [];
     return resolveSetupExtensions(nonAuthExtensions, extensions);
-  }, [nonAuthExtensions, loaded]);
+  }, [nonAuthExtensions, extensions, loaded]);
 
   const preloadMap = useMemo(() => buildPreloadMap(pluginInfo), [pluginInfo]);
 

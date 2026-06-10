@@ -1,6 +1,7 @@
 import { PropsWithChildren, useEffect, useRef } from "react";
-import { AuthErrorState } from "../AuthErrorState";
+
 import { useAuth } from "../../contexts/AuthContext";
+import { AuthErrorState } from "../AuthErrorState";
 
 const AuthGate = ({ children }: PropsWithChildren) => {
   const { loading, user, authError, login } = useAuth();

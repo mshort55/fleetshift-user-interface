@@ -1,6 +1,7 @@
+import { useScalprum } from "@scalprum/react-core";
 import type { ReactNode } from "react";
 import { Link, type LinkProps, type To } from "react-router-dom";
-import { useScalprum } from "@scalprum/react-core";
+
 import type { FleetShiftApi } from "./scalprum.js";
 
 export interface PluginLinkProps extends Omit<LinkProps, "to"> {

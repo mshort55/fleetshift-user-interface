@@ -1,14 +1,15 @@
-import type { ReactNode } from "react";
 import {
   DescriptionList,
+  DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  DescriptionListDescription,
   Label,
   Stack,
   StackItem,
   Title,
 } from "@patternfly/react-core";
+import type { ReactNode } from "react";
+
 import type { GcpHcpFormData } from "./CreateGcpHcpWizard";
 
 interface ReviewStepProps {

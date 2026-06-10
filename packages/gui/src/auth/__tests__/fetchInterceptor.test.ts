@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // We need to provide a window-like environment for this module
 const mockOriginalFetch = vi.fn().mockResolvedValue(new Response("ok"));
@@ -10,11 +10,11 @@ beforeEach(() => {
   globalThis.window = {
     fetch: mockOriginalFetch,
     location: { origin: "http://localhost:3000" },
-  } as any;
+  } as unknown as typeof globalThis.window;
 });
 
 afterEach(() => {
-  globalThis.window = _origWindow as any;
+  globalThis.window = _origWindow as unknown as typeof globalThis.window;
 });
 
 // Dynamic import so the module picks up our mocked window
