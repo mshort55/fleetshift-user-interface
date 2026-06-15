@@ -331,11 +331,27 @@ const SettingsPlugin = new FleetshiftPlugin({
   extensions: [
     createModule({
       id: "settings",
-      label: "Settings",
+      label: "Navigation",
       component: { $codeRef: "SettingsPage.default" },
       icon: { $codeRef: "SettingsIcon.default" },
       description: "Manage nav layout and workspace preferences",
-      keywords: ["settings", "preferences", "nav", "order"],
+      keywords: ["settings", "preferences", "nav", "order", "navigation"],
+    }),
+    createModule({
+      id: "auth-settings",
+      label: "Authentication",
+      component: { $codeRef: "AuthSettingsPage.default" },
+      icon: { $codeRef: "AuthIcon.default" },
+      description:
+        "Configure authentication provider, backing store, and OIDC settings",
+      keywords: [
+        "auth",
+        "authentication",
+        "oidc",
+        "identity",
+        "keycloak",
+        "login",
+      ],
     }),
   ],
   sharedModules,
@@ -348,6 +364,8 @@ const SettingsPlugin = new FleetshiftPlugin({
     exposedModules: {
       SettingsPage: p("./src/plugins/settings-plugin/SettingsPage.tsx"),
       SettingsIcon: p("./src/plugins/settings-plugin/SettingsIcon.tsx"),
+      AuthSettingsPage: p("./src/plugins/day-one-plugin/InitialSetupForm.tsx"),
+      AuthIcon: p("./src/plugins/settings-plugin/AuthIcon.tsx"),
     },
   },
 });

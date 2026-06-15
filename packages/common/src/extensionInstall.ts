@@ -20,7 +20,7 @@ export const CORE_EXTENSION_META: Record<string, CoreExtensionMeta> = {
   "core-plugin": { navSection: "main" },
   "day-one-plugin": { navSection: "main" },
   "management-plugin": { navSection: "main" },
-  "signing-plugin": { navSection: "main" },
+  "signing-plugin": { navSection: "bottom" },
   "gcphcp-plugin": { navSection: "main" },
   "kind-plugin": { navSection: "main" },
   "configuration-plugin": { navSection: "main" },

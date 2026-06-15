@@ -19,6 +19,7 @@ import {
   MastheadToggle,
   MenuToggle,
   Nav,
+  NavGroup,
   NavItem,
   NavList,
   Page,
@@ -209,7 +210,9 @@ const AppNav = () => {
       {bottomItems.length > 0 && (
         <>
           <Divider />
-          <NavList>{bottomItems.map(renderNavItem)}</NavList>
+          <NavGroup title="Settings">
+            <NavList>{bottomItems.map(renderNavItem)}</NavList>
+          </NavGroup>
         </>
       )}
     </Nav>

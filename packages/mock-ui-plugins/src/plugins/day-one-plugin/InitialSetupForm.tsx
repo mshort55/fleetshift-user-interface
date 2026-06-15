@@ -312,20 +312,24 @@ const SetupPage = ({ onSetupNext, onSetupSkip }: SetupPageProps) => {
 
         <Divider />
 
-        <ActionGroup>
-          <Button
-            variant="primary"
-            isDisabled={!authConfigured}
-            onClick={onSetupNext}
-          >
-            Sign in &amp; enroll signing key
-          </Button>
-          {authConfigured && onSetupSkip && (
-            <Button variant="link" onClick={onSetupSkip}>
-              Skip to console
-            </Button>
-          )}
-        </ActionGroup>
+        {(onSetupNext || onSetupSkip) && (
+          <ActionGroup>
+            {onSetupNext && (
+              <Button
+                variant="primary"
+                isDisabled={!authConfigured}
+                onClick={onSetupNext}
+              >
+                Sign in &amp; enroll signing key
+              </Button>
+            )}
+            {authConfigured && onSetupSkip && (
+              <Button variant="link" onClick={onSetupSkip}>
+                Skip to console
+              </Button>
+            )}
+          </ActionGroup>
+        )}
       </Form>
     </div>
   );

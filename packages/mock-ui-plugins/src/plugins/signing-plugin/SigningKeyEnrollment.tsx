@@ -13,9 +13,7 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { KeyIcon } from "@patternfly/react-icons";
-import { AnimatePresence, motion } from "motion/react";
 
-import AnimatedHeight from "./components/AnimatedHeight";
 import EnrollmentDL from "./components/EnrollmentDL";
 import EnrollmentError from "./components/EnrollmentError";
 import GHEnroll from "./components/GHEnroll";
@@ -26,13 +24,6 @@ const messages: Record<string, string> = {
   loading: "Loading configuration...",
   generating: "Generating ECDSA P-256 signing key...",
   verifying: "Verifying signature with the server...",
-};
-
-const transition = {
-  duration: 0.5,
-  type: "spring" as const,
-  bounce: 0.15,
-  filter: { ease: "easeInOut" as const },
 };
 
 interface SigningKeyEnrollmentProps {
@@ -80,116 +71,97 @@ const SigningKeyEnrollment = ({
   }
 
   return (
-    <AnimatedHeight className="ome-signing-setup">
+    <div className="ome-signing-setup">
       <Title headingLevel="h1" className="ome-signing-setup__title">
         Signing Key Enrollment
       </Title>
 
-      <AnimatePresence mode="popLayout">
-        {step === EnrollStep.Enrolled ? (
-          <motion.div
-            key="enrolled"
-            initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -30, filter: "blur(10px)" }}
-            transition={transition}
+      {step === EnrollStep.Enrolled ? (
+        <>
+          <Alert
+            variant="success"
+            isInline
+            title="Signing key enrolled and verified"
           >
-            <Alert
-              variant="success"
-              isInline
-              title="Signing key enrolled and verified"
-            >
-              <EnrollmentDL
-                registry={registry}
-                enrollmentName={enrollmentName}
-                sshPublicKey={sshPublicKey}
-              />
-            </Alert>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...transition, delay: 0.15 }}
-              className="pf-v6-u-mt-xl"
-            >
-              {onSetupNext && (
-                <Button
-                  variant="primary"
-                  onClick={onSetupNext}
-                  className="pf-v6-u-mr-md"
-                >
-                  Deploy first cluster
-                </Button>
-              )}
+            <EnrollmentDL
+              registry={registry}
+              enrollmentName={enrollmentName}
+              sshPublicKey={sshPublicKey}
+            />
+          </Alert>
+          <div className="pf-v6-u-mt-xl">
+            {onSetupNext && (
               <Button
-                variant="secondary"
-                onClick={handleReenroll}
+                variant="primary"
+                onClick={onSetupNext}
                 className="pf-v6-u-mr-md"
               >
-                Re-enroll
+                Deploy first cluster
               </Button>
-              {onSetupSkip && (
-                <Button variant="link" onClick={onSetupSkip}>
-                  Skip to console
-                </Button>
-              )}
-            </motion.div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="register"
-            initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -30, filter: "blur(10px)" }}
-            transition={transition}
-          >
-            <p className="ome-signing-setup__subtitle">
-              Register your signing key to sign deployments and policies.
-            </p>
-
-            <Card isCompact className="pf-v6-u-mt-lg">
-              <CardHeader>
-                <CardTitle>
-                  <Icon>
-                    <KeyIcon />
-                  </Icon>{" "}
-                  Your signing key
-                </CardTitle>
-              </CardHeader>
-              <CardBody>
-                {sshPublicKey && (
-                  <ClipboardCopy isReadOnly isCode>
-                    {sshPublicKey}
-                  </ClipboardCopy>
-                )}
-              </CardBody>
-            </Card>
-
-            {registry === "github" && (
-              <GHEnroll
-                githubUsername={githubUsername}
-                setGhPollEnabled={setGhPollEnabled}
-                ghPollEnabled={ghPollEnabled}
-                ghKeyError={ghKeyError}
-              />
             )}
-
-            {registry === "oidc" && (
-              <OIDCEnroll step={step} enrollOidc={enrollOidc} />
-            )}
-
+            <Button
+              variant="secondary"
+              onClick={handleReenroll}
+              className="pf-v6-u-mr-md"
+            >
+              Re-enroll
+            </Button>
             {onSetupSkip && (
-              <Button
-                variant="link"
-                onClick={onSetupSkip}
-                className="pf-v6-u-mt-xl"
-              >
+              <Button variant="link" onClick={onSetupSkip}>
                 Skip to console
               </Button>
             )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </AnimatedHeight>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="ome-signing-setup__subtitle">
+            Register your signing key to sign deployments and policies.
+          </p>
+
+          <Card isCompact className="pf-v6-u-mt-lg">
+            <CardHeader>
+              <CardTitle>
+                <Icon>
+                  <KeyIcon />
+                </Icon>{" "}
+                Your signing key
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
+              {sshPublicKey && (
+                <ClipboardCopy isReadOnly isCode>
+                  {sshPublicKey}
+                </ClipboardCopy>
+              )}
+            </CardBody>
+          </Card>
+
+          {registry === "github" && (
+            <GHEnroll
+              githubUsername={githubUsername}
+              setGhPollEnabled={setGhPollEnabled}
+              ghPollEnabled={ghPollEnabled}
+              ghKeyError={ghKeyError}
+            />
+          )}
+
+          {registry === "oidc" && (
+            <OIDCEnroll step={step} enrollOidc={enrollOidc} />
+          )}
+
+          {onSetupSkip && (
+            <Button
+              variant="link"
+              onClick={onSetupSkip}
+              className="pf-v6-u-mt-xl"
+            >
+              Skip to console
+            </Button>
+          )}
+        </>
+      )}
+    </div>
   );
 };
 
