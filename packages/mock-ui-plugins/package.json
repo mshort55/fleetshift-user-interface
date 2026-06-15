@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "rm -rf dist node_modules/.cache && webpack",
-    "build:ci": "rm -rf dist node_modules/.cache && for name in overview management day-one core signing routing gcphcp kind configuration settings; do echo \"--- $name ---\" && webpack --config-name $name || exit 1; done",
+    "build:ci": "rm -rf dist node_modules/.cache && for name in overview management core signing routing gcphcp kind configuration virtualization security observability settings; do echo \"--- $name ---\" && webpack --config-name $name || exit 1; done",
     "watch": "webpack --watch"
   },
   "dependencies": {
