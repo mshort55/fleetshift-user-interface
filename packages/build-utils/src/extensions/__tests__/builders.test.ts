@@ -8,11 +8,15 @@ describe("createModule", () => {
       id: "clusters",
       label: "Clusters",
       component: { $codeRef: "ClustersModule.default" },
+      icon: { $codeRef: "ClustersIcon.default" },
     });
     expect(ext.type).toBe("fleetshift.module");
     expect(ext.properties.id).toBe("clusters");
     expect(ext.properties.component).toEqual({
       $codeRef: "ClustersModule.default",
+    });
+    expect(ext.properties.icon).toEqual({
+      $codeRef: "ClustersIcon.default",
     });
   });
 
@@ -21,6 +25,7 @@ describe("createModule", () => {
       id: "clusters",
       label: "Clusters",
       component: { $codeRef: "ClustersModule.default" },
+      icon: { $codeRef: "ClustersIcon.default" },
       description: "Manage clusters",
       keywords: ["cluster", "fleet"],
       searchResult: { $codeRef: "SearchResult.default" },
@@ -47,6 +52,7 @@ describe("createModule", () => {
         id: "",
         label: "X",
         component: { $codeRef: "M.default" },
+        icon: { $codeRef: "I.default" },
       }),
     ).toThrow(/id/);
   });
@@ -57,8 +63,20 @@ describe("createModule", () => {
         id: "test",
         label: "Test",
         component: { $codeRef: "bad" },
+        icon: { $codeRef: "I.default" },
       }),
     ).toThrow(/component/);
+  });
+
+  it("throws on invalid icon CodeRef", () => {
+    expect(() =>
+      createModule({
+        id: "test",
+        label: "Test",
+        component: { $codeRef: "M.default" },
+        icon: { $codeRef: "bad" },
+      }),
+    ).toThrow(/icon/);
   });
 });
 

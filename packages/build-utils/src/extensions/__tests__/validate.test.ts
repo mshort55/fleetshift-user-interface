@@ -20,6 +20,7 @@ const validModule: ModuleProperties = {
   id: "clusters",
   label: "Clusters",
   component: validCodeRef,
+  icon: validCodeRef,
 };
 
 const validSetup: SetupProperties = {
@@ -136,6 +137,15 @@ describe("validateModuleProperties", () => {
     });
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0]).toContain("component");
+  });
+
+  it("rejects invalid icon CodeRef", () => {
+    const errors = validateModuleProperties({
+      ...validModule,
+      icon: { $codeRef: "invalid" },
+    });
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0]).toContain("icon");
   });
 
   it("validates searchResult CodeRef format", () => {

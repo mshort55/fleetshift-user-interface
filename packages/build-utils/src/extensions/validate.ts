@@ -80,6 +80,7 @@ export function validateModuleProperties(props: ModuleProperties): string[] {
   return [
     ...validateBaseProperties(props, ctx),
     ...validateCodeRef(props.component, "component", ctx),
+    ...validateCodeRef(props.icon, "icon", ctx),
   ];
 }
 

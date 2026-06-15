@@ -66,6 +66,7 @@ const ManagementPlugin = new FleetshiftPlugin({
       id: "targets",
       label: "Targets",
       component: { $codeRef: "TargetsPage.default" },
+      icon: { $codeRef: "TargetsIcon.default" },
       description: "View and manage deployment targets",
       keywords: ["target", "deploy", "rollout"],
     }),
@@ -79,6 +80,7 @@ const ManagementPlugin = new FleetshiftPlugin({
     version: "1.0.0",
     exposedModules: {
       TargetsPage: p("./src/plugins/management-plugin/TargetsPage.tsx"),
+      TargetsIcon: p("./src/plugins/management-plugin/TargetsIcon.tsx"),
     },
   },
 });
@@ -89,6 +91,7 @@ const DayOnePlugin = new FleetshiftPlugin({
       id: "day-one",
       label: "Day One",
       component: { $codeRef: "DayOnePage.default" },
+      icon: { $codeRef: "DayOneIcon.default" },
       description: "Initial setup and onboarding",
       keywords: ["setup", "onboarding", "welcome"],
       extensionPoints: {
@@ -128,6 +131,7 @@ const DayOnePlugin = new FleetshiftPlugin({
     version: "1.0.0",
     exposedModules: {
       DayOnePage: p("./src/plugins/day-one-plugin/DayOnePage.tsx"),
+      DayOneIcon: p("./src/plugins/day-one-plugin/DayOneIcon.tsx"),
       InitialSetupForm: p("./src/plugins/day-one-plugin/InitialSetupForm.tsx"),
       SetupClusterDeploy: p(
         "./src/plugins/day-one-plugin/cluster-providers/SetupClusterDeploy.tsx",
@@ -142,6 +146,7 @@ const CorePlugin = new FleetshiftPlugin({
       id: "clusters",
       label: "Clusters",
       component: { $codeRef: "ClustersModule.default" },
+      icon: { $codeRef: "ClustersIcon.default" },
       description: "View and manage your fleet of clusters",
       keywords: ["cluster", "fleet", "manage"],
     }),
@@ -149,6 +154,7 @@ const CorePlugin = new FleetshiftPlugin({
       id: "create-cluster",
       label: "Create Cluster",
       component: { $codeRef: "CreateClusterModule.default" },
+      icon: { $codeRef: "CreateClusterIcon.default" },
       description: "Launch the cluster creation wizard",
       keywords: ["cluster", "create", "deploy", "provision", "wizard"],
       searchResult: { $codeRef: "CreateClusterSearchResult.default" },
@@ -169,9 +175,11 @@ const CorePlugin = new FleetshiftPlugin({
     version: "1.0.0",
     exposedModules: {
       ClustersModule: p("./src/plugins/core-plugin/ClustersModule.tsx"),
+      ClustersIcon: p("./src/plugins/core-plugin/ClustersIcon.tsx"),
       CreateClusterModule: p(
         "./src/plugins/core-plugin/CreateClusterModule.tsx",
       ),
+      CreateClusterIcon: p("./src/plugins/core-plugin/CreateClusterIcon.tsx"),
       CreateClusterSearchResult: p(
         "./src/plugins/core-plugin/CreateClusterSearchResult.tsx",
       ),
@@ -185,6 +193,7 @@ const SigningPlugin = new FleetshiftPlugin({
       id: "signing-keys",
       label: "Signing Keys",
       component: { $codeRef: "SigningKeyEnrollment.default" },
+      icon: { $codeRef: "SigningKeysIcon.default" },
       description: "Manage signing keys for deployment verification",
       keywords: ["signing", "key", "enrollment", "cosign"],
     }),
@@ -210,6 +219,7 @@ const SigningPlugin = new FleetshiftPlugin({
       SigningKeyEnrollment: p(
         "./src/plugins/signing-plugin/SigningKeyEnrollment.tsx",
       ),
+      SigningKeysIcon: p("./src/plugins/signing-plugin/SigningKeysIcon.tsx"),
       useSigningKey: p("./src/plugins/signing-plugin/useSigningKey.ts"),
       signingKeyApi: p("./src/plugins/signing-plugin/signingKeyApi.ts"),
     },
@@ -281,6 +291,7 @@ const OverviewPlugin = new FleetshiftPlugin({
       id: "overview",
       label: "Overview",
       component: { $codeRef: "OverviewDashboard.default" },
+      icon: { $codeRef: "OverviewIcon.default" },
       description: "Fleet overview dashboard",
       keywords: ["overview", "dashboard", "summary"],
     }),
@@ -296,6 +307,7 @@ const OverviewPlugin = new FleetshiftPlugin({
       OverviewDashboard: p(
         "./src/plugins/overview-plugin/OverviewDashboard.tsx",
       ),
+      OverviewIcon: p("./src/plugins/overview-plugin/OverviewIcon.tsx"),
     },
   },
 });
@@ -337,6 +349,7 @@ const SettingsPlugin = new FleetshiftPlugin({
       id: "settings",
       label: "Settings",
       component: { $codeRef: "SettingsPage.default" },
+      icon: { $codeRef: "SettingsIcon.default" },
       description: "Manage nav layout and workspace preferences",
       keywords: ["settings", "preferences", "nav", "order"],
     }),
@@ -350,6 +363,7 @@ const SettingsPlugin = new FleetshiftPlugin({
     version: "1.0.0",
     exposedModules: {
       SettingsPage: p("./src/plugins/settings-plugin/SettingsPage.tsx"),
+      SettingsIcon: p("./src/plugins/settings-plugin/SettingsIcon.tsx"),
     },
   },
 });
@@ -360,6 +374,7 @@ const ConfigurationPlugin = new FleetshiftPlugin({
       id: "configuration",
       label: "Configuration",
       component: { $codeRef: "ConfigurationPage.default" },
+      icon: { $codeRef: "ConfigurationIcon.default" },
       description:
         "Deploy and manage applications across your OpenShift fleet using GitOps and Helm. Keep workloads consistent as you scale from a single cluster to many.",
       keywords: ["configuration", "gitops", "helm", "deploy", "applications"],
@@ -377,6 +392,9 @@ const ConfigurationPlugin = new FleetshiftPlugin({
     exposedModules: {
       ConfigurationPage: p(
         "./src/plugins/configuration-plugin/ConfigurationPage.tsx",
+      ),
+      ConfigurationIcon: p(
+        "./src/plugins/configuration-plugin/ConfigurationIcon.tsx",
       ),
     },
   },

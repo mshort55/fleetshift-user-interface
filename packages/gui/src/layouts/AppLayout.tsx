@@ -1,13 +1,16 @@
 import {
   CORE_EXTENSION_META,
   orderByIds,
+  useExtensionInstall,
   useNavOrder,
 } from "@fleetshift/common";
+import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
 import {
   Divider,
   Dropdown,
   DropdownItem,
   DropdownList,
+  Icon,
   Masthead,
   MastheadBrand,
   MastheadContent,
@@ -27,8 +30,11 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { BarsIcon, BugIcon } from "@patternfly/react-icons";
+import clsx from "clsx";
+import type { ComponentType } from "react";
 import { useMemo, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
@@ -39,6 +45,7 @@ import ThemeDropdown from "../components/Themes/ThemeDropdown";
 import type { PluginPage } from "../contexts/AppConfigContext";
 import { useAppConfig } from "../contexts/AppConfigContext";
 import { useAuth } from "../contexts/AuthContext";
+import { isModuleExtension } from "../extensions/isModuleExtension";
 
 const AppMasthead = () => {
   const { user, logout } = useAuth();
@@ -113,6 +120,16 @@ const AppNav = () => {
   const location = useLocation();
   const { pluginPages, navLayout } = useAppConfig();
   const { order: savedOrder } = useNavOrder();
+  const { isInstalled } = useExtensionInstall();
+  const [moduleExtensions] = useResolvedExtensions(isModuleExtension);
+
+  const iconMap = useMemo(() => {
+    const map = new Map<string, ComponentType>();
+    for (const ext of moduleExtensions) {
+      map.set(ext.properties.label, ext.properties.icon);
+    }
+    return map;
+  }, [moduleExtensions]);
 
   const pageMap = useMemo(() => {
     const map = new Map<string, PluginPage>();
@@ -148,6 +165,25 @@ const AppNav = () => {
 
   const renderNavItem = (page: PluginPage) => {
     const fullPath = `/${page.path}`;
+    const NavIcon = iconMap.get(page.title);
+    const enabled = isInstalled(page.scope);
+
+    const link = (
+      <Link
+        to={fullPath}
+        className={clsx("pf-v6-c-nav__link", {
+          "pf-v6-u-text-color-disabled": !enabled,
+        })}
+      >
+        {NavIcon && (
+          <Icon isInline className="pf-v6-u-mr-sm">
+            <NavIcon />
+          </Icon>
+        )}
+        {page.title}
+      </Link>
+    );
+
     return (
       <NavItem
         key={page.id}
@@ -156,7 +192,13 @@ const AppNav = () => {
           location.pathname.startsWith(fullPath + "/")
         }
       >
-        <Link to={fullPath}>{page.title}</Link>
+        {enabled ? (
+          link
+        ) : (
+          <Tooltip content="This extension is not enabled. Click to enable it.">
+            {link}
+          </Tooltip>
+        )}
       </NavItem>
     );
   };

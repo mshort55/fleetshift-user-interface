@@ -23,6 +23,7 @@ const baseOptions = {
     version: "1.0.0",
     exposedModules: {
       TestPage: "./src/TestPage.tsx",
+      TestIcon: "./src/TestIcon.tsx",
     },
   },
   sharedModules: {},
@@ -41,6 +42,7 @@ describe("FleetshiftPlugin", () => {
               id: "test",
               label: "Test",
               component: { $codeRef: "TestPage.default" },
+              icon: { $codeRef: "TestIcon.default" },
             }),
           ],
         }),
@@ -57,6 +59,7 @@ describe("FleetshiftPlugin", () => {
               id: "test",
               label: "Test",
               component: { $codeRef: "MissingModule.default" },
+              icon: { $codeRef: "TestIcon.default" },
             }),
           ],
         }),
@@ -73,6 +76,7 @@ describe("FleetshiftPlugin", () => {
             exposedModules: {
               PageA: "./src/A.tsx",
               PageB: "./src/B.tsx",
+              TestIcon: "./src/TestIcon.tsx",
             },
           },
           extensions: [
@@ -80,11 +84,13 @@ describe("FleetshiftPlugin", () => {
               id: "same-id",
               label: "First",
               component: { $codeRef: "PageA.default" },
+              icon: { $codeRef: "TestIcon.default" },
             }),
             createModule({
               id: "same-id",
               label: "Second",
               component: { $codeRef: "PageB.default" },
+              icon: { $codeRef: "TestIcon.default" },
             }),
           ],
         }),
@@ -100,6 +106,7 @@ describe("FleetshiftPlugin", () => {
             ...baseOptions.pluginMetadata,
             exposedModules: {
               TestPage: "./src/TestPage.tsx",
+              TestIcon: "./src/TestIcon.tsx",
               SetupForm: "./src/SetupForm.tsx",
             },
           },
@@ -108,6 +115,7 @@ describe("FleetshiftPlugin", () => {
               id: "test-module",
               label: "Test",
               component: { $codeRef: "TestPage.default" },
+              icon: { $codeRef: "TestIcon.default" },
             }),
             createSetup({
               id: "test-setup",

@@ -210,6 +210,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         keywords,
         extensionPoints,
         searchResult,
+        icon,
       } = ext.properties;
 
       const page = pluginPages.find((p) => p.title === label);
@@ -227,12 +228,15 @@ export function SearchProvider({ children }: { children: ReactNode }) {
           description: description ?? `Navigate to ${label}`,
           category: "nav",
           pathname: basePath,
-          icon: "CubesIcon",
+          icon: "",
           status: moduleStatus,
           meta: keywords ? keywords.join(" ") : "",
         }),
       );
 
+      if (icon) {
+        iconMapRef.current.set(entryId, icon);
+      }
       if (searchResult) {
         componentMapRef.current.set(entryId, searchResult);
       }
@@ -243,7 +247,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         description: description ?? `Navigate to ${label}`,
         category: "nav",
         pathname: basePath,
-        icon: "CubesIcon",
+        icon: "",
         status: moduleStatus,
       });
 

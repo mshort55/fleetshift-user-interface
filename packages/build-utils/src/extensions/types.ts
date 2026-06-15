@@ -33,6 +33,7 @@ export type FleetshiftExtension<
 
 export type ModuleExtras = {
   component: EncodedCodeRef;
+  icon: EncodedCodeRef;
   extensionPoints?: Record<string, ExtensionPointDeclaration>;
 };
 

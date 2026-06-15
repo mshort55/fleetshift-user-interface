@@ -83,7 +83,6 @@ const NavOrderEditor = () => {
   const allEntries = useNavPages();
   const { order: savedOrder, setOrder } = useNavOrder();
   const { isInstalled } = useExtensionInstall();
-
   const { main: allMain, bottom: allBottom } = useMemo(
     () => splitBySection(allEntries),
     [allEntries],

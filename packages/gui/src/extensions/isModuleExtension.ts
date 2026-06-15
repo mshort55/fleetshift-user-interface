@@ -14,6 +14,7 @@ export type ModuleExtension = Extension<
     id: string;
     label: string;
     component: CodeRef<ComponentType>;
+    icon: CodeRef<ComponentType>;
     description?: string;
     keywords?: string[];
     extensionPoints?: Record<string, ExtensionPointDeclaration>;
