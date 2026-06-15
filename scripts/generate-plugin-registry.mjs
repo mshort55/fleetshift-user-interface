@@ -15,6 +15,9 @@ const pluginMeta = [
   { name: "gcphcp-plugin", key: "gcphcp", label: "GCP HCP", persona: "ops" },
   { name: "overview-plugin", key: "overview", label: "Overview", persona: "ops" },
   { name: "configuration-plugin", key: "configuration", label: "Configuration", persona: "obs" },
+  { name: "virtualization-plugin", key: "virtualization", label: "Virtualization", persona: "obs" },
+  { name: "security-plugin", key: "security", label: "Security", persona: "obs" },
+  { name: "observability-plugin", key: "observability", label: "Observability", persona: "obs" },
   { name: "settings-plugin", key: "settings", label: "Settings", persona: "obs" }
 ];
 
