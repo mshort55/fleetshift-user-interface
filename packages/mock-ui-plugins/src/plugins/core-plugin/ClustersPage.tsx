@@ -90,12 +90,18 @@ export default function ClustersPage() {
     createParam && createParam !== "" ? createParam : null;
 
   const openCreateWizard = useCallback(() => {
-    setSearchParams({ create: "" });
+    setSearchParams((prev) => {
+      prev.set("create", "");
+      return prev;
+    });
   }, [setSearchParams]);
 
   const selectProvider = useCallback(
     (providerId: string) => {
-      setSearchParams({ create: providerId });
+      setSearchParams((prev) => {
+        prev.set("create", providerId);
+        return prev;
+      });
     },
     [setSearchParams],
   );
@@ -130,7 +136,10 @@ export default function ClustersPage() {
   }, []);
 
   const closeCreateWizard = useCallback(() => {
-    setSearchParams({});
+    setSearchParams((prev) => {
+      prev.delete("create");
+      return prev;
+    });
     fetchClusters(true);
   }, [setSearchParams, fetchClusters]);
 

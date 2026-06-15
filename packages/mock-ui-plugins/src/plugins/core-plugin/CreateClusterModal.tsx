@@ -22,7 +22,7 @@ import {
   StackItem,
 } from "@patternfly/react-core";
 import type { ComponentType } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 type ClusterProviderExtension = Extension<
   "fleetshift.cluster-provider",
@@ -61,30 +61,18 @@ export default function CreateClusterModal({
     return cpy;
   }, [providerExtensions]);
 
-  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(
-    preselectedProvider,
-  );
-
-  useEffect(() => {
-    if (isOpen && preselectedProvider) {
-      setSelectedProviderId(preselectedProvider);
-    }
-    if (!isOpen) {
-      setSelectedProviderId(null);
-    }
-  }, [isOpen, preselectedProvider]);
+  const selectedProviderId = isOpen ? preselectedProvider : null;
 
   const selectProvider = useCallback(
     (id: string) => {
-      setSelectedProviderId(id);
       onProviderSelect(id);
     },
     [onProviderSelect],
   );
 
   const backToProviders = useCallback(() => {
-    setSelectedProviderId(null);
-  }, []);
+    onProviderSelect("");
+  }, [onProviderSelect]);
 
   return (
     <Modal

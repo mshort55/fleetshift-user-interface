@@ -264,75 +264,80 @@ const FleetSearch = ({ onStateChange }: FleetSearchProps) => {
     <Menu ref={menuRef} className="ome-search__menu">
       <MenuContent>
         <MenuList>
-          {categoryOrder(results).map((cat, idx) => {
-            const items = results[cat];
-            if (!items || items.length === 0) return null;
+          {(() => {
+            const orderedCategories = categoryOrder(results);
+            let renderedCount = 0;
+            return orderedCategories.map((cat) => {
+              const items = results[cat];
+              if (!items || items.length === 0) return null;
+              const isFirst = renderedCount === 0;
+              renderedCount++;
 
-            const parents: SearchResultItem[] = [];
-            const childrenByFeature = new Map<string, SearchResultItem[]>();
-            const standalone: SearchResultItem[] = [];
+              const parents: SearchResultItem[] = [];
+              const childrenByFeature = new Map<string, SearchResultItem[]>();
+              const standalone: SearchResultItem[] = [];
 
-            const toFeatureId = (id: string) => id.replace(/^(ext|nav)-/, "");
+              const toFeatureId = (id: string) => id.replace(/^(ext|nav)-/, "");
 
-            for (const item of items) {
-              if (item.feature) {
-                const list = childrenByFeature.get(item.feature) ?? [];
-                list.push(item);
-                childrenByFeature.set(item.feature, list);
-              } else {
-                const featureId = toFeatureId(item.id);
-                if (
-                  childrenByFeature.has(featureId) ||
-                  items.some((i) => i.feature === featureId)
-                ) {
-                  parents.push(item);
+              for (const item of items) {
+                if (item.feature) {
+                  const list = childrenByFeature.get(item.feature) ?? [];
+                  list.push(item);
+                  childrenByFeature.set(item.feature, list);
                 } else {
-                  standalone.push(item);
+                  const featureId = toFeatureId(item.id);
+                  if (
+                    childrenByFeature.has(featureId) ||
+                    items.some((i) => i.feature === featureId)
+                  ) {
+                    parents.push(item);
+                  } else {
+                    standalone.push(item);
+                  }
                 }
               }
-            }
 
-            const orphanChildren: SearchResultItem[] = [];
-            for (const [featureId, children] of childrenByFeature) {
-              if (!parents.some((p) => toFeatureId(p.id) === featureId)) {
-                orphanChildren.push(...children);
+              const orphanChildren: SearchResultItem[] = [];
+              for (const [featureId, children] of childrenByFeature) {
+                if (!parents.some((p) => toFeatureId(p.id) === featureId)) {
+                  orphanChildren.push(...children);
+                }
               }
-            }
-            const isLast = categoryOrder.length - 1 === idx;
-            return (
-              <Fragment key={cat}>
-                {!isLast ? <Divider /> : null}
-                <MenuGroup label={CATEGORY_LABELS[cat] ?? cat}>
-                  {parents.map((parent) => {
-                    const featureId = toFeatureId(parent.id);
-                    const children = childrenByFeature.get(featureId) ?? [];
-                    return (
-                      <div key={parent.id} className="ome-search__tree-group">
-                        {renderItem(parent)}
-                        {children.length > 0 && (
-                          <div
-                            className="ome-search__tree-children"
-                            role="group"
-                          >
-                            {children.map((child, idx) => (
-                              <div
-                                key={child.id}
-                                className={`ome-search__tree-child${idx === children.length - 1 ? " ome-search__tree-child--last" : ""}`}
-                              >
-                                {renderItem(child)}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {standalone.map((item) => renderItem(item))}
-                  {orphanChildren.map((item) => renderItem(item))}
-                </MenuGroup>
-              </Fragment>
-            );
-          })}
+              return (
+                <Fragment key={cat}>
+                  {!isFirst && <Divider />}
+                  <MenuGroup label={CATEGORY_LABELS[cat] ?? cat}>
+                    {parents.map((parent) => {
+                      const featureId = toFeatureId(parent.id);
+                      const children = childrenByFeature.get(featureId) ?? [];
+                      return (
+                        <div key={parent.id} className="ome-search__tree-group">
+                          {renderItem(parent)}
+                          {children.length > 0 && (
+                            <div
+                              className="ome-search__tree-children"
+                              role="group"
+                            >
+                              {children.map((child, idx) => (
+                                <div
+                                  key={child.id}
+                                  className={`ome-search__tree-child${idx === children.length - 1 ? " ome-search__tree-child--last" : ""}`}
+                                >
+                                  {renderItem(child)}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {standalone.map((item) => renderItem(item))}
+                    {orphanChildren.map((item) => renderItem(item))}
+                  </MenuGroup>
+                </Fragment>
+              );
+            });
+          })()}
           {total === 0 && searchValue && (
             <MenuItem isDisabled>No results found</MenuItem>
           )}

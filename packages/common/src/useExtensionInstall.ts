@@ -20,7 +20,7 @@ function useExtensionInstall() {
     } catch (error: unknown) {
       console.error(error);
       setError(error);
-      setLoaded(false);
+      setLoaded(true);
     }
   }, [store, subs, setLoaded, setError]);
 

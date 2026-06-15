@@ -85,61 +85,6 @@ const ManagementPlugin = new FleetshiftPlugin({
   },
 });
 
-const DayOnePlugin = new FleetshiftPlugin({
-  extensions: [
-    createModule({
-      id: "day-one",
-      label: "Day One",
-      component: { $codeRef: "DayOnePage.default" },
-      icon: { $codeRef: "DayOneIcon.default" },
-      description: "Initial setup and onboarding",
-      keywords: ["setup", "onboarding", "welcome"],
-      extensionPoints: {
-        steps: {
-          description: "Setup steps shown as cards on the Day One page",
-          type: "fleetshift.setup",
-        },
-      },
-    }),
-    createSetup({
-      id: "auth-setup",
-      label: "Authentication",
-      description:
-        "Configure authentication provider and backing store for your management engine.",
-      path: "auth",
-      component: { $codeRef: "InitialSetupForm.default" },
-      requires: [],
-      requiresAuth: false,
-    }),
-    createSetup({
-      id: "cluster-deploy",
-      label: "Deploy Cluster",
-      description:
-        "Select a cluster provider and deploy your first managed cluster.",
-      path: "deploy",
-      component: { $codeRef: "SetupClusterDeploy.default" },
-      requires: ["signing-key-enrollment"],
-      requiresAuth: true,
-    }),
-  ],
-  sharedModules,
-  entryScriptFilename: "plugins/day-one/day-one-plugin.[contenthash].js",
-  pluginManifestFilename: "plugins/day-one/day-one-plugin-manifest.json",
-  moduleFederationSettings: mfOverride,
-  pluginMetadata: {
-    name: "day-one-plugin",
-    version: "1.0.0",
-    exposedModules: {
-      DayOnePage: p("./src/plugins/day-one-plugin/DayOnePage.tsx"),
-      DayOneIcon: p("./src/plugins/day-one-plugin/DayOneIcon.tsx"),
-      InitialSetupForm: p("./src/plugins/day-one-plugin/InitialSetupForm.tsx"),
-      SetupClusterDeploy: p(
-        "./src/plugins/day-one-plugin/cluster-providers/SetupClusterDeploy.tsx",
-      ),
-    },
-  },
-});
-
 const CorePlugin = new FleetshiftPlugin({
   extensions: [
     createModule({
@@ -188,7 +133,7 @@ const SigningPlugin = new FleetshiftPlugin({
         "Enroll signing keys for deployment verification and supply chain security.",
       path: "enroll",
       component: { $codeRef: "SigningKeyEnrollment.default" },
-      requires: ["auth-setup"],
+      requires: [],
       requiresAuth: true,
     }),
   ],
@@ -405,7 +350,6 @@ const ConfigurationPlugin = new FleetshiftPlugin({
 const pluginConfigs = [
   { plugin: OverviewPlugin, key: "overview" },
   { plugin: ManagementPlugin, key: "management" },
-  { plugin: DayOnePlugin, key: "day-one" },
   { plugin: CorePlugin, key: "core" },
   { plugin: SigningPlugin, key: "signing" },
   { plugin: RoutingPlugin, key: "routing" },

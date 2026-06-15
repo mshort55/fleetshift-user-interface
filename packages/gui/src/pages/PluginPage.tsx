@@ -23,7 +23,12 @@ interface PluginPageProps {
 export const PluginPage = ({ scope, module, pluginKey }: PluginPageProps) => {
   const { config: scalprumConfig } = useScalprum();
   const { clusterIdsForPlugin } = useScope();
-  const { isInstalled, install, loaded: installLoaded } = useExtensionInstall();
+  const {
+    isInstalled,
+    install,
+    loaded: installLoaded,
+    error: installError,
+  } = useExtensionInstall();
   const { pluginPages } = useAppConfig();
 
   const key = pluginKey ?? pluginKeyFromName(scope);
@@ -56,6 +61,21 @@ export const PluginPage = ({ scope, module, pluginKey }: PluginPageProps) => {
       <Bullseye>
         <Spinner size="xl" />
       </Bullseye>
+    );
+  }
+
+  if (installError) {
+    return (
+      <EmptyState
+        icon={CubesIcon}
+        headingLevel="h2"
+        titleText="Extension state unavailable"
+      >
+        <EmptyStateBody>
+          Failed to load extension state. The plugin may still work — try
+          refreshing the page.
+        </EmptyStateBody>
+      </EmptyState>
     );
   }
 

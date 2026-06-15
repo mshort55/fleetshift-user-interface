@@ -110,7 +110,11 @@ const SETTINGS: Omit<SearchEntry, "category" | "icon">[] = [
 
 export function SearchProvider({ children }: { children: ReactNode }) {
   const { pluginPages } = useAppConfig();
-  const { loaded: installLoaded, isInstalled } = useExtensionInstall();
+  const {
+    loaded: installLoaded,
+    isInstalled,
+    state: installState,
+  } = useExtensionInstall();
   const [moduleExtensions, modulesLoaded] =
     useResolvedExtensions(isModuleExtension);
   const [cpExtensions, cpLoaded] = useResolvedExtensions(
@@ -124,18 +128,18 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   );
   const iconMapRef = useRef(new Map<string, React.ComponentType>());
   const featureParentRef = useRef(new Map<string, SearchResultItem>());
-  const builtRef = useRef(false);
+  const installVersion = useRef(0);
+  const prevInstallState = useRef(installState);
+
+  if (prevInstallState.current !== installState) {
+    prevInstallState.current = installState;
+    installVersion.current += 1;
+  }
+
+  const currentInstallVersion = installVersion.current;
 
   useEffect(() => {
-    if (
-      !modulesLoaded ||
-      !cpLoaded ||
-      !setupLoaded ||
-      !installLoaded ||
-      builtRef.current
-    )
-      return;
-    builtRef.current = true;
+    if (!modulesLoaded || !cpLoaded || !setupLoaded || !installLoaded) return;
 
     const db = createSearchDB();
     dbRef.current = db;
@@ -363,6 +367,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     cpExtensions,
     setupExtensions,
     pluginPages,
+    currentInstallVersion,
   ]);
 
   const query = useCallback(async (term: string): Promise<GroupedResults> => {

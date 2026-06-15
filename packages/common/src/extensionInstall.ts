@@ -6,7 +6,6 @@ export interface CoreExtensionMeta {
 export const CORE_EXTENSION_DEFAULTS: Record<string, boolean> = {
   "overview-plugin": true,
   "core-plugin": true,
-  "day-one-plugin": true,
   "management-plugin": true,
   "signing-plugin": true,
   "gcphcp-plugin": true,
@@ -18,7 +17,6 @@ export const CORE_EXTENSION_DEFAULTS: Record<string, boolean> = {
 export const CORE_EXTENSION_META: Record<string, CoreExtensionMeta> = {
   "overview-plugin": { navSection: "main" },
   "core-plugin": { navSection: "main" },
-  "day-one-plugin": { navSection: "main" },
   "management-plugin": { navSection: "main" },
   "signing-plugin": { navSection: "bottom" },
   "gcphcp-plugin": { navSection: "main" },
@@ -284,18 +282,18 @@ export function getExtensionStore(): ExtensionStore {
     extensionStore = {
       init: async (...args) => {
         await initializeDefaults(...args);
-        notify();
+        await notify();
       },
       setInstalled: async (...args) => {
         await setInstalled(...args);
-        notify();
+        await notify();
       },
       getInstallState,
       subscribe,
       getNavOrder,
       setNavOrder: async (...args) => {
         await setNavOrder(...args);
-        notifyNavOrder();
+        await notifyNavOrder();
       },
       subscribeNavOrder,
     };
