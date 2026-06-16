@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { createClusterProvider, createModule, createSetup } from "../builders";
+import {
+  createClusterProvider,
+  createModule,
+  createOnboardingAction,
+  createSetup,
+} from "../builders";
 
 describe("createModule", () => {
   it("returns extension with correct type", () => {
@@ -161,5 +166,56 @@ describe("createClusterProvider", () => {
         wizard: { $codeRef: "W.default" },
       }),
     ).toThrow(/icon/);
+  });
+});
+
+describe("createOnboardingAction", () => {
+  it("returns extension with correct type", () => {
+    const ext = createOnboardingAction({
+      id: "gcphcp-connect",
+      label: "GCP HCP",
+      icon: { $codeRef: "Icon.default" },
+      card: { $codeRef: "Card.default" },
+      form: { $codeRef: "Form.default" },
+    });
+    expect(ext.type).toBe("fleetshift.onboarding-action");
+    expect(ext.properties.id).toBe("gcphcp-connect");
+    expect(ext.properties.card).toEqual({ $codeRef: "Card.default" });
+    expect(ext.properties.form).toEqual({ $codeRef: "Form.default" });
+  });
+
+  it("preserves optional overviewCta", () => {
+    const ext = createOnboardingAction({
+      id: "gcphcp-connect",
+      label: "GCP HCP",
+      icon: { $codeRef: "Icon.default" },
+      card: { $codeRef: "Card.default" },
+      form: { $codeRef: "Form.default" },
+      overviewCta: "Integrate your first addon",
+    });
+    expect(ext.properties.overviewCta).toBe("Integrate your first addon");
+  });
+
+  it("omits overviewCta when not provided", () => {
+    const ext = createOnboardingAction({
+      id: "gcphcp-connect",
+      label: "GCP HCP",
+      icon: { $codeRef: "Icon.default" },
+      card: { $codeRef: "Card.default" },
+      form: { $codeRef: "Form.default" },
+    });
+    expect(ext.properties.overviewCta).toBeUndefined();
+  });
+
+  it("throws on invalid form CodeRef", () => {
+    expect(() =>
+      createOnboardingAction({
+        id: "bad",
+        label: "Bad",
+        icon: { $codeRef: "I.default" },
+        card: { $codeRef: "C.default" },
+        form: { $codeRef: "nope" },
+      }),
+    ).toThrow(/form/);
   });
 });

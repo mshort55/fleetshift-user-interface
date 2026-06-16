@@ -18,6 +18,7 @@ export const FLEETSHIFT_EXTENSION_TYPES = [
   "fleetshift.module",
   "fleetshift.setup",
   "fleetshift.cluster-provider",
+  "fleetshift.onboarding-action",
 ] as const;
 
 export type FleetshiftExtensionType =
@@ -53,7 +54,16 @@ export type ClusterProviderExtras = {
   wizard: EncodedCodeRef;
 };
 
+export type OnboardingActionExtras = {
+  icon: EncodedCodeRef;
+  card: EncodedCodeRef;
+  form: EncodedCodeRef;
+  overviewCta?: string;
+};
+
 export type ModuleProperties = BaseExtensionProperties & ModuleExtras;
 export type SetupProperties = BaseExtensionProperties & SetupExtras;
 export type ClusterProviderProperties = BaseExtensionProperties &
   ClusterProviderExtras;
+export type OnboardingActionProperties = BaseExtensionProperties &
+  OnboardingActionExtras;

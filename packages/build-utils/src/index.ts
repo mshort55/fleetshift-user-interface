@@ -5,11 +5,13 @@ export type {
   FleetshiftExtension,
   FleetshiftPluginOptions,
   ModuleProperties,
+  OnboardingActionProperties,
   SetupProperties,
 } from "./extensions";
 export {
   createClusterProvider,
   createModule,
+  createOnboardingAction,
   createSetup,
   FleetshiftPlugin,
 } from "./extensions";

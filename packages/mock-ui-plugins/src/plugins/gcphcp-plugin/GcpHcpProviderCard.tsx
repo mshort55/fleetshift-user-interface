@@ -10,7 +10,7 @@ import {
   SplitItem,
 } from "@patternfly/react-core";
 
-import gcpLogo from "./assets/gcp.webp";
+import gcpLogo from "./assets/gcp-icon.png";
 
 export function GcpHcpIcon() {
   return <img src={gcpLogo} alt="GCP Logo" />;

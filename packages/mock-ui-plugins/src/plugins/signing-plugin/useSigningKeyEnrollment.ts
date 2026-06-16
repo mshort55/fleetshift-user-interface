@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useAuth as useOidcAuth } from "react-oidc-context";
 
+import { getSetupProgressStore } from "../setup-plugin/setupProgress";
 import { createSignerEnrollment, getAuthMethod } from "./api";
 import {
   Action,
@@ -146,6 +147,7 @@ export function useSigningKeyEnrollment() {
 
       const status = await getSigningKeyStatus();
       if (status.enrolled && status.sshPublicKey) {
+        getSetupProgressStore().setStepComplete("signing-key-enrollment", true);
         dispatch({
           type: Action.ExistingKey,
           sshPublicKey: status.sshPublicKey,
@@ -226,6 +228,7 @@ export function useSigningKeyEnrollment() {
 
       await testSign(freshIdToken);
       dispatch({ type: Action.VerifySuccess });
+      getSetupProgressStore().setStepComplete("signing-key-enrollment", true);
     } catch (err) {
       dispatch({
         type: Action.Error,
@@ -254,6 +257,7 @@ export function useSigningKeyEnrollment() {
       if (!currentIdToken) throw new Error("No ID token for test sign");
       await testSign(currentIdToken);
       dispatch({ type: Action.VerifySuccess });
+      getSetupProgressStore().setStepComplete("signing-key-enrollment", true);
     } catch (err) {
       dispatch({
         type: Action.Error,

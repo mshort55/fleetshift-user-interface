@@ -34,6 +34,7 @@ import {
   fetchAuthMethod,
   triggerAuthSetup,
 } from "./api";
+import { getSetupProgressStore } from "./setupProgress";
 
 interface SetupPageProps {
   onSetupNext?: () => void;
@@ -125,6 +126,7 @@ const SetupPage = ({ onSetupNext, onSetupSkip }: SetupPageProps) => {
     fetchAuthMethod().then((method) => {
       if (method) {
         setAuthState({ status: "configured", authMethod: method });
+        getSetupProgressStore().setStepComplete("initial-setup", true);
       }
       setPageLoading(false);
     });
@@ -133,6 +135,7 @@ const SetupPage = ({ onSetupNext, onSetupSkip }: SetupPageProps) => {
   useSetupWebSocket({
     onCreated: (method) => {
       setAuthState({ status: "configured", authMethod: method });
+      getSetupProgressStore().setStepComplete("initial-setup", true);
     },
     onFailed: (message) => {
       setAuthState({ status: "error", message });

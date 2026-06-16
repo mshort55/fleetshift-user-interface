@@ -13,6 +13,7 @@ const pluginMeta = [
   { name: "signing-plugin", key: "signing", label: "Signing Keys", persona: "ops" },
   { name: "routing-plugin", key: "routing", label: "Routing", persona: "ops" },
   { name: "gcphcp-plugin", key: "gcphcp", label: "GCP HCP", persona: "ops" },
+  { name: "setup-plugin", key: "setup", label: "Setup", persona: "ops" },
   { name: "overview-plugin", key: "overview", label: "Overview", persona: "ops" },
   { name: "configuration-plugin", key: "configuration", label: "Configuration", persona: "obs" },
   { name: "virtualization-plugin", key: "virtualization", label: "Virtualization", persona: "obs" },

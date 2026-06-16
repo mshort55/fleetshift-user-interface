@@ -17,6 +17,7 @@ import {
 import { WidgetLayout, WidgetMapping } from "@patternfly/widgetized-dashboard";
 
 import { defaultTemplate, loadTemplate, saveTemplate } from "./dashboardLayout";
+import SetupChecklist from "./SetupChecklist";
 import { FleetDataContext, useFleetData } from "./useFleetData";
 import ActiveIncidents from "./widgets/ActiveIncidents";
 import ClustersAttention from "./widgets/ClustersAttention";
@@ -84,6 +85,7 @@ export default function OverviewDashboard() {
   const fleetData = useFleetData();
   return (
     <FleetDataContext.Provider value={fleetData}>
+      <SetupChecklist />
       <WidgetLayout
         widgetMapping={widgetMapping}
         initialTemplate={initialTemplate}

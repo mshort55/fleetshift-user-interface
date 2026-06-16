@@ -109,20 +109,25 @@ const SetupRoutes = () => {
             </AuthProvider>
           }
         >
-          {authRoutes.map((ext) => (
-            <Route
-              key={ext.properties.id}
-              path={`${ext.properties.path}/*`}
-              element={
-                <SetupStep
-                  ext={ext}
-                  onSetupNext={() => navigate(nextPathFor(ext.properties.id))}
-                  onSetupSkip={skipToConsole}
-                  preloadNext={preloadTargetFor(ext.properties.id)}
-                />
-              }
-            />
-          ))}
+          {authRoutes.map((ext, i) => {
+            const isLast =
+              i === authRoutes.length - 1 &&
+              nextPathFor(ext.properties.id) === "/";
+            return (
+              <Route
+                key={ext.properties.id}
+                path={`${ext.properties.path}/*`}
+                element={
+                  <SetupStep
+                    ext={ext}
+                    onSetupNext={() => navigate(nextPathFor(ext.properties.id))}
+                    onSetupSkip={isLast ? undefined : skipToConsole}
+                    preloadNext={preloadTargetFor(ext.properties.id)}
+                  />
+                }
+              />
+            );
+          })}
         </Route>
         <Route path="*" element={<Navigate to={defaultSetupPath} replace />} />
       </Route>

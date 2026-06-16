@@ -96,7 +96,7 @@ const SigningKeyEnrollment = ({
                 onClick={onSetupNext}
                 className="pf-v6-u-mr-md"
               >
-                Deploy first cluster
+                Continue
               </Button>
             )}
             <Button
