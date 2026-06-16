@@ -7,6 +7,10 @@
     border: var(--pf-t--global--border--width--regular) solid
       var(--pf-t--global--border--color--default);
   }
+
+  .pf-v6-c-page__main-container {
+    height: 100%;
+  }
 }
 
 // Masthead logo — invert for dark mode visibility

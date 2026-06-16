@@ -16,7 +16,7 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons";
-import { type ComponentType, useCallback } from "react";
+import { type ComponentType, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { useSetupProgress } from "./useSetupProgress";
@@ -30,6 +30,7 @@ type OnboardingActionExtension = Extension<
     icon: CodeRef<ComponentType>;
     card: CodeRef<ComponentType<OnboardingActionCardProps>>;
     form: CodeRef<ComponentType<OnboardingActionFormProps>>;
+    overviewCta?: string;
   }
 >;
 
@@ -52,8 +53,18 @@ const WhatsNextPage = ({ onSetupNext, onSetupSkip }: WhatsNextPageProps) => {
   } = useSetupProgress();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const isSetup = !!(onSetupNext || onSetupSkip);
   const actionId = searchParams.get("action");
   const completed = searchParams.get("completed");
+
+  const activeExt = useMemo(
+    () =>
+      actionId
+        ? extensions.find((e) => e.properties.id === actionId)
+        : undefined,
+    [actionId, extensions],
+  );
+  const FormComponent = activeExt?.properties.form;
 
   const handleComplete = useCallback(
     (id: string, label: string) => {
@@ -136,24 +147,17 @@ const WhatsNextPage = ({ onSetupNext, onSetupSkip }: WhatsNextPageProps) => {
     );
   }
 
-  if (actionId) {
-    const activeExt = extensions.find((e) => e.properties.id === actionId);
-    if (activeExt) {
-      const FormComponent = activeExt.properties.form;
-      return (
-        <div className="ome-setup-whats-next">
-          <FormComponent
-            onComplete={() =>
-              handleComplete(
-                activeExt.properties.id,
-                activeExt.properties.label,
-              )
-            }
-            onCancel={backToCatalog}
-          />
-        </div>
-      );
-    }
+  if (actionId && activeExt && FormComponent && !completed) {
+    return (
+      <div className="ome-setup-whats-next">
+        <FormComponent
+          onComplete={() =>
+            handleComplete(activeExt.properties.id, activeExt.properties.label)
+          }
+          onCancel={backToCatalog}
+        />
+      </div>
+    );
   }
 
   return (
@@ -161,10 +165,10 @@ const WhatsNextPage = ({ onSetupNext, onSetupSkip }: WhatsNextPageProps) => {
       <div className="ome-setup-whats-next__body">
         <div className="ome-setup-whats-next__inner">
           <Title headingLevel="h1" className="ome-setup-whats-next__title">
-            What do you want to do next?
+            {isSetup ? "What do you want to do next?" : "Extensions"}
           </Title>
           <Content component="p" className="pf-v6-u-mb-lg">
-            Configure addons and integrations to get started with your fleet.
+            Configure addons and integrations for your fleet.
           </Content>
 
           <div className="ome-setup-whats-next__catalog">

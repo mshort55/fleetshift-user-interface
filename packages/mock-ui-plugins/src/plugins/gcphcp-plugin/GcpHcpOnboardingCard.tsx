@@ -12,7 +12,7 @@ import {
 } from "@patternfly/react-core";
 import { CheckCircleIcon } from "@patternfly/react-icons";
 
-import gcpLogo from "./assets/gcp.webp";
+import gcpLogo from "./assets/gcp-icon.png";
 
 export default function GcpHcpOnboardingCard({
   completed,
@@ -25,7 +25,7 @@ export default function GcpHcpOnboardingCard({
           <Split hasGutter>
             <SplitItem>
               <Icon size="xl">
-                <img src={gcpLogo} alt="GCP Logo" />
+                <img src={gcpLogo} alt="GCP Logo" width="100%" height="100%" />
               </Icon>
             </SplitItem>
             <SplitItem isFilled>Connect to GCP Hosted Control Plane</SplitItem>
