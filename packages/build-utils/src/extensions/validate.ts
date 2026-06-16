@@ -6,6 +6,7 @@ import {
   type EncodedCodeRef,
   type FleetshiftExtension,
   type ModuleProperties,
+  type OnboardingActionProperties,
   type SetupProperties,
 } from "./types";
 
@@ -135,6 +136,18 @@ export function validateClusterProviderProperties(
   return errors;
 }
 
+export function validateOnboardingActionProperties(
+  props: OnboardingActionProperties,
+): string[] {
+  const ctx = `fleetshift.onboarding-action "${props.id || "(no id)"}"`;
+  return [
+    ...validateBaseProperties(props, ctx),
+    ...validateCodeRef(props.icon, "icon", ctx),
+    ...validateCodeRef(props.card, "card", ctx),
+    ...validateCodeRef(props.form, "form", ctx),
+  ];
+}
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null
     ? (value as Record<string, unknown>)
@@ -154,6 +167,10 @@ function validateSingleExtension(ext: FleetshiftExtension): string[] {
     case "fleetshift.cluster-provider":
       return validateClusterProviderProperties(
         props as unknown as ClusterProviderProperties,
+      );
+    case "fleetshift.onboarding-action":
+      return validateOnboardingActionProperties(
+        props as unknown as OnboardingActionProperties,
       );
     default: {
       const id = typeof props.id === "string" ? props.id : "(no id)";

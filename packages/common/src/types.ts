@@ -27,6 +27,16 @@ export interface ClusterProviderWizardProps {
   onSetupSkip?: () => void;
 }
 
+export interface OnboardingActionCardProps {
+  completed: boolean;
+  onConfigure: () => void;
+}
+
+export interface OnboardingActionFormProps {
+  onComplete: () => void;
+  onCancel: () => void;
+}
+
 export interface SearchEntry {
   id: string;
   title: string;

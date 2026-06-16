@@ -4,6 +4,7 @@ import type {
   ClusterProviderProperties,
   FleetshiftExtension,
   ModuleProperties,
+  OnboardingActionProperties,
   SetupProperties,
 } from "../types";
 import {
@@ -11,6 +12,7 @@ import {
   validateCodeRef,
   validateExtensionSet,
   validateModuleProperties,
+  validateOnboardingActionProperties,
   validateSetupProperties,
 } from "../validate";
 
@@ -235,6 +237,35 @@ describe("validateClusterProviderProperties", () => {
     expect(errors[0]).toContain("icon");
     expect(errors[1]).toContain("card");
     expect(errors[2]).toContain("wizard");
+  });
+});
+
+const validOnboardingAction: OnboardingActionProperties = {
+  id: "gcphcp-connect",
+  label: "GCP HCP",
+  icon: { $codeRef: "Icon.default" },
+  card: { $codeRef: "Card.default" },
+  form: { $codeRef: "Form.default" },
+};
+
+describe("validateOnboardingActionProperties", () => {
+  it("accepts valid onboarding action", () => {
+    expect(validateOnboardingActionProperties(validOnboardingAction)).toEqual(
+      [],
+    );
+  });
+
+  it("validates all three required CodeRefs", () => {
+    const errors = validateOnboardingActionProperties({
+      ...validOnboardingAction,
+      icon: { $codeRef: "bad" },
+      card: { $codeRef: "bad" },
+      form: { $codeRef: "bad" },
+    });
+    expect(errors.length).toBe(3);
+    expect(errors[0]).toContain("icon");
+    expect(errors[1]).toContain("card");
+    expect(errors[2]).toContain("form");
   });
 });
 

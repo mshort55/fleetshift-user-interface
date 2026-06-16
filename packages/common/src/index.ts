@@ -19,6 +19,8 @@ export type { FleetShiftApi, NavPage } from "./scalprum.js";
 export type {
   ClusterProviderCardProps,
   ClusterProviderWizardProps,
+  OnboardingActionCardProps,
+  OnboardingActionFormProps,
   PluginEntry,
   PluginRegistry,
   SearchEntry,

@@ -11,11 +11,10 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { MoonIcon, SunIcon, WineGlassIcon } from "@patternfly/react-icons";
 import { Outlet } from "react-router-dom";
 
 import logo from "../assets/masthead.png";
-import ThemeToggle, { ThemeToggleType } from "../components/Themes/ThemeToggle";
+import ThemeDropdown from "../components/Themes/ThemeDropdown";
 
 const SetupMasthead = () => (
   <Masthead>
@@ -31,18 +30,7 @@ const SetupMasthead = () => (
         <ToolbarContent>
           <ToolbarGroup align={{ default: "alignEnd" }}>
             <ToolbarItem>
-              <ThemeToggle
-                theme={ThemeToggleType.Glass}
-                OnIcon={WineGlassIcon}
-                OffIcon={WineGlassIcon}
-              />
-            </ToolbarItem>
-            <ToolbarItem>
-              <ThemeToggle
-                theme={ThemeToggleType.Dark}
-                OnIcon={MoonIcon}
-                OffIcon={SunIcon}
-              />
+              <ThemeDropdown />
             </ToolbarItem>
           </ToolbarGroup>
         </ToolbarContent>

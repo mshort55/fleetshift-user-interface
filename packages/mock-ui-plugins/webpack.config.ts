@@ -1,6 +1,7 @@
 import {
   createClusterProvider,
   createModule,
+  createOnboardingAction,
   createSetup,
   createTsLoaderRule,
   FleetshiftPlugin,
@@ -194,6 +195,14 @@ const GcpHcpPlugin = new FleetshiftPlugin({
       wizard: { $codeRef: "CreateGcpHcpWizard.default" },
       searchIcon: { $codeRef: "GcpHcpIcon.default" },
     }),
+    createOnboardingAction({
+      id: "gcphcp-connect",
+      label: "GCP Hosted Control Plane",
+      description: "Connect your GCP project to create managed HCP clusters.",
+      icon: { $codeRef: "GcpHcpIcon.default" },
+      card: { $codeRef: "GcpHcpOnboardingCard.default" },
+      form: { $codeRef: "GcpHcpConnectionForm.default" },
+    }),
   ],
   sharedModules,
   entryScriptFilename: "plugins/gcphcp/gcphcp-plugin.[contenthash].js",
@@ -210,6 +219,12 @@ const GcpHcpPlugin = new FleetshiftPlugin({
         "./src/plugins/gcphcp-plugin/CreateGcpHcpWizard.tsx",
       ),
       GcpHcpIcon: p("./src/plugins/gcphcp-plugin/GcpHcpIcon.tsx"),
+      GcpHcpOnboardingCard: p(
+        "./src/plugins/gcphcp-plugin/GcpHcpOnboardingCard.tsx",
+      ),
+      GcpHcpConnectionForm: p(
+        "./src/plugins/gcphcp-plugin/GcpHcpConnectionForm.tsx",
+      ),
     },
   },
 });
@@ -309,8 +324,46 @@ const SettingsPlugin = new FleetshiftPlugin({
     exposedModules: {
       SettingsPage: p("./src/plugins/settings-plugin/SettingsPage.tsx"),
       SettingsIcon: p("./src/plugins/settings-plugin/SettingsIcon.tsx"),
-      AuthSettingsPage: p("./src/plugins/day-one-plugin/InitialSetupForm.tsx"),
+      AuthSettingsPage: p("./src/plugins/setup-plugin/InitialSetupForm.tsx"),
       AuthIcon: p("./src/plugins/settings-plugin/AuthIcon.tsx"),
+    },
+  },
+});
+
+const SetupPlugin = new FleetshiftPlugin({
+  extensions: [
+    createSetup({
+      id: "initial-setup",
+      label: "Authentication",
+      description: "Configure authentication provider and backing store.",
+      path: "auth",
+      component: { $codeRef: "InitialSetupForm.default" },
+      requires: [],
+      requiresAuth: false,
+      priority: 0,
+    }),
+    createSetup({
+      id: "whats-next",
+      label: "What's Next",
+      description: "Configure addons and integrations.",
+      path: "whats-next",
+      component: { $codeRef: "WhatsNextPage.default" },
+      requires: ["signing-key-enrollment"],
+      requiresAuth: true,
+      priority: 100,
+    }),
+  ],
+  sharedModules,
+  entryScriptFilename: "plugins/setup/setup-plugin.[contenthash].js",
+  pluginManifestFilename: "plugins/setup/setup-plugin-manifest.json",
+  moduleFederationSettings: mfOverride,
+  pluginMetadata: {
+    name: "setup-plugin",
+    version: "1.0.0",
+    exposedModules: {
+      InitialSetupForm: p("./src/plugins/setup-plugin/InitialSetupForm.tsx"),
+      WhatsNextPage: p("./src/plugins/setup-plugin/WhatsNextPage.tsx"),
+      SetupProgress: p("./src/plugins/setup-plugin/useSetupProgress.ts"),
     },
   },
 });
@@ -465,6 +518,7 @@ const pluginConfigs = [
   { plugin: RoutingPlugin, key: "routing" },
   { plugin: GcpHcpPlugin, key: "gcphcp" },
   { plugin: KindPlugin, key: "kind" },
+  { plugin: SetupPlugin, key: "setup" },
   { plugin: ConfigurationPlugin, key: "configuration" },
   { plugin: VirtualizationPlugin, key: "virtualization" },
   { plugin: SecurityPlugin, key: "security" },

@@ -4,12 +4,15 @@ import type {
   FleetshiftExtension,
   ModuleExtras,
   ModuleProperties,
+  OnboardingActionExtras,
+  OnboardingActionProperties,
   SetupExtras,
   SetupProperties,
 } from "./types";
 import {
   validateClusterProviderProperties,
   validateModuleProperties,
+  validateOnboardingActionProperties,
   validateSetupProperties,
 } from "./validate";
 
@@ -43,4 +46,14 @@ export function createClusterProvider(
     "fleetshift.cluster-provider",
   );
   return { type: "fleetshift.cluster-provider", properties };
+}
+
+export function createOnboardingAction(
+  properties: OnboardingActionProperties,
+): FleetshiftExtension<"fleetshift.onboarding-action", OnboardingActionExtras> {
+  throwOnErrors(
+    validateOnboardingActionProperties(properties),
+    "fleetshift.onboarding-action",
+  );
+  return { type: "fleetshift.onboarding-action", properties };
 }
