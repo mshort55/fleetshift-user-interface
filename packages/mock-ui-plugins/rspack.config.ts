@@ -12,9 +12,11 @@ import { ModuleFederationPlugin as BaseMFPlugin } from "@module-federation/enhan
 import type { Configuration } from "@rspack/core";
 import rspack from "@rspack/core";
 import path from "path";
+import { fileURLToPath } from "url";
 
-const monorepoRoot = path.resolve(__dirname, "../..");
-const pfSharedModules = getDynamicModules(__dirname, monorepoRoot);
+const configDir = path.dirname(fileURLToPath(import.meta.url));
+const monorepoRoot = path.resolve(configDir, "../..");
+const pfSharedModules = getDynamicModules(configDir, monorepoRoot);
 const pfTransformImport = createPfTransformImport();
 
 const swcLoaderRule = {
@@ -66,7 +68,7 @@ const mfOverride = {
   },
 };
 
-const p = (rel: string) => path.resolve(__dirname, rel);
+const p = (rel: string) => path.resolve(configDir, rel);
 
 const ManagementPlugin = new FleetshiftPlugin({
   extensions: [
@@ -553,7 +555,7 @@ const pluginConfigs = [
 const configs: Configuration[] = pluginConfigs.map(({ plugin, key }) => ({
   name: key,
   entry: {
-    mock: path.resolve(__dirname, "./src/index.ts"),
+    mock: path.resolve(configDir, "./src/index.ts"),
   },
   output: {
     publicPath: "auto",

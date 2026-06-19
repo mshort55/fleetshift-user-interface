@@ -63,7 +63,8 @@ const ScalprumShell = ({ children }: PropsWithChildren) => {
             const newManifest = { ...manifest };
             if (
               manifest.name === "routing-plugin" &&
-              "loadScripts" in newManifest
+              "loadScripts" in newManifest &&
+              Array.isArray(newManifest.loadScripts)
             ) {
               newManifest.loadScripts = newManifest.loadScripts.map(
                 (script: string) =>

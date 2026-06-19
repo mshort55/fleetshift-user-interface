@@ -57,17 +57,28 @@ const pluginsCwd = resolve(root, "packages/mock-ui-plugins");
 const guiCwd = resolve(root, "packages/gui");
 
 let pluginsWatch = spawnRspack(pluginsCwd);
-const guiWatch = spawnRspack(guiCwd);
+let guiWatch = spawnRspack(guiCwd);
 
+const pluginsConfig = resolve(pluginsCwd, "rspack.config.ts");
+const guiConfig = resolve(guiCwd, "rspack.config.ts");
 const configWatcher = new Watchpack({ aggregateTimeout: 300 });
-configWatcher.watch({ files: [resolve(pluginsCwd, "rspack.config.ts")] });
-configWatcher.on("change", () => {
-  console.log("\nrspack.config.ts changed — restarting plugins build...\n");
-  const prev = pluginsWatch;
-  prev.kill();
-  prev.on("close", () => {
-    pluginsWatch = spawnRspack(pluginsCwd);
-  });
+configWatcher.watch({ files: [pluginsConfig, guiConfig] });
+configWatcher.on("change", (changedFile) => {
+  if (changedFile === pluginsConfig) {
+    console.log("\nplugins rspack.config.ts changed — restarting plugins build...\n");
+    const prev = pluginsWatch;
+    prev.kill();
+    prev.on("close", () => {
+      pluginsWatch = spawnRspack(pluginsCwd);
+    });
+  } else if (changedFile === guiConfig) {
+    console.log("\ngui rspack.config.ts changed — restarting gui build...\n");
+    const prev = guiWatch;
+    prev.kill();
+    prev.on("close", () => {
+      guiWatch = spawnRspack(guiCwd);
+    });
+  }
 });
 
 mkdirSync(guiDist, { recursive: true });

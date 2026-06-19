@@ -2,6 +2,7 @@ import * as mf from "@module-federation/enhanced/rspack";
 import type { Configuration } from "@rspack/core";
 import rspack from "@rspack/core";
 import path from "path";
+import { fileURLToPath } from "url";
 
 const { ModuleFederationPlugin: BaseMFPlugin } = mf;
 
@@ -19,7 +20,7 @@ const {
   getDynamicModules,
 } = buildUtils;
 
-const configDir = typeof __dirname === "string" ? __dirname : process.cwd();
+const configDir = path.dirname(fileURLToPath(import.meta.url));
 const monorepoRoot = path.resolve(configDir, "../..");
 const pfSharedModules = getDynamicModules(configDir, monorepoRoot);
 const pfTransformImport = createPfTransformImport();
