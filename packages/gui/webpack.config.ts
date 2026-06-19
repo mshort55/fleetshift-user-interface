@@ -36,9 +36,7 @@ const config: Configuration = {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
     // Don't follow symlinks so workspace packages resolve via their package.json exports
     symlinks: false,
-    alias: {
-      uuid: path.resolve(monorepoRoot, "shims/uuid.mjs"),
-    },
+    alias: {},
   },
   module: {
     rules: [

@@ -584,9 +584,7 @@ const configs: Configuration[] = pluginConfigs.map(({ plugin, key }) => ({
   ],
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
-    alias: {
-      uuid: path.resolve(monorepoRoot, "shims/uuid.mjs"),
-    },
+    alias: {},
   },
   module: {
     rules: [
