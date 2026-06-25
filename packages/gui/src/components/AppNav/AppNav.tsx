@@ -1,6 +1,9 @@
+import type { NavLayoutEntry } from "@fleetshift/common";
 import {
   CORE_EXTENSION_META,
+  mergeLayout,
   orderByIds,
+  useNavLayout,
   useNavOrder,
 } from "@fleetshift/common";
 import { useResolvedExtensions } from "@openshift/dynamic-plugin-sdk";
@@ -8,10 +11,7 @@ import { Divider, Nav, NavList } from "@patternfly/react-core";
 import type { ComponentType } from "react";
 import { useMemo } from "react";
 
-import type {
-  NavLayoutEntry,
-  PluginPage,
-} from "../../contexts/AppConfigContext";
+import type { PluginPage } from "../../contexts/AppConfigContext";
 import { useAppConfig } from "../../contexts/AppConfigContext";
 import { isModuleExtension } from "../../extensions/isModuleExtension";
 import AppNavGroup from "./AppNavGroup";
@@ -20,9 +20,48 @@ import AppNavItem from "./AppNavItem";
 const isBottom = (scope: string) =>
   CORE_EXTENSION_META[scope]?.navSection === "bottom";
 
+type TaggedEntry = NavLayoutEntry & { id: string; label: string };
+
+function splitBySection(
+  entries: TaggedEntry[],
+  pageMap: Map<string, PluginPage>,
+): { main: TaggedEntry[]; bottom: TaggedEntry[] } {
+  const main: TaggedEntry[] = [];
+  const bottom: TaggedEntry[] = [];
+  for (const entry of entries) {
+    if (entry.type === "page") {
+      const page = pageMap.get(entry.pageId);
+      if (!page) continue;
+      (isBottom(page.scope) ? bottom : main).push(entry);
+    } else if (entry.type === "group") {
+      const scope = `${entry.pluginKey}-plugin`;
+      (isBottom(scope) ? bottom : main).push(entry);
+    }
+  }
+  return { main, bottom };
+}
+
+function tagEntries(
+  layout: NavLayoutEntry[],
+  pageMap: Map<string, PluginPage>,
+): TaggedEntry[] {
+  const result: TaggedEntry[] = [];
+  for (const entry of layout) {
+    if (entry.type === "page") {
+      const page = pageMap.get(entry.pageId);
+      if (!page) continue;
+      result.push({ ...entry, id: entry.pageId, label: page.title });
+    } else if (entry.type === "group") {
+      result.push({ ...entry, id: entry.groupId, label: entry.label });
+    }
+  }
+  return result;
+}
+
 const AppNav = () => {
   const { pluginPages, navLayout } = useAppConfig();
-  const { order: savedOrder } = useNavOrder();
+  const { override } = useNavLayout();
+  const { order: legacyOrder } = useNavOrder();
   const [moduleExtensions] = useResolvedExtensions(isModuleExtension);
 
   const iconMap = useMemo(() => {
@@ -42,25 +81,22 @@ const AppNav = () => {
   }, [pluginPages]);
 
   const { mainEntries, bottomEntries } = useMemo(() => {
-    const main: (NavLayoutEntry & { id: string; label: string })[] = [];
-    const bottom: (NavLayoutEntry & { id: string; label: string })[] = [];
-    for (const entry of navLayout) {
-      if (entry.type === "page") {
-        const page = pageMap.get(entry.pageId);
-        if (!page) continue;
-        const tagged = { ...entry, id: entry.pageId, label: page.title };
-        (isBottom(page.scope) ? bottom : main).push(tagged);
-      } else if (entry.type === "group") {
-        const scope = `${entry.pluginKey}-plugin`;
-        const tagged = { ...entry, id: entry.groupId, label: entry.label };
-        (isBottom(scope) ? bottom : main).push(tagged);
-      }
+    if (override) {
+      // New path: merge backend layout with user override
+      const merged = mergeLayout(navLayout, override);
+      const tagged = tagEntries(merged, pageMap);
+      const { main, bottom } = splitBySection(tagged, pageMap);
+      return { mainEntries: main, bottomEntries: bottom };
     }
+
+    // Legacy path: flat string[] ordering via orderByIds
+    const tagged = tagEntries(navLayout, pageMap);
+    const { main, bottom } = splitBySection(tagged, pageMap);
     return {
-      mainEntries: orderByIds(main, savedOrder, "label"),
-      bottomEntries: orderByIds(bottom, savedOrder, "label"),
+      mainEntries: orderByIds(main, legacyOrder, "label"),
+      bottomEntries: orderByIds(bottom, legacyOrder, "label"),
     };
-  }, [navLayout, pageMap, savedOrder]);
+  }, [navLayout, pageMap, override, legacyOrder]);
 
   const renderEntry = (entry: NavLayoutEntry & { id: string }) => {
     if (entry.type === "page") {
