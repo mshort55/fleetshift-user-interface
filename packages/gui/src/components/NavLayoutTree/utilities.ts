@@ -10,4 +10,5 @@ export {
   getDescendantIds,
   getProjection,
   INDENTATION,
+  normalizeOrder,
 } from "@fleetshift/common";

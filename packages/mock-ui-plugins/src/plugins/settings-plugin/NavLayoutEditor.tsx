@@ -16,6 +16,7 @@ import {
   getProjection,
   INDENTATION,
   mergeLayout,
+  normalizeOrder,
   useNavLayout,
 } from "@fleetshift/common";
 import {
@@ -191,6 +192,11 @@ function SortableSection({
           ? { ...n, depth: projection.depth, parentId: projection.parentId }
           : n,
       );
+
+      // Normalize so children immediately follow their parent container.
+      // Without this, dragging a group leaves its children scattered at
+      // their old positions in the flat list.
+      reordered = normalizeOrder(reordered);
 
       onReorder(reordered);
     },

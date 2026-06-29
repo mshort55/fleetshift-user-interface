@@ -38,6 +38,7 @@ export {
   INDENTATION,
   isNavLayoutOverride,
   mergeLayout,
+  normalizeOrder,
 } from "./navLayout.js";
 export { orderByIds } from "./orderByIds.js";
 export type { PluginLinkProps } from "./PluginLink.js";

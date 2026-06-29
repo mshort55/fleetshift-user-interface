@@ -7,6 +7,7 @@ import {
   flattenLayout,
   getDescendantIds,
   getProjection,
+  normalizeOrder,
 } from "../navLayout";
 
 const sampleLayout: NavLayoutEntry[] = [
@@ -255,5 +256,117 @@ describe("getProjection", () => {
     const nodes = flattenLayout(sampleLayout);
     const result = getProjection(nodes, "overview", 0, 0);
     expect(result).toEqual({ depth: 0, parentId: null });
+  });
+});
+
+describe("normalizeOrder", () => {
+  it("returns already-normalized list unchanged", () => {
+    const nodes = flattenLayout(sampleLayout);
+    expect(normalizeOrder(nodes)).toEqual(nodes);
+  });
+
+  it("re-collects children after a group is moved past other items", () => {
+    // Simulate dragging a group (core-group at index 1) to after sec-1 (index 4):
+    // arrayMove moves only the group header, leaving children behind.
+    const nodes = flattenLayout(sampleLayout);
+    // Original: [overview, core-group, clusters, nodes, sec-1, settings]
+    const scattered = arrayMove(nodes, 1, 4);
+    // After arrayMove: [overview, clusters, nodes, sec-1, core-group, settings]
+    // clusters/nodes are orphaned from their parent visually.
+    const normalized = normalizeOrder(scattered);
+    expect(normalized.map((n) => n.id)).toEqual([
+      "overview",
+      "sec-1",
+      "settings",
+      "core-group",
+      "clusters",
+      "nodes",
+    ]);
+  });
+
+  it("preserves child order within a container", () => {
+    const groupMeta = {
+      type: "group" as const,
+      groupId: "g",
+      pluginKey: "test",
+      label: "G",
+      children: [],
+    };
+    const nodes: FlatNode[] = [
+      {
+        id: "page-x",
+        kind: "page",
+        depth: 0,
+        parentId: null,
+        pageId: "page-x",
+      },
+      {
+        id: "child-b",
+        kind: "page",
+        depth: 1,
+        parentId: "g",
+        pageId: "child-b",
+      },
+      { id: "g", kind: "group", depth: 0, parentId: null, groupMeta },
+      {
+        id: "child-a",
+        kind: "page",
+        depth: 1,
+        parentId: "g",
+        pageId: "child-a",
+      },
+    ];
+    const normalized = normalizeOrder(nodes);
+    expect(normalized.map((n) => n.id)).toEqual([
+      "page-x",
+      "g",
+      "child-b",
+      "child-a",
+    ]);
+  });
+
+  it("handles top-level-only lists", () => {
+    const nodes: FlatNode[] = [
+      { id: "a", kind: "page", depth: 0, parentId: null, pageId: "a" },
+      { id: "b", kind: "page", depth: 0, parentId: null, pageId: "b" },
+    ];
+    expect(normalizeOrder(nodes)).toEqual(nodes);
+  });
+});
+
+describe("drag-end integration: group drag + normalizeOrder + buildLayout", () => {
+  it("dragging a group produces correct layout with children", () => {
+    // Full flow: arrayMove → getProjection → normalizeOrder → buildLayout
+    const nodes = flattenLayout(sampleLayout);
+    // Drag core-group (index 1) to after sec-1 (index 4)
+    let reordered = arrayMove(nodes, 1, 4);
+    const projection = getProjection(reordered, "core-group", 0, 0);
+    reordered = reordered.map((n) =>
+      n.id === "core-group"
+        ? { ...n, depth: projection.depth, parentId: projection.parentId }
+        : n,
+    );
+    reordered = normalizeOrder(reordered);
+    const layout = buildLayout(reordered);
+
+    expect(layout).toEqual([
+      { type: "page", pageId: "overview" },
+      {
+        type: "section",
+        id: "sec-1",
+        label: "Admin",
+        children: [{ pageId: "settings" }],
+      },
+      {
+        type: "group",
+        groupId: "core-group",
+        pluginKey: "core",
+        label: "Core",
+        children: [
+          { type: "page", pageId: "clusters" },
+          { type: "page", pageId: "nodes" },
+        ],
+      },
+    ]);
   });
 });

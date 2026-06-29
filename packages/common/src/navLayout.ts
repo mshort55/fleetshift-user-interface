@@ -168,6 +168,42 @@ export function arrayMove<T>(array: T[], from: number, to: number): T[] {
 }
 
 /**
+ * Normalize a flat node list so children immediately follow their parent.
+ *
+ * After a drag operation, children may be scattered in the flat array
+ * (e.g. when a group is moved but its children stay at their old indices).
+ * This function re-collects children under their parent while preserving
+ * relative order within each container.
+ *
+ * Call after every drag-end to keep the visual tree consistent with the
+ * data model.
+ */
+export function normalizeOrder(nodes: FlatNode[]): FlatNode[] {
+  const childrenByParent = new Map<string, FlatNode[]>();
+  for (const node of nodes) {
+    if (node.parentId) {
+      let list = childrenByParent.get(node.parentId);
+      if (!list) {
+        list = [];
+        childrenByParent.set(node.parentId, list);
+      }
+      list.push(node);
+    }
+  }
+
+  const result: FlatNode[] = [];
+  for (const node of nodes) {
+    if (node.parentId) continue;
+    result.push(node);
+    const children = childrenByParent.get(node.id);
+    if (children) {
+      result.push(...children);
+    }
+  }
+  return result;
+}
+
+/**
  * Project the depth + parent for a dragged item based on horizontal offset.
  * Groups/sections stay at depth 0; pages can nest to depth 1 under groups/sections.
  */

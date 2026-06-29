@@ -24,7 +24,7 @@
   }
 }
 
-// TreeItem styles (adapted from gui NavLayoutTree)
+// TreeItem styles
 .ome-settings-tree-item {
   list-style: none;
   margin-bottom: 2px;
@@ -46,10 +46,6 @@
 
     &--section {
       // Subtle distinction for sections
-    }
-
-    &--drop-target {
-      border-bottom: 2px solid var(--pf-t--global--color--brand--default);
     }
   }
 
@@ -73,11 +69,6 @@
     &--page {
       font-weight: var(--pf-t--global--font--weight--body--default);
     }
-  }
-
-  &__path {
-    font-size: var(--pf-t--global--font--size--xs);
-    color: var(--pf-t--global--text--color--subtle);
   }
 }
 

@@ -28,7 +28,7 @@ function useNavLayout(): UseNavLayoutResult {
   const [loaded, setLoaded] = useState(false);
   const [override, setOverrideState] = useState<NavLayoutOverride | null>(null);
   const [legacyOrder, setLegacyOrder] = useState<string[] | null>(null);
-  const store = useMemo(getExtensionStore, [getExtensionStore]);
+  const store = useMemo(() => getExtensionStore(), []);
 
   useEffect(() => {
     let cancelled = false;
