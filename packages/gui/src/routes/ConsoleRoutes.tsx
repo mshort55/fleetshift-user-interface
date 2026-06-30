@@ -3,14 +3,15 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import AuthGate from "../components/Auth/AuthGate";
 import AppConfigBridge from "../components/Root/AppConfigBridge";
-import { useAppConfig } from "../contexts/AppConfigContext";
+import ScalprumShell from "../components/Root/ScalprumShell";
+import { AppConfigProvider, useAppConfig } from "../contexts/AppConfigContext";
 import { AuthProvider } from "../contexts/AuthContext";
 import { AppLayout } from "../layouts/AppLayout";
 import { DebugPage } from "../pages/DebugPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { PluginPage } from "../pages/PluginPage";
 
-const ConsoleRoutes = () => {
+const ConsoleRoutesInner = () => {
   const { pluginPages, navLayout } = useAppConfig();
 
   const sortedPages = useMemo(
@@ -35,43 +36,51 @@ const ConsoleRoutes = () => {
   }, [navLayout, pluginPages]);
 
   return (
-    <AuthProvider>
-      <AuthGate>
-        <AppConfigBridge>
-          <Routes>
-            <Route element={<AppLayout />}>
-              <Route
-                path="/"
-                element={<Navigate to="/overview/overview" replace />}
-              />
-              <Route path="/debug" element={<DebugPage />} />
-              {sortedPages.map((page) => (
-                <Route
-                  key={page.id}
-                  path={`/${page.path}/*`}
-                  element={
-                    <PluginPage
-                      scope={page.scope}
-                      module={page.module}
-                      pluginKey={page.pluginKey}
-                    />
-                  }
+    <AppConfigBridge>
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route
+            path="/"
+            element={<Navigate to="/overview/overview" replace />}
+          />
+          <Route path="/debug" element={<DebugPage />} />
+          {sortedPages.map((page) => (
+            <Route
+              key={page.id}
+              path={`/${page.path}/*`}
+              element={
+                <PluginPage
+                  scope={page.scope}
+                  module={page.module}
+                  pluginKey={page.pluginKey}
                 />
-              ))}
-              {groupRedirects.map((r) => (
-                <Route
-                  key={r.from}
-                  path={r.from}
-                  element={<Navigate to={r.to} replace />}
-                />
-              ))}
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-          </Routes>
-        </AppConfigBridge>
-      </AuthGate>
-    </AuthProvider>
+              }
+            />
+          ))}
+          {groupRedirects.map((r) => (
+            <Route
+              key={r.from}
+              path={r.from}
+              element={<Navigate to={r.to} replace />}
+            />
+          ))}
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </AppConfigBridge>
   );
 };
+
+const ConsoleRoutes = () => (
+  <AuthProvider>
+    <AuthGate>
+      <AppConfigProvider>
+        <ScalprumShell>
+          <ConsoleRoutesInner />
+        </ScalprumShell>
+      </AppConfigProvider>
+    </AuthGate>
+  </AuthProvider>
+);
 
 export default ConsoleRoutes;

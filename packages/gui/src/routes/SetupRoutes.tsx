@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo } from "react";
 import { Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
 
 import AuthGate from "../components/Auth/AuthGate";
+import ScalprumShell from "../components/Root/ScalprumShell";
+import { AppConfigProvider } from "../contexts/AppConfigContext";
 import { AuthProvider } from "../contexts/AuthContext";
 import {
   type PreloadTarget,
@@ -34,7 +36,7 @@ const SetupStep = ({
   return <Component onSetupNext={onSetupNext} onSetupSkip={onSetupSkip} />;
 };
 
-const SetupRoutes = () => {
+const SetupRoutesInner = () => {
   const { authRoutes, nonAuthRoutes, loaded, preloadMap } =
     useSetupExtensions();
   const navigate = useNavigate();
@@ -134,5 +136,13 @@ const SetupRoutes = () => {
     </Routes>
   );
 };
+
+const SetupRoutes = () => (
+  <AppConfigProvider>
+    <ScalprumShell>
+      <SetupRoutesInner />
+    </ScalprumShell>
+  </AppConfigProvider>
+);
 
 export default SetupRoutes;
