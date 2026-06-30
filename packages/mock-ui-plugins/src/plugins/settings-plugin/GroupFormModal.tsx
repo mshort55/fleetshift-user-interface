@@ -15,10 +15,7 @@ import {
 } from "@patternfly/react-core";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import GroupIconPicker, {
-  findGroupIconOption,
-  type GroupIconOption,
-} from "./GroupIconPicker";
+import GroupIconPicker from "./GroupIconPicker";
 
 export interface GroupFormData {
   name: string;
@@ -28,7 +25,7 @@ export interface GroupFormData {
 }
 
 interface GroupFormModalProps {
-  /** null → create mode, NavLayoutGroup → edit mode */
+  /** null -> create mode, NavLayoutGroup -> edit mode */
   editGroup: NavLayoutGroup | null;
   isOpen: boolean;
   existingGroupIds: Set<string>;
@@ -46,7 +43,7 @@ function GroupFormModal({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [keywords, setKeywords] = useState("");
-  const [icon, setIcon] = useState<GroupIconOption | null>(null);
+  const [icon, setIcon] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -54,7 +51,7 @@ function GroupFormModal({
       setName(editGroup.label);
       setDescription(editGroup.description ?? "");
       setKeywords((editGroup.keywords ?? []).join(", "));
-      setIcon(editGroup.icon ? findGroupIconOption(editGroup.icon) : null);
+      setIcon(editGroup.icon ?? null);
     } else {
       setName("");
       setDescription("");
@@ -102,7 +99,7 @@ function GroupFormModal({
       name: name.trim(),
       description: description.trim(),
       keywords: parsedKeywords,
-      icon: icon?.value ?? "",
+      icon: icon ?? "",
     });
   }, [isValid, name, description, keywords, icon, onSave]);
 

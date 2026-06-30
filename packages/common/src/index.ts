@@ -45,6 +45,12 @@ export {
   slugify,
 } from "./navLayout.js";
 export { orderByIds } from "./orderByIds.js";
+export {
+  getCachedPfIcon,
+  iconNameToFile,
+  iconNameToKeywords,
+  loadPfIcon,
+} from "./pfIconLoader.js";
 export type { PluginLinkProps } from "./PluginLink.js";
 export { default as PluginLink } from "./PluginLink.js";
 export type { FleetShiftApi, NavPage } from "./scalprum.js";

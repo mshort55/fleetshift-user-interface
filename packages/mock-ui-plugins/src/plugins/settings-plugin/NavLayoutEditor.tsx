@@ -27,6 +27,7 @@ import {
   Title,
 } from "@patternfly/react-core";
 import {
+  ImageIcon,
   PencilAltIcon,
   PlusCircleIcon,
   RhUiGripVerticalFillIcon,
@@ -40,6 +41,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import type { GroupFormData } from "./GroupFormModal";
 import GroupFormModal from "./GroupFormModal";
+import IconGalleryModal from "./IconGalleryModal";
 import type { DragState } from "./useDragTree";
 import { useDragTree } from "./useDragTree";
 
@@ -118,6 +120,7 @@ interface TreeItemProps {
   onResetItem?: () => void;
   onEditGroup?: () => void;
   onDeleteGroup?: () => void;
+  onSetIcon?: () => void;
 }
 
 function TreeItem({
@@ -133,6 +136,7 @@ function TreeItem({
   onResetItem,
   onEditGroup,
   onDeleteGroup,
+  onSetIcon,
 }: TreeItemProps) {
   const isContainer = node.kind === "group" || node.kind === "section";
   const kindClass = isContainer ? "section" : "page";
@@ -178,6 +182,16 @@ function TreeItem({
         >
           {label}
         </span>
+
+        {onSetIcon && (
+          <Button
+            variant="plain"
+            size="sm"
+            aria-label={`Set icon for ${label}`}
+            onClick={onSetIcon}
+            icon={<ImageIcon />}
+          />
+        )}
 
         {isUserGroup && onEditGroup && (
           <Button
@@ -235,6 +249,7 @@ interface SortableSectionProps {
   onResetItem?: (pageId: string) => void;
   onEditGroup?: (groupId: string) => void;
   onDeleteGroup?: (groupId: string) => void;
+  onSetIcon?: (nodeId: string, kind: "page" | "group") => void;
 }
 
 function SortableSection({
@@ -255,6 +270,7 @@ function SortableSection({
   onResetItem,
   onEditGroup,
   onDeleteGroup,
+  onSetIcon,
 }: SortableSectionProps) {
   const parentTopIdxMap = new Map<string, number>();
   const intraGroup =
@@ -344,6 +360,11 @@ function SortableSection({
             ? () => onDeleteGroup(node.id)
             : undefined
         }
+        onSetIcon={
+          onSetIcon
+            ? () => onSetIcon(node.id, node.kind === "group" ? "group" : "page")
+            : undefined
+        }
       />,
     );
 
@@ -427,6 +448,10 @@ const NavLayoutEditor = () => {
   const [showGroupForm, setShowGroupForm] = useState(false);
   const [editGroupId, setEditGroupId] = useState<string | null>(null);
   const [deleteGroupId, setDeleteGroupId] = useState<string | null>(null);
+  const [iconTarget, setIconTarget] = useState<{
+    id: string;
+    kind: "page" | "group";
+  } | null>(null);
 
   const backendLayout = useMemo(() => api.fleetshift.getBackendLayout(), [api]);
 
@@ -606,6 +631,77 @@ const NavLayoutEditor = () => {
     setDeleteGroupId(null);
   }, [deleteGroupId, override, effectiveLayout, persistLayout]);
 
+  // --- Icon override ---
+
+  const handleOpenIconGallery = useCallback(
+    (nodeId: string, kind: "page" | "group") => {
+      setIconTarget({ id: nodeId, kind });
+    },
+    [],
+  );
+
+  const iconTargetCurrentIcon = useMemo(() => {
+    if (!iconTarget) return null;
+    const currentLayout = override?.layout ?? effectiveLayout;
+    if (iconTarget.kind === "group") {
+      const group = findGroup(currentLayout, iconTarget.id);
+      return group?.icon ?? null;
+    }
+    // Page: find iconOverride
+    for (const entry of currentLayout) {
+      if (entry.type === "page" && entry.pageId === iconTarget.id) {
+        return entry.iconOverride ?? null;
+      }
+      if (entry.type === "group") {
+        for (const child of entry.children) {
+          if (child.pageId === iconTarget.id) {
+            return child.iconOverride ?? null;
+          }
+        }
+      }
+    }
+    return null;
+  }, [iconTarget, override, effectiveLayout]);
+
+  const handleSetIcon = useCallback(
+    (iconName: string | null) => {
+      if (!iconTarget) return;
+      const currentLayout = override?.layout ?? effectiveLayout;
+
+      const updated = currentLayout.map((entry) => {
+        if (iconTarget.kind === "group") {
+          if (entry.type === "group" && entry.groupId === iconTarget.id) {
+            return {
+              ...entry,
+              icon: iconName || undefined,
+            };
+          }
+        } else {
+          // Page icon override
+          if (entry.type === "page" && entry.pageId === iconTarget.id) {
+            return {
+              ...entry,
+              iconOverride: iconName || undefined,
+            };
+          }
+          if (entry.type === "group") {
+            const updatedChildren = entry.children.map((child) =>
+              child.pageId === iconTarget.id
+                ? { ...child, iconOverride: iconName || undefined }
+                : child,
+            );
+            return { ...entry, children: updatedChildren };
+          }
+        }
+        return entry;
+      });
+
+      persistLayout(updated);
+      setIconTarget(null);
+    },
+    [iconTarget, override, effectiveLayout, persistLayout],
+  );
+
   const deleteGroupLabel = useMemo(() => {
     if (!deleteGroupId) return "";
     const group = findGroup(effectiveLayout, deleteGroupId);
@@ -663,6 +759,7 @@ const NavLayoutEditor = () => {
         onResetItem={override ? handleResetItem : undefined}
         onEditGroup={handleOpenEditGroup}
         onDeleteGroup={handleRequestDeleteGroup}
+        onSetIcon={handleOpenIconGallery}
       />
 
       {bottomNodes.length > 0 && (
@@ -684,6 +781,7 @@ const NavLayoutEditor = () => {
           onResetItem={override ? handleResetItem : undefined}
           onEditGroup={handleOpenEditGroup}
           onDeleteGroup={handleRequestDeleteGroup}
+          onSetIcon={handleOpenIconGallery}
         />
       )}
 
@@ -693,6 +791,13 @@ const NavLayoutEditor = () => {
         existingGroupIds={existingGroupIds}
         onSave={handleSaveGroup}
         onClose={handleCloseGroupForm}
+      />
+
+      <IconGalleryModal
+        isOpen={iconTarget !== null}
+        selected={iconTargetCurrentIcon}
+        onSelect={handleSetIcon}
+        onClose={() => setIconTarget(null)}
       />
 
       <Modal

@@ -1,8 +1,13 @@
-import { useExtensionInstall } from "@fleetshift/common";
+import {
+  getCachedPfIcon,
+  loadPfIcon,
+  useExtensionInstall,
+} from "@fleetshift/common";
 import { Icon, NavItem, Tooltip } from "@patternfly/react-core";
 import { PuzzlePieceIcon } from "@patternfly/react-icons";
 import clsx from "clsx";
 import type { ComponentType } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import type { PluginPage } from "../../contexts/AppConfigContext";
@@ -10,16 +15,40 @@ import type { PluginPage } from "../../contexts/AppConfigContext";
 interface AppNavItemProps {
   page: PluginPage;
   iconMap: Map<string, ComponentType>;
+  /** PF icon name override (e.g. "CogIcon"). Takes priority over plugin icon. */
+  iconOverride?: string;
 }
 
-const AppNavItem = ({ page, iconMap }: AppNavItemProps) => {
+const AppNavItem = ({ page, iconMap, iconOverride }: AppNavItemProps) => {
   const location = useLocation();
   const { isInstalled } = useExtensionInstall();
+
+  // Dynamic icon loading for overrides
+  const [OverrideIcon, setOverrideIcon] = useState<ComponentType | null>(() =>
+    iconOverride ? (getCachedPfIcon(iconOverride) ?? null) : null,
+  );
+
+  useEffect(() => {
+    if (!iconOverride) {
+      setOverrideIcon(null);
+      return;
+    }
+    const cached = getCachedPfIcon(iconOverride);
+    if (cached) {
+      setOverrideIcon(() => cached);
+      return;
+    }
+    loadPfIcon(iconOverride).then((comp) => {
+      setOverrideIcon(() => comp);
+    });
+  }, [iconOverride]);
 
   const fullPath = `/${page.path}`;
   const NavIcon = iconMap.get(page.title);
   const enabled = isInstalled(page.scope);
-  const DisplayIcon = enabled ? NavIcon : PuzzlePieceIcon;
+
+  // Render priority: iconOverride ?? plugin-defined icon
+  const DisplayIcon = OverrideIcon ?? (enabled ? NavIcon : PuzzlePieceIcon);
 
   const link = (
     <Link to={fullPath} className={clsx("pf-v6-c-nav__link")}>

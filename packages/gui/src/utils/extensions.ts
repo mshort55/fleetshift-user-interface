@@ -35,6 +35,8 @@ export interface CanvasPage {
 export interface NavLayoutPage {
   type: "page";
   pageId: string;
+  /** PF icon name override (e.g. "CogIcon"). Takes priority over plugin-defined icon. */
+  iconOverride?: string;
 }
 
 export interface NavLayoutGroup {
