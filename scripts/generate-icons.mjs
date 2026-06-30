@@ -7,7 +7,7 @@
  * Run:    npm run generate:icons
  */
 
-import { readdirSync, writeFileSync } from "fs";
+import { mkdirSync, readdirSync, writeFileSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
@@ -59,6 +59,7 @@ const outPath = join(
   "packages/common/src/generated/pf-icons.json",
 );
 
+mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, JSON.stringify(manifest) + "\n");
 
 console.log(`Generated ${manifest.length} icons → ${outPath}`);
