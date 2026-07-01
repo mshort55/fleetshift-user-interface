@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "dev:watch": "node scripts/dev.mjs --watch",
-    "build:all": "npm run build -w packages/common && npm run build:plugins && node scripts/generate-plugin-registry.mjs && npm run build -w packages/gui && node scripts/merge-web.mjs",
+    "generate:icons": "node scripts/generate-icons.mjs",
+    "build:all": "npm run generate:icons && npm run build -w packages/common && npm run build:plugins && node scripts/generate-plugin-registry.mjs && npm run build -w packages/gui && node scripts/merge-web.mjs",
     "build:plugins": "if [ \"$CI\" = true ]; then npm run build:ci -w packages/mock-ui-plugins; else npm run build -w packages/mock-ui-plugins; fi",
     "lint": "eslint packages/ && stylelint 'packages/**/*.{css,scss}' --ignore-pattern '**/node_modules/**' --ignore-pattern '**/dist/**'",
     "lint:fix": "eslint packages/ --fix && stylelint 'packages/**/*.{css,scss}' --fix --ignore-pattern '**/node_modules/**' --ignore-pattern '**/dist/**'",

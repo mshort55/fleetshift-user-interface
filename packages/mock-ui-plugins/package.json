@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fleetshift/common": "*",
+    "@orama/orama": "^3.1.18",
     "@patternfly/react-charts": "^8.5.1",
     "@patternfly/react-code-editor": "^6.5.1",
     "@patternfly/react-component-groups": "^6.5.0",

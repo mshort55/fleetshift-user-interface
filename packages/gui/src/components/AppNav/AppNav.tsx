@@ -109,7 +109,14 @@ const AppNav = () => {
     if (entry.type === "page") {
       const page = pageMap.get(entry.pageId);
       if (!page) return null;
-      return <AppNavItem key={page.id} page={page} iconMap={iconMap} />;
+      return (
+        <AppNavItem
+          key={page.id}
+          page={page}
+          iconMap={iconMap}
+          iconOverride={entry.iconOverride}
+        />
+      );
     }
     if (entry.type === "group") {
       return (

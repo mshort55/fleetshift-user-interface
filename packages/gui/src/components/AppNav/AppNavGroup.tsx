@@ -18,8 +18,11 @@ const AppNavGroup = ({ group, pageMap, iconMap }: AppNavGroupProps) => {
   const location = useLocation();
 
   const childPages = group.children
-    .map((c) => pageMap.get(c.pageId))
-    .filter(Boolean) as PluginPage[];
+    .map((c) => ({ page: pageMap.get(c.pageId), iconOverride: c.iconOverride }))
+    .filter(
+      (item): item is { page: PluginPage; iconOverride: string | undefined } =>
+        item.page !== undefined,
+    );
   if (childPages.length === 0) return null;
 
   const groupBasePath = `/${group.groupId}`;
@@ -32,8 +35,13 @@ const AppNavGroup = ({ group, pageMap, iconMap }: AppNavGroupProps) => {
       isActive={isActive}
       isExpanded={isActive}
     >
-      {childPages.map((page) => (
-        <AppNavItem key={page.id} page={page} iconMap={iconMap} />
+      {childPages.map(({ page, iconOverride }) => (
+        <AppNavItem
+          key={page.id}
+          page={page}
+          iconMap={iconMap}
+          iconOverride={iconOverride}
+        />
       ))}
     </NavExpandable>
   );
