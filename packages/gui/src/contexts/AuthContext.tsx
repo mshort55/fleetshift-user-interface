@@ -150,7 +150,14 @@ export function AuthProvider({
     return <>{children}</>;
   }
 
-  if (!oidcProps) return null;
+  if (!oidcProps) {
+    // When auth is not required (e.g. setup mode), render children
+    // immediately instead of blocking while OIDC config loads.
+    // Auth-required routes keep the blocking behavior so the OIDC
+    // provider is ready before any authenticated component renders.
+    if (!requireAuth) return <>{children}</>;
+    return null;
+  }
 
   if (!oidcProps.authority) {
     return <>{children}</>;

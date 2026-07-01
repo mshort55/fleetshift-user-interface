@@ -48,6 +48,10 @@ interface AppConfigContextValue {
   navLayout: NavLayoutEntry[];
   pluginEntries: PluginEntry[];
   assetsHost: string;
+  /** True when at least one OIDC auth method has been configured on
+   *  the backend. Used by setup routes to gate steps that require
+   *  authentication even when the outer AuthProvider is optional. */
+  authConfigured: boolean;
 }
 
 const AppConfigContext = createContext<AppConfigContextValue | null>(null);
@@ -58,6 +62,7 @@ const FALLBACK_CONFIG: AppConfigContextValue = {
   navLayout: [],
   pluginEntries: [],
   assetsHost: "",
+  authConfigured: false,
 };
 
 export function AppConfigProvider({ children }: { children: ReactNode }) {
@@ -100,6 +105,7 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
           userConfigData.assetsHost ??
           FALLBACK_CONFIG.assetsHost,
         navLayout: userConfigData.navLayout ?? FALLBACK_CONFIG.navLayout,
+        authConfigured: configData.authConfigured === true,
       });
     }
 
