@@ -20,6 +20,7 @@ export type {
   UseIDBValueResult,
 } from "./idb/index.js";
 export { createIDBStore, useIDBMap, useIDBValue } from "./idb/index.js";
+export * from "./managementTypes.js";
 export type {
   FlatNode,
   NavLayoutEntry,
@@ -59,6 +60,7 @@ export {
 } from "./pfIconLoader.js";
 export type { PluginLinkProps } from "./PluginLink.js";
 export { default as PluginLink } from "./PluginLink.js";
+export * from "./resourceApi.js";
 export type { FleetShiftApi, NavPage } from "./scalprum.js";
 export type {
   ClusterProviderCardProps,
