@@ -9,7 +9,7 @@ import {
 } from "@patternfly/react-core";
 import { useCallback, useState } from "react";
 
-import kindLogo from "../../kind-plugin/assets/kind-logo.png";
+import kindLogo from "../assets/kind-logo.png";
 import { createOnboardingCard } from "../shared/GenericOnboardingCard";
 import KindConnectionProgress from "./KindConnectionProgress";
 

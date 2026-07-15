@@ -79,21 +79,31 @@ const WhatsNextPage = ({ onSetupNext, onSetupSkip }: WhatsNextPageProps) => {
   const handleComplete = useCallback(
     (id: string, label: string) => {
       setStepComplete(id, true);
-      setSearchParams({ action: id, completed: label }, { replace: true });
+      setSearchParams(
+        {
+          ...(categoryFilter ? { category: categoryFilter } : {}),
+          action: id,
+          completed: label,
+        },
+        { replace: true },
+      );
     },
-    [setStepComplete, setSearchParams],
+    [setStepComplete, setSearchParams, categoryFilter],
   );
 
   const openForm = useCallback(
     (id: string) => {
-      setSearchParams({ action: id });
+      setSearchParams({
+        ...(categoryFilter ? { category: categoryFilter } : {}),
+        action: id,
+      });
     },
-    [setSearchParams],
+    [setSearchParams, categoryFilter],
   );
 
   const backToCatalog = useCallback(() => {
-    setSearchParams({});
-  }, [setSearchParams]);
+    setSearchParams(categoryFilter ? { category: categoryFilter } : {});
+  }, [setSearchParams, categoryFilter]);
 
   const toolbar = (onSetupNext || onSetupSkip) && (
     <div className="ome-setup-whats-next__toolbar">
