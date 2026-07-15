@@ -1,18 +1,70 @@
 import "./SecurityPage.scss";
 
 import {
-  Label,
+  Button,
+  Content,
   Pagination,
-  Toolbar,
-  ToolbarContent,
-  ToolbarItem,
+  Split,
+  SplitItem,
+  Title,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useState } from "react";
+import { DataView } from "@patternfly/react-data-view/dist/dynamic/DataView";
+import { DataViewCheckboxFilter } from "@patternfly/react-data-view/dist/dynamic/DataViewCheckboxFilter";
+import type { DataViewFilterOption } from "@patternfly/react-data-view/dist/dynamic/DataViewFilters";
+import { DataViewFilters } from "@patternfly/react-data-view/dist/dynamic/DataViewFilters";
+import type { DataViewTh } from "@patternfly/react-data-view/dist/dynamic/DataViewTable";
+import { DataViewTable } from "@patternfly/react-data-view/dist/dynamic/DataViewTable";
+import { DataViewTextFilter } from "@patternfly/react-data-view/dist/dynamic/DataViewTextFilter";
+import { DataViewToolbar } from "@patternfly/react-data-view/dist/dynamic/DataViewToolbar";
+import {
+  useDataViewFilters,
+  useDataViewPagination,
+} from "@patternfly/react-data-view/dist/dynamic/Hooks";
+import { ExternalLinkAltIcon } from "@patternfly/react-icons";
+import { useMemo } from "react";
 
-import { CVE_DATA } from "./cveData";
+import {
+  CVE_DATA,
+  TOTAL_CVE_COUNT,
+  TOTAL_DEPLOYMENT_COUNT,
+  TOTAL_IMAGE_COUNT,
+} from "./cveData";
 
-const COLUMNS = [
+interface CveFilters {
+  name: string;
+  severity: string[];
+  status: string[];
+}
+
+const severityOptions: DataViewFilterOption[] = [
+  { label: "Critical", value: "critical" },
+  { label: "Important", value: "important" },
+  { label: "Moderate", value: "moderate" },
+  { label: "Low", value: "low" },
+];
+
+const statusOptions: DataViewFilterOption[] = [
+  { label: "New", value: "new" },
+  { label: "Deferred", value: "deferred" },
+  { label: "False positive", value: "false-positive" },
+];
+
+const PER_PAGE_OPTIONS = [
+  { title: "20", value: 20 },
+  { title: "50", value: 50 },
+  { title: "100", value: 100 },
+];
+
+function CriticalBadge({ count }: { count: number }) {
+  return (
+    <span className="ome-addon-security__critical-badge">
+      <span className="ome-addon-security__critical-badge-count">{count}</span>
+      <span className="pf-v6-u-text-color-subtle">Critical images</span>
+    </span>
+  );
+}
+
+const COLUMNS: DataViewTh[] = [
   "CVE",
   "Images by severity",
   "Top CVSS",
@@ -21,100 +73,134 @@ const COLUMNS = [
   "First discovered",
 ];
 
-function SeverityBadges({
-  critical,
-  important,
-  moderate,
-  low,
-}: {
-  critical: number;
-  important: number;
-  moderate: number;
-  low: number;
-}) {
-  return (
-    <span className="ome-addon-security__severity-badges">
-      {critical > 0 && (
-        <Label color="red" isCompact>
-          {critical} Critical
-        </Label>
-      )}
-      {important > 0 && (
-        <Label color="orange" isCompact>
-          {important} Important
-        </Label>
-      )}
-      {moderate > 0 && (
-        <Label color="gold" isCompact>
-          {moderate} Moderate
-        </Label>
-      )}
-      {low > 0 && (
-        <Label color="blue" isCompact>
-          {low} Low
-        </Label>
-      )}
-    </span>
-  );
-}
-
 export default function CveTable() {
-  const [page, setPage] = useState(1);
-  const perPage = 20;
+  const { filters, onSetFilters, clearAllFilters } =
+    useDataViewFilters<CveFilters>({
+      initialFilters: { name: "", severity: [], status: [] },
+    });
+
+  const pagination = useDataViewPagination({ perPage: 20 });
+  const { page, perPage } = pagination;
+
+  const filteredData = useMemo(
+    () =>
+      CVE_DATA.filter(
+        (row) =>
+          !filters.name ||
+          row.cve.toLowerCase().includes(filters.name.toLowerCase()),
+      ),
+    [filters],
+  );
+
+  const rows = useMemo(
+    () =>
+      filteredData
+        .slice((page - 1) * perPage, (page - 1) * perPage + perPage)
+        .map((row) => [
+          <a key={row.id} href="#">
+            {row.cve}
+          </a>,
+          <CriticalBadge
+            key={`sev-${row.id}`}
+            count={row.imagesBySeverity.critical}
+          />,
+          `${row.topCvss.toFixed(1)} (${row.topCvssVersion})`,
+          row.topNvdCvss !== null
+            ? `${row.topNvdCvss.toFixed(1)} (${row.topNvdCvssVersion})`
+            : "Not available",
+          `${(row.epssProbability * 100).toFixed(3)}%`,
+          row.firstDiscovered,
+        ]),
+    [filteredData, page, perPage],
+  );
 
   return (
-    <>
-      <Toolbar>
-        <ToolbarContent>
-          <ToolbarItem>
-            <Label color="blue" isCompact>
-              {CVE_DATA.length} CVEs
-            </Label>
-          </ToolbarItem>
-          <ToolbarItem variant="pagination" align={{ default: "alignEnd" }}>
+    <div className="ome-addon-security__cve-section">
+      <Split className="pf-v6-u-mb-sm">
+        <SplitItem isFilled>
+          <Title headingLevel="h2" size="lg">
+            Workload vulnerabilities
+          </Title>
+        </SplitItem>
+        <SplitItem>
+          <Button
+            variant="link"
+            isInline
+            icon={<ExternalLinkAltIcon />}
+            iconPosition="end"
+          >
+            Learn about vulnerability scoring
+          </Button>
+        </SplitItem>
+      </Split>
+      <Content
+        component="p"
+        className="pf-v6-u-mb-md pf-v6-u-text-color-subtle"
+      >
+        Prioritize CVEs affecting images and deployments across your fleet.
+      </Content>
+
+      <DataView>
+        <DataViewToolbar
+          clearAllFilters={clearAllFilters}
+          filters={
+            <DataViewFilters
+              onChange={(_e, values) => onSetFilters(values)}
+              values={filters}
+            >
+              <DataViewTextFilter
+                filterId="name"
+                title="CVE"
+                placeholder="Filter by CVE name"
+              />
+              <DataViewCheckboxFilter
+                filterId="severity"
+                title="CVE severity"
+                placeholder="Filter by severity"
+                options={severityOptions}
+              />
+              <DataViewCheckboxFilter
+                filterId="status"
+                title="CVE status"
+                placeholder="Filter by status"
+                options={statusOptions}
+              />
+            </DataViewFilters>
+          }
+          pagination={
             <Pagination
-              itemCount={CVE_DATA.length}
-              perPage={perPage}
-              page={page}
-              onSetPage={(_e, p) => setPage(p)}
               isCompact
+              perPageOptions={PER_PAGE_OPTIONS}
+              itemCount={filteredData.length}
+              {...pagination}
             />
-          </ToolbarItem>
-        </ToolbarContent>
-      </Toolbar>
-      <Table aria-label="CVE table" variant="compact">
-        <Thead>
-          <Tr>
-            {COLUMNS.map((col) => (
-              <Th key={col}>{col}</Th>
-            ))}
-          </Tr>
-        </Thead>
-        <Tbody>
-          {CVE_DATA.slice((page - 1) * perPage, page * perPage).map((row) => (
-            <Tr key={row.id}>
-              <Td dataLabel="CVE">
-                <a
-                  href={`https://www.cve.org/CVERecord?id=${row.cve}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {row.cve}
-                </a>
-              </Td>
-              <Td dataLabel="Images by severity">
-                <SeverityBadges {...row.imagesBySeverity} />
-              </Td>
-              <Td dataLabel="Top CVSS">{row.topCvss.toFixed(1)}</Td>
-              <Td dataLabel="Top NVD CVSS">{row.topNvdCvss.toFixed(1)}</Td>
-              <Td dataLabel="EPSS probability">
-                {(row.epssProbability * 100).toFixed(1)}%
-              </Td>
-              <Td dataLabel="First discovered">{row.firstDiscovered}</Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
-    </>
+          }
+        />
+        <div className="ome-addon-security__tab-pills pf-v6-u-mb-md">
+          <Split>
+            <SplitItem className="pf-v6-u-mr-sm pf-v6-u-font-size-sm pf-v6-u-font-weight-bold">
+              {TOTAL_CVE_COUNT.toLocaleString()} CVEs
+            </SplitItem>
+            <SplitItem className="pf-v6-u-mr-sm pf-v6-u-font-size-sm pf-v6-u-text-color-subtle">
+              {TOTAL_IMAGE_COUNT.toLocaleString()} Images
+            </SplitItem>
+            <SplitItem className="pf-v6-u-font-size-sm pf-v6-u-text-color-subtle">
+              {TOTAL_DEPLOYMENT_COUNT.toLocaleString()} Deployments
+            </SplitItem>
+          </Split>
+        </div>
+        <DataViewTable aria-label="CVE table" columns={COLUMNS} rows={rows} />
+        <DataViewToolbar
+          pagination={
+            <Pagination
+              isCompact
+              perPageOptions={PER_PAGE_OPTIONS}
+              itemCount={filteredData.length}
+              {...pagination}
+            />
+          }
+        />
+      </DataView>
+    </div>
   );
 }

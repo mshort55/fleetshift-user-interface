@@ -1,16 +1,17 @@
 import {
+  Bullseye,
   Button,
   Checkbox,
   Content,
-  Icon,
+  Flex,
+  FlexItem,
   Modal,
   ModalBody,
-  ModalFooter,
   ModalHeader,
   Split,
   SplitItem,
 } from "@patternfly/react-core";
-import { ShieldAltIcon } from "@patternfly/react-icons";
+import { ExternalLinkAltIcon, ShieldAltIcon } from "@patternfly/react-icons";
 import { useCallback, useEffect, useState } from "react";
 
 const STORAGE_KEY = "ome-addon-security-welcome-dismissed";
@@ -39,50 +40,61 @@ export default function WelcomeModal() {
     <Modal variant="medium" isOpen onClose={handleClose} aria-label="Welcome">
       <ModalHeader title="" />
       <ModalBody>
-        <Split hasGutter>
+        <Split hasGutter className="ome-addon-security__welcome">
           <SplitItem>
-            <Icon size="2xl" className="pf-v6-u-color-200">
-              <ShieldAltIcon />
-            </Icon>
+            <Bullseye>
+              <div className="ome-addon-security__welcome-icon">
+                <ShieldAltIcon className="ome-addon-security__welcome-shield" />
+              </div>
+            </Bullseye>
           </SplitItem>
           <SplitItem isFilled>
             <Content component="h2" className="pf-v6-u-mb-sm">
-              Welcome to Security
+              Welcome to Security in OME
             </Content>
-            <Content component="p" className="pf-v6-u-mb-md">
-              Scan images, enforce admission policies, and monitor compliance
-              across your fleet. Detect vulnerabilities and misconfigurations
-              before they reach production.
+            <Content
+              component="p"
+              className="pf-v6-u-mb-lg pf-v6-u-text-color-subtle"
+            >
+              Monitor workload vulnerabilities, compliance posture, and risk
+              across your fleet. Detect issues early and enforce policies before
+              they reach production.
             </Content>
-            <Content component="h3" className="pf-v6-u-mb-sm">
+            <Content component="h3" className="pf-v6-u-mb-md">
               What do you want to do next?
             </Content>
-            <div className="pf-v6-u-display-flex pf-v6-u-flex-direction-column pf-v6-u-row-gap-sm">
-              <Button variant="link" isInline onClick={handleClose}>
-                Scan my first image
-              </Button>
-              <Button variant="link" isInline onClick={handleClose}>
-                Configure admission policies
-              </Button>
-              <Button variant="link" isInline onClick={handleClose}>
-                Explore the dashboard
-              </Button>
-            </div>
+            <Flex className="pf-v6-u-mb-lg" gap={{ default: "gapMd" }}>
+              <FlexItem>
+                <Button variant="primary" onClick={handleClose}>
+                  View workload vulnerabilities
+                </Button>
+              </FlexItem>
+              <FlexItem>
+                <Button variant="secondary" onClick={handleClose}>
+                  Start tour
+                </Button>
+              </FlexItem>
+              <FlexItem>
+                <Button
+                  variant="link"
+                  isInline
+                  icon={<ExternalLinkAltIcon />}
+                  iconPosition="end"
+                  onClick={handleClose}
+                >
+                  Resources
+                </Button>
+              </FlexItem>
+            </Flex>
+            <Checkbox
+              id="security-do-not-show"
+              label="Do not show this again"
+              isChecked={doNotShow}
+              onChange={(_e, checked) => setDoNotShow(checked)}
+            />
           </SplitItem>
         </Split>
       </ModalBody>
-      <ModalFooter>
-        <Checkbox
-          id="security-do-not-show"
-          label="Do not show this again"
-          isChecked={doNotShow}
-          onChange={(_e, checked) => setDoNotShow(checked)}
-          className="pf-v6-u-mr-auto"
-        />
-        <Button variant="primary" onClick={handleClose}>
-          Close
-        </Button>
-      </ModalFooter>
     </Modal>
   );
 }

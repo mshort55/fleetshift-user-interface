@@ -1,11 +1,14 @@
 import {
-  Content,
+  Button,
   PageSection,
+  Split,
+  SplitItem,
   Tab,
   Tabs,
   TabTitleText,
   Title,
 } from "@patternfly/react-core";
+import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { useState } from "react";
 
 import CveTable from "./CveTable";
@@ -22,13 +25,21 @@ const SecurityPage = () => {
   return (
     <PageSection>
       <WelcomeModal />
-      <Title headingLevel="h1" className="pf-v6-u-mb-md">
-        Security
-      </Title>
-      <Content component="p" className="pf-v6-u-mb-lg">
-        Scan images, enforce admission policies, and monitor compliance across
-        your fleet.
-      </Content>
+      <Split className="pf-v6-u-mb-md">
+        <SplitItem isFilled>
+          <Title headingLevel="h1">Security</Title>
+        </SplitItem>
+        <SplitItem>
+          <Button
+            variant="link"
+            isInline
+            icon={<ExternalLinkAltIcon />}
+            iconPosition="end"
+          >
+            Security documentation
+          </Button>
+        </SplitItem>
+      </Split>
       <Tabs
         activeKey={activeTab}
         onSelect={(_e, key) => setActiveTab(key as TabKey)}
